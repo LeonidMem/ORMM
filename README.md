@@ -2,6 +2,10 @@
 
 **User** class as ORMM object:
 ```java
+package ru.leonidm.ormm.tests;
+
+import ...;
+
 @Table("users")
 public class User {
 
@@ -33,8 +37,50 @@ public class User {
 }
 ```
 
+**ImageUtils** class:
+```java
+package ru.leonidm.ormm.tests;
+
+import ...;
+
+public class ImageUtils {
+
+    private ImageUtils() {}
+
+    @Nullable
+    public static BufferedImage decode(byte[] bytes) {
+        try {
+            return ImageIO.read(new ByteArrayInputStream(bytes));
+        } catch(IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Nullable
+    public static byte[] encode(BufferedImage image) {
+        if(image == null) return null;
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, "png", outputStream);
+        } catch(IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return outputStream.toByteArray();
+    }
+}
+
+```
+
 **Comment** class as ORMM object with **@ForeignKey**:
 ```java
+package ru.leonidm.ormm.tests;
+
+import ...;
+
 @Table("comments")
 public class Comment {
 
@@ -62,6 +108,10 @@ public class Comment {
 
 Also, you can extend ORMM object's class from another ORMM object's class, but don't forget to register it:
 ```java
+package ru.leonidm.ormm.tests;
+
+import ...;
+
 @Table("deleted_users")
 public class DeletedUser extends User {
 
@@ -73,6 +123,10 @@ public class DeletedUser extends User {
 
 **Queries**:
 ```java
+package ru.leonidm.ormm.tests;
+
+import ...;
+
 import static ru.leonidm.ormm.orm.clauses.Order.*;
 import static ru.leonidm.ormm.orm.clauses.Where.*;
 
