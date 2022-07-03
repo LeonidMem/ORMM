@@ -13,6 +13,7 @@ import ru.leonidm.ormm.utils.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.sql.ResultSet;
 import java.util.Objects;
 
@@ -123,9 +124,20 @@ public final class ORMColumn<T, F> {
             Method loadFunction = ReflectionUtils.getDeclaredMethod(clazz, column.loadFunction().substring(index + 1),
                     databaseClass);
             if(loadFunction == null) {
-                throw new IllegalArgumentException(getColumnIdentifier(table, name) +
-                        " Function \"" + column.loadFunction() + "\" can't be found! Probably, it exists, but it doesn't" +
-                        " take only one argument or it's class is not \"" + databaseClass + "\"");
+                loadFunction = ReflectionUtils.getDeclaredMethod(clazz, column.loadFunction().substring(index + 1));
+
+                if(loadFunction == null) {
+                    throw new IllegalArgumentException(getColumnIdentifier(table, name) +
+                            " Function \"" + column.loadFunction() + "\" can't be found! Probably, it exists, but " +
+                            " it doesn't take only one argument if it's static or zero if not or it's class is not \"" +
+                            fieldClass + "\"");
+                }
+
+                if(Modifier.isStatic(loadFunction.getModifiers())) {
+                    throw new IllegalArgumentException(getColumnIdentifier(table, name) +
+                            " Function \"" + column.loadFunction() + "\" is found, but it takes zero arguments " +
+                            " and it's static!");
+                }
             }
 
             loadFunction.setAccessible(true);
@@ -148,9 +160,20 @@ public final class ORMColumn<T, F> {
             Method saveFunction = ReflectionUtils.getDeclaredMethod(clazz, column.saveFunction().substring(index + 1),
                     fieldClass);
             if(saveFunction == null) {
-                throw new IllegalArgumentException(getColumnIdentifier(table, name) +
-                        " Function \"" + column.saveFunction() + "\" can't be found! Probably, it exists, but it doesn't" +
-                        " take only one argument or it's class is not \"" + fieldClass + "\"");
+                saveFunction = ReflectionUtils.getDeclaredMethod(clazz, column.saveFunction().substring(index + 1));
+
+                if(saveFunction == null) {
+                    throw new IllegalArgumentException(getColumnIdentifier(table, name) +
+                            " Function \"" + column.saveFunction() + "\" can't be found! Probably, it exists, but " +
+                            " it doesn't take only one argument if it's static or zero if not or it's class is not \"" +
+                            fieldClass + "\"");
+                }
+
+                if(Modifier.isStatic(saveFunction.getModifiers())) {
+                    throw new IllegalArgumentException(getColumnIdentifier(table, name) +
+                            " Function \"" + column.saveFunction() + "\" is found, but it takes zero arguments " +
+                            " and it's static!");
+                }
             }
 
             saveFunction.setAccessible(true);
@@ -340,7 +363,14 @@ public final class ORMColumn<T, F> {
 
         if(this.fieldClass.isAssignableFrom(objectClass) || ClassUtils.areTheSame(this.fieldClass, objectClass)) {
             try {
-                return this.saveFunction.invoke(null, object);
+
+                if(Modifier.isStatic(this.saveFunction.getModifiers())) {
+                    return this.saveFunction.invoke(null, object);
+                }
+                else {
+                    return this.saveFunction.invoke(object);
+                }
+
             } catch(InvocationTargetException | IllegalAccessException e) {
                 e.printStackTrace();
                 return null;
@@ -378,7 +408,14 @@ public final class ORMColumn<T, F> {
 
         if(this.databaseClass.isAssignableFrom(objectClass) || ClassUtils.areTheSame(this.databaseClass, objectClass)) {
             try {
-                return this.loadFunction.invoke(null, object);
+
+                if(Modifier.isStatic(this.loadFunction.getModifiers())) {
+                    return this.loadFunction.invoke(null, object);
+                }
+                else {
+                    return this.loadFunction.invoke(object);
+                }
+
             } catch(InvocationTargetException | IllegalAccessException e) {
                 e.printStackTrace();
                 return null;
