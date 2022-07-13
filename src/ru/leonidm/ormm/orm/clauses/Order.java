@@ -13,6 +13,10 @@ public final class Order {
         return new Order(column + " DESC");
     }
 
+    public static Order rand() {
+        return new Order("RAND()");
+    }
+
     public static Order combine(@NotNull Order order, @NotNull Order... orders) {
         if(orders.length == 0) return order;
 

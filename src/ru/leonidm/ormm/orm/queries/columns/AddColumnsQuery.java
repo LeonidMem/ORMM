@@ -72,7 +72,6 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
     @Override
     @NotNull
     protected Supplier<Void> prepareSupplier() {
-        System.out.println(getSQLQuery() + " [AddColumnsQuery/80]");
         return getUpdateSupplier();
     }
 }

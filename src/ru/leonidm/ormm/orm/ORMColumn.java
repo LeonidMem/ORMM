@@ -111,6 +111,8 @@ public final class ORMColumn<T, F> {
         }
 
         try {
+            // TODO: catch NPE
+            // TODO: handle <init>
             /* => Load function <= */
             int index = column.loadFunction().lastIndexOf('.');
             if(index == -1) throw new IllegalArgumentException("Can't find function \"" + column.loadFunction() + "\"!");

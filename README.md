@@ -234,6 +234,7 @@ public class QueryExample {
 * Cache for all tables
 * Tests
 * Integer to Long cast
+* InsertQuery with provided object
 * Queries:
   * DeleteIndexQuery
   * ModifyColumnQuery

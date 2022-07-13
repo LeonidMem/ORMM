@@ -102,7 +102,8 @@ public final class InsertQuery<T> extends AbstractQuery<T, T> {
 
                 ResultSet generatedKeys = statement.getGeneratedKeys();
 
-                if(generatedKeys.next()) {
+                ORMColumn<T, ?> keyColumn = this.table.getKeyColumn();
+                if(keyColumn != null && !this.values.containsKey(keyColumn.getName()) && generatedKeys.next()) {
                     ORMColumn<T, ?> column = this.table.getKeyColumn();
 
                     if(ClassUtils.isInteger(column.getFieldClass())) {

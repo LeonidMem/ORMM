@@ -58,7 +58,7 @@ public abstract class AbstractQuery<T, R> {
     // TODO: think about name
     @Nullable
     public final R waitQueue() {
-        return this.queue().waitForResult().getResult();
+        return prepareSupplier().get();
     }
 
     @NotNull

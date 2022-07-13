@@ -38,9 +38,7 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
             List<ColumnData> out = new ArrayList<>();
 
             try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
-                statement.executeQuery(getSQLQuery());
-
-                try(ResultSet resultSet = statement.getResultSet()) {
+                try(ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
                     while(resultSet.next()) {
                         String columnName, columnType;
                         int length;
@@ -58,8 +56,13 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
                                 columnType = resultSet.getString("type").toUpperCase();
 
                                 int index = columnType.indexOf('(');
-                                length = Integer.parseInt(columnType.substring(index + 1, columnType.length() - 1));
-                                columnType = columnType.substring(0, index);
+                                if(index != -1) {
+                                    length = Integer.parseInt(columnType.substring(index + 1, columnType.length() - 1));
+                                    columnType = columnType.substring(0, index);
+                                }
+                                else {
+                                    length = 0;
+                                }
                             }
                             // TODO: ???
                             default -> {

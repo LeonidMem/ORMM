@@ -3,6 +3,7 @@ package ru.leonidm.ormm.orm.queries.update;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.leonidm.ormm.orm.ORMColumn;
+import ru.leonidm.ormm.orm.ORMDriver;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
@@ -20,13 +21,19 @@ public final class UpdateQuery<T> extends AbstractQuery<T, T> {
     private final T object;
 
     private final LinkedHashMap<String, Object> values = new LinkedHashMap<>();
-    private boolean newValues = false;
     private Where where = null;
     private int limit = 0;
 
     public UpdateQuery(@NotNull ORMTable<T> table, @Nullable T object) {
         super(table);
         this.object = object;
+        if(this.object != null) {
+            ORMColumn<T, ?> keyColumn = table.getKeyColumn();
+            if(keyColumn == null)
+                throw new IllegalArgumentException("Object of table without key column can't be served!");
+
+            where = Where.compare(keyColumn.getName(), "=", keyColumn.getValue(object));
+        }
     }
 
     @NotNull
@@ -47,12 +54,14 @@ public final class UpdateQuery<T> extends AbstractQuery<T, T> {
         }
 
         this.values.put(column.toLowerCase(), object);
-        this.newValues = true;
         return this;
     }
 
     @NotNull
     public UpdateQuery<T> where(@NotNull Where where) {
+        if(this.object != null)
+            throw new IllegalStateException("Where statement can't be specified if object was provided!");
+
         this.where = where;
         return this;
     }
@@ -72,6 +81,7 @@ public final class UpdateQuery<T> extends AbstractQuery<T, T> {
 
         if(this.values.isEmpty()) {
             this.table.getColumnsStream()
+                    .filter(column -> !column.getMeta().primaryKey())
                     .forEachOrdered(column -> this.values.put(column.getName(), column.getValue(this.object)));
         }
 
@@ -87,12 +97,25 @@ public final class UpdateQuery<T> extends AbstractQuery<T, T> {
                 }
             }
 
-            queryBuilder.append(' ').append(this.table.getName()).append('.').append(key).append(" = ")
-                    .append(toStringSQLValue(column.toDatabaseObject(value)));
+            queryBuilder.append(' ');
+
+            switch(this.table.getDatabase().getDriver()) {
+                // TODO: does it work?
+                case MYSQL -> queryBuilder.append(this.table.getName()).append('.');
+                case SQLITE -> {}
+            }
+
+            queryBuilder.append(key).append(" = ")
+                    .append(toStringSQLValue(column.toDatabaseObject(value))).append(",");
         });
+
+        queryBuilder.delete(queryBuilder.length() - 1, queryBuilder.length());
 
         if(this.where != null) {
             queryBuilder.append(" WHERE ").append(this.where.build(this.table));
+        }
+        else {
+            // TODO: throw unsafe operation exception
         }
 
         if(this.limit > 0) {
@@ -106,7 +129,6 @@ public final class UpdateQuery<T> extends AbstractQuery<T, T> {
     @NotNull
     protected Supplier<T> prepareSupplier() {
         return () -> {
-            System.out.println(getSQLQuery() + " [UpdateQuery/73]");
             try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
                 statement.executeUpdate(getSQLQuery());
             } catch(SQLException e) {
