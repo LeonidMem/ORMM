@@ -48,6 +48,16 @@ public enum SQLType {
 
             put(byte[].class, BLOB);
             put(Byte[].class, BLOB);
+            put(short[].class, BLOB);
+            put(Short[].class, BLOB);
+            put(int[].class, BLOB);
+            put(Integer[].class, BLOB);
+            put(long[].class, BLOB);
+            put(Long[].class, BLOB);
+            put(float[].class, BLOB);
+            put(Float[].class, BLOB);
+            put(double[].class, BLOB);
+            put(Double[].class, BLOB);
         }});
 
         put(ORMDriver.SQLITE, new HashMap<>() {{
@@ -68,6 +78,16 @@ public enum SQLType {
 
             put(byte[].class, BLOB);
             put(Byte[].class, BLOB);
+            put(short[].class, BLOB);
+            put(Short[].class, BLOB);
+            put(int[].class, BLOB);
+            put(Integer[].class, BLOB);
+            put(long[].class, BLOB);
+            put(Long[].class, BLOB);
+            put(float[].class, BLOB);
+            put(Float[].class, BLOB);
+            put(double[].class, BLOB);
+            put(Double[].class, BLOB);
         }});
     }};
 
