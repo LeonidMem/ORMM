@@ -236,6 +236,7 @@ public class QueryExample {
 * Integer to Long cast
 * InsertQuery with provided object
 * Disable column names like `index`, `integer`, etc.
+* Default values of the columns
 * Queries:
   * DeleteIndexQuery
   * ModifyColumnQuery
