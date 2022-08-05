@@ -339,9 +339,9 @@ public final class ORMColumn<T, F> {
                 this.field.setChar(t, (char) (object != null ? object : 0));
             }
             else {
-                if(this.fieldClass != objectClass && objectClass != null) {
-                    throw new IllegalArgumentException("Given object \"" + object + "\" has wrong class (must be " +
-                            this.fieldClass + ")!");
+                if(objectClass != null && !this.fieldClass.isAssignableFrom(objectClass)) {
+                    throw new IllegalArgumentException("Given object \"" + object + "\" has wrong class \"" +
+                            objectClass + "\" (must be " + this.fieldClass + ")!");
                 }
 
                 this.field.set(t, object);
