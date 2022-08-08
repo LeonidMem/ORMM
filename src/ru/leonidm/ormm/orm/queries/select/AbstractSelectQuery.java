@@ -8,7 +8,7 @@ import ru.leonidm.ormm.orm.queries.AbstractQuery;
 
 import java.util.Arrays;
 
-public abstract class AbstractSelectQuery<O, T, R> extends AbstractQuery<T, R> {
+public abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O, T, R>, T, R> extends AbstractQuery<T, R> {
 
     protected String[] columns = {"*"};
     protected Where where = null;
@@ -28,8 +28,8 @@ public abstract class AbstractSelectQuery<O, T, R> extends AbstractQuery<T, R> {
     }
 
     @NotNull
-    public O order(@NotNull Order order, @NotNull Order... orders) {
-        this.order = Order.combine(order, orders);
+    public O order(@NotNull Order... orders) {
+        this.order = Order.combine(orders);
         return (O) this;
     }
 

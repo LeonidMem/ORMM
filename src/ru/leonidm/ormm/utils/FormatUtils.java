@@ -2,6 +2,7 @@ package ru.leonidm.ormm.utils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.queries.select.AbstractSelectQuery;
 
 import java.nio.charset.StandardCharsets;
@@ -11,6 +12,17 @@ import static ru.leonidm.ormm.utils.ArrayConverter.*;
 public final class FormatUtils {
 
     private FormatUtils() {}
+
+    @NotNull
+    public static StringBuilder writeColumnFullName(@NotNull ORMColumn<?, ?> column) {
+        return new StringBuilder().append(column.getTable().getName()).append('.').append(column.getName());
+    }
+
+    @NotNull
+    public static StringBuilder writeColumnFullName(@NotNull StringBuilder stringBuilder,
+                                                     @NotNull ORMColumn<?, ?> column) {
+        return stringBuilder.append(column.getTable().getName()).append('.').append(column.getName());
+    }
 
     @NotNull
     public static String toStringSQLValue(@Nullable Object object) {

@@ -88,16 +88,17 @@ public final class Where {
 
     private enum Type {
         COMPARE(2, (table, column, args) -> {
-            return writeColumnFullName(column).append(' ').append(args[0]).append(' ')
+            return FormatUtils.writeColumnFullName(column).append(' ').append(args[0]).append(' ')
                     .append(toStringSQLValue(column, args[1])).toString();
         }),
 
         LIKE(1, (table, column, args) -> {
-            return writeColumnFullName(column).append(" LIKE ").append(toStringSQLValue(column, args[0])).toString();
+            return FormatUtils.writeColumnFullName(column)
+                    .append(" LIKE ").append(toStringSQLValue(column, args[0])).toString();
         }),
 
         IN(-1, (table, column, args) -> {
-            StringBuilder stringBuilder = writeColumnFullName(column).append(" IN (");
+            StringBuilder stringBuilder = FormatUtils.writeColumnFullName(column).append(" IN (");
 
             Arrays.stream(args).forEach(arg -> stringBuilder.append(toStringSQLValue(column, arg)).append(','));
 
@@ -105,11 +106,11 @@ public final class Where {
         }),
 
         IS_NULL(0, (table, column, args) -> {
-            return writeColumnFullName(column).append(" IS NULL").toString();
+            return FormatUtils.writeColumnFullName(column).append(" IS NULL").toString();
         }),
 
         IS_NOT_NULL(0, (table, column, args) -> {
-            return writeColumnFullName(column).append(" IS NOT NULL").toString();
+            return FormatUtils.writeColumnFullName(column).append(" IS NOT NULL").toString();
         }),
 
         AND(-1, (table, column, args) -> {
@@ -117,7 +118,7 @@ public final class Where {
 
             Arrays.stream(args).forEach(arg -> {
                 if(!(arg instanceof Where where)) {
-                    throw new IllegalArgumentException("At least on of the arguments isn't \"Where\" clause!");
+                    throw new IllegalArgumentException("At least one of the arguments isn't \"Where\" clause!");
                 }
 
                 stringBuilder.append(where.build(table)).append(") AND (");
@@ -131,7 +132,7 @@ public final class Where {
 
             Arrays.stream(args).forEach(arg -> {
                 if(!(arg instanceof Where where)) {
-                    throw new IllegalArgumentException("At least on of the arguments isn't \"Where\" clause!");
+                    throw new IllegalArgumentException("At least one of the arguments isn't \"Where\" clause!");
                 }
 
                 stringBuilder.append(where.build(table)).append(") OR (");
@@ -142,7 +143,7 @@ public final class Where {
 
         NOT(1, (table, column, args) -> {
             if(!(args[0] instanceof Where where)) {
-                throw new IllegalArgumentException("At least on of the arguments isn't \"Where\" clause!");
+                throw new IllegalArgumentException("At least one of the arguments isn't \"Where\" clause!");
             }
 
             return "NOT (" + where.build(table) + ")";
@@ -150,22 +151,15 @@ public final class Where {
 
         @NotNull
         private static String toStringSQLValue(@NotNull ORMColumn<?, ?> column, @Nullable Object arg) {
+            if(arg == null) {
+                return FormatUtils.toStringSQLValue(null);
+            }
+
             if(ClassUtils.isBuiltIn(arg.getClass()) || arg instanceof AbstractSelectQuery<?, ?, ?>) {
                 return FormatUtils.toStringSQLValue(arg);
             }
 
             return FormatUtils.toStringSQLValue(column.toDatabaseObject(arg));
-        }
-
-        @NotNull
-        private static StringBuilder writeColumnFullName(@NotNull ORMColumn<?, ?> column) {
-            return new StringBuilder().append(column.getTable().getName()).append('.').append(column.getName());
-        }
-
-        @NotNull
-        private static StringBuilder writeColumnFullName(@NotNull StringBuilder stringBuilder,
-                                                         @NotNull ORMColumn<?, ?> column) {
-            return stringBuilder.append(column.getTable().getName()).append('.').append(column.getName());
         }
 
         private final int argsAmount;
@@ -180,11 +174,6 @@ public final class Where {
         private String build(@NotNull ORMTable<?> table, @Nullable String columnName, @NotNull Object... args) {
             if(this.argsAmount >= 0) {
                 if(this.argsAmount != args.length) {
-                    throw new IllegalArgumentException("Provided arguments has wrong amount!");
-                }
-            }
-            else {
-                if(this.argsAmount == 0) {
                     throw new IllegalArgumentException("Provided arguments has wrong amount!");
                 }
             }
