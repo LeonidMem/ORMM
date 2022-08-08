@@ -14,7 +14,6 @@ public final class ORMTask<R> extends Thread {
     private volatile boolean done = false;
     private R result;
 
-    // TODO: save stacktrace at the moment where this constructor was called
     public ORMTask(@NotNull Supplier<R> supplier, @NotNull Consumer<R> consumer) {
         this.supplier = supplier;
         this.consumer = consumer;

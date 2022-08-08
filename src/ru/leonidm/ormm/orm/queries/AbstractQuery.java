@@ -28,7 +28,7 @@ public abstract class AbstractQuery<T, R> {
     protected final Supplier<R> getUpdateSupplier() {
         return () -> {
             try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
-                statement.executeUpdate(getSQLQuery());
+                statement.executeUpdate(this.getSQLQuery());
             } catch(SQLException e) {
                 e.printStackTrace();
             }

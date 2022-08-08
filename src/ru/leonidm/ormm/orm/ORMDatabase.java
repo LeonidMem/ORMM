@@ -154,7 +154,7 @@ public final class ORMDatabase {
 
     @NotNull
     public <T> SelectQuery<T> selectQuery(@NotNull Class<T> clazz) {
-        ORMTable<T> table = getTable(clazz);
+        ORMTable<T> table = this.getTable(clazz);
         if(table == null) {
             throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
         }
@@ -164,7 +164,7 @@ public final class ORMDatabase {
 
     @NotNull
     public <T> InsertQuery<T> insertQuery(@NotNull Class<T> clazz) {
-        ORMTable<T> table = getTable(clazz);
+        ORMTable<T> table = this.getTable(clazz);
         if(table == null) {
             throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
         }
@@ -174,7 +174,7 @@ public final class ORMDatabase {
 
     @NotNull
     public <T> UpdateQuery<T> updateQuery(@NotNull Class<T> clazz, @Nullable T object) {
-        ORMTable<T> table = getTable(clazz);
+        ORMTable<T> table = this.getTable(clazz);
         if(table == null) {
             throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
         }

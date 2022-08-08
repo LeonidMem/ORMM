@@ -98,7 +98,7 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
                     }
                 }
 
-                statement.executeUpdate(getSQLQuery());
+                statement.executeUpdate(this.getSQLQuery());
             } catch(SQLException e) {
                 e.printStackTrace();
             }

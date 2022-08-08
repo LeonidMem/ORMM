@@ -130,7 +130,7 @@ public final class UpdateQuery<T> extends AbstractQuery<T, T> {
     protected Supplier<T> prepareSupplier() {
         return () -> {
             try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
-                statement.executeUpdate(getSQLQuery());
+                statement.executeUpdate(this.getSQLQuery());
             } catch(SQLException e) {
                 e.printStackTrace();
             }

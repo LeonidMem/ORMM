@@ -51,6 +51,6 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
     @Override
     @NotNull
     protected Supplier<Void> prepareSupplier() {
-        return getUpdateSupplier();
+        return this.getUpdateSupplier();
     }
 }

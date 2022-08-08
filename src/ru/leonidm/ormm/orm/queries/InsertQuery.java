@@ -88,7 +88,7 @@ public final class InsertQuery<T> extends AbstractQuery<T, T> {
             try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
                 int affected = switch(this.table.getDatabase().getDriver()) {
                     case MYSQL -> statement.executeUpdate(getSQLQuery(), Statement.RETURN_GENERATED_KEYS);
-                    case SQLITE -> statement.executeUpdate(getSQLQuery());
+                    case SQLITE -> statement.executeUpdate(this.getSQLQuery());
                 };
 
                 if(affected == 0) {
