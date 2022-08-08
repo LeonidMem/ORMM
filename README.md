@@ -224,6 +224,11 @@ public class QueryExample {
                           and(like("username", "%NULL%"),
                               compare("rating", "<=", 0))))
                 .queue();
+        
+        // Delete query
+        database.deleteQuery(User.class)
+                .where(compare("username", "=", "LeonidM"))
+                .queue();
     }
 }
 ```
@@ -240,7 +245,7 @@ public class QueryExample {
 * Queries:
   * DeleteIndexQuery
   * ModifyColumnQuery
-  * DeleteQuery
+  * DeleteQuery for instance
 * Throw an exception if table is going to be registered again
 * Add support for enums as columns
 
