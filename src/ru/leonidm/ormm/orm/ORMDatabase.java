@@ -62,6 +62,17 @@ public final class ORMDatabase {
     }
 
     public <T> void addTable(@NotNull ORMTable<T> table) {
+        ORMTable<?> checkTable = this.getTable(table.getOriginalClass());
+        if(checkTable != null) {
+            throw new IllegalArgumentException("Table with class \"" + table.getOriginalClass() + "\" was already " +
+                    "registered!");
+        }
+
+        checkTable = this.getTable(table.getName());
+        if(checkTable != null) {
+            throw new IllegalArgumentException("Table with name \"" + table.getName() + "\" was already registered!");
+        }
+
         CreateTableQuery<T> createTableQuery = new CreateTableQuery<>(table);
         createTableQuery.waitQueue();
 
@@ -127,9 +138,6 @@ public final class ORMDatabase {
 
     public void addTable(@NotNull Class<?> clazz) {
         ORMTable<?> table = ORMTable.of(this, clazz);
-        if(table == null) {
-            throw new IllegalArgumentException("Given class \"" + clazz + "\" isn't a table or is badly configured!");
-        }
 
         this.addTable(table);
     }
