@@ -242,6 +242,7 @@ public class QueryExample {
   * ModifyColumnQuery
   * DeleteQuery
 * Throw an exception if table is going to be registered again
+* Add support for enums as columns
 
 \[1\] When I was designing ORMM, I thought that ORMM would only support **MySQL** and **SQLite**, so it hasn't abstract
 queries now.
