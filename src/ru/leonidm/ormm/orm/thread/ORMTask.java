@@ -24,9 +24,8 @@ public final class ORMTask<R> extends Thread {
         System.arraycopy(stackTraceElements, 3, this.stackTraceElements, 0, this.stackTraceElements.length);
     }
 
-    // TODO: think about name
     @NotNull
-    public ORMTask<R> waitForResult() {
+    public ORMTask<R> await() {
         while(!this.done) {
             Thread.onSpinWait();
         }

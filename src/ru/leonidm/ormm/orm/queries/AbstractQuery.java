@@ -37,15 +37,9 @@ public abstract class AbstractQuery<T, R> {
         };
     }
 
-    // TODO: probably remove
-    @NotNull
-    private ORMTask<R> prepareTask(@NotNull Consumer<R> consumer) {
-        return new ORMTask<>(prepareSupplier(), consumer);
-    }
-
     @NotNull
     public final ORMTask<R> queue(@NotNull Consumer<R> consumer) {
-        ORMTask<R> task = prepareTask(consumer);
+        ORMTask<R> task = new ORMTask<>(this.prepareSupplier(), consumer);
         task.start();
         return task;
     }
@@ -58,11 +52,11 @@ public abstract class AbstractQuery<T, R> {
     // TODO: think about name
     @Nullable
     public final R waitQueue() {
-        return prepareSupplier().get();
+        return this.prepareSupplier().get();
     }
 
     @NotNull
     public String toString() {
-        return getSQLQuery();
+        return this.getSQLQuery();
     }
 }
