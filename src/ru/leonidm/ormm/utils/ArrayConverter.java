@@ -20,6 +20,14 @@ public final class ArrayConverter {
         return out;
     }
 
+    public static byte[] toBytes(Byte[] array) {
+        byte[] out = new byte[array.length];
+        for(int i = 0; i < array.length; i++) {
+            out[i] = array[i];
+        }
+        return out;
+    }
+
     public static byte[] toBytes(short[] array) {
         byte[] out = new byte[array.length * 2];
         for(int i = 0; i < array.length; i++) {
@@ -163,6 +171,34 @@ public final class ArrayConverter {
             out[2 * i] = (byte) (converted & 0xFF);
             out[2 * i + 1] = (byte) (converted & 0xFF);
         }
+        return out;
+    }
+
+    public static boolean[] toBooleans(byte[] bytes) {
+        if(bytes.length % 2 != 0) {
+            throw new IllegalArgumentException("Given array must have 2*x bytes, but it has " + bytes.length + "!");
+        }
+
+        boolean[] out = new boolean[bytes.length];
+
+        for(short i = 0; i < out.length; i++) {
+            out[i] = bytes[i] > 0;
+        }
+
+        return out;
+    }
+
+    public static boolean[] toBooleans(Byte[] bytes) {
+        if(bytes.length % 2 != 0) {
+            throw new IllegalArgumentException("Given array must have 2*x bytes, but it has " + bytes.length + "!");
+        }
+
+        boolean[] out = new boolean[bytes.length];
+
+        for(short i = 0; i < out.length; i++) {
+            out[i] = bytes[i] > 0;
+        }
+
         return out;
     }
 
@@ -378,31 +414,67 @@ public final class ArrayConverter {
         return out;
     }
 
-    public static boolean[] toBooleans(byte[] bytes) {
-        if(bytes.length % 2 != 0) {
-            throw new IllegalArgumentException("Given array must have 2*x bytes, but it has " + bytes.length + "!");
+    public static Boolean[] toBoxed(boolean[] array) {
+        Boolean[] out = new Boolean[array.length];
+        for(int i = 0; i < array.length; i++) {
+            out[i] = array[i];
         }
-
-        boolean[] out = new boolean[bytes.length];
-
-        for(short i = 0; i < out.length; i++) {
-            out[i] = bytes[i] > 0;
-        }
-
         return out;
     }
 
-    public static boolean[] toBooleans(Byte[] bytes) {
-        if(bytes.length % 2 != 0) {
-            throw new IllegalArgumentException("Given array must have 2*x bytes, but it has " + bytes.length + "!");
+    public static Byte[] toBoxed(byte[] array) {
+        Byte[] out = new Byte[array.length];
+        for(int i = 0; i < array.length; i++) {
+            out[i] = array[i];
         }
+        return out;
+    }
 
-        boolean[] out = new boolean[bytes.length];
-
-        for(short i = 0; i < out.length; i++) {
-            out[i] = bytes[i] > 0;
+    public static Short[] toBoxed(short[] array) {
+        Short[] out = new Short[array.length];
+        for(int i = 0; i < array.length; i++) {
+            out[i] = array[i];
         }
+        return out;
+    }
 
+    public static Integer[] toBoxed(int[] array) {
+        Integer[] out = new Integer[array.length];
+        for(int i = 0; i < array.length; i++) {
+            out[i] = array[i];
+        }
+        return out;
+    }
+
+    public static Long[] toBoxed(long[] array) {
+        Long[] out = new Long[array.length];
+        for(int i = 0; i < array.length; i++) {
+            out[i] = array[i];
+        }
+        return out;
+    }
+
+    public static Float[] toBoxed(float[] array) {
+        Float[] out = new Float[array.length];
+        for(int i = 0; i < array.length; i++) {
+            out[i] = array[i];
+        }
+        return out;
+    }
+
+    public static Double[] toBoxed(double[] array) {
+        Double[] out = new Double[array.length];
+        for(int i = 0; i < array.length; i++) {
+            out[i] = array[i];
+        }
+        return out;
+    }
+
+    public static Character[] toBoxed(char[] array) {
+        Character[] out = new Character[array.length];
+        for(int i = 0; i < array.length; i++) {
+            out[i] = array[i];
+        }
         return out;
     }
 }

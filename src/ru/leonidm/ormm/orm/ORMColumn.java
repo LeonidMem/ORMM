@@ -7,6 +7,7 @@ import ru.leonidm.ormm.annotations.ForeignKey;
 import ru.leonidm.ormm.annotations.PrimaryKey;
 import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.orm.general.SQLType;
+import ru.leonidm.ormm.utils.ArrayConverter;
 import ru.leonidm.ormm.utils.ClassUtils;
 import ru.leonidm.ormm.utils.ReflectionUtils;
 
@@ -422,6 +423,25 @@ public final class ORMColumn<T, F> {
                 e.printStackTrace();
                 return null;
             }
+        }
+
+        if(object instanceof byte[] bytes) {
+            if(this.fieldClass == boolean[].class) return ArrayConverter.toBooleans(bytes);
+            if(this.fieldClass == Boolean[].class) return ArrayConverter.toBoxed(ArrayConverter.toBooleans(bytes));
+            if(this.fieldClass == byte[].class) return bytes;
+            if(this.fieldClass == Byte[].class) return ArrayConverter.toBoxed(bytes);
+            if(this.fieldClass == short[].class) return ArrayConverter.toShorts(bytes);
+            if(this.fieldClass == Short[].class) return ArrayConverter.toBoxed(ArrayConverter.toShorts(bytes));
+            if(this.fieldClass == int[].class) return ArrayConverter.toInts(bytes);
+            if(this.fieldClass == Integer[].class) return ArrayConverter.toBoxed(ArrayConverter.toInts(bytes));
+            if(this.fieldClass == long[].class) return ArrayConverter.toLongs(bytes);
+            if(this.fieldClass == Long[].class) return ArrayConverter.toBoxed(ArrayConverter.toLongs(bytes));
+            if(this.fieldClass == float[].class) return ArrayConverter.toFloats(bytes);
+            if(this.fieldClass == Float[].class) return ArrayConverter.toBoxed(ArrayConverter.toFloats(bytes));
+            if(this.fieldClass == double[].class) return ArrayConverter.toDoubles(bytes);
+            if(this.fieldClass == Double[].class) return ArrayConverter.toBoxed(ArrayConverter.toDoubles(bytes));
+            if(this.fieldClass == char[].class) return ArrayConverter.toChars(bytes);
+            if(this.fieldClass == Character[].class) return ArrayConverter.toBoxed(ArrayConverter.toChars(bytes));
         }
 
         throw new IllegalArgumentException(getIdentifier() +
