@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.leonidm.ormm.annotations.Column;
 import ru.leonidm.ormm.annotations.Table;
+import ru.leonidm.ormm.orm.queries.DeleteQuery;
 import ru.leonidm.ormm.orm.queries.InsertQuery;
 import ru.leonidm.ormm.orm.queries.select.SelectQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateQuery;
@@ -175,6 +176,11 @@ public final class ORMTable<T> {
     @NotNull
     public UpdateQuery<T> updateQuery() {
         return this.updateQuery(null);
+    }
+
+    @NotNull
+    public DeleteQuery<T> deleteQuery() {
+        return new DeleteQuery<>(this);
     }
 
     @Override

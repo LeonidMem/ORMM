@@ -179,6 +179,16 @@ public final class ORMDatabase {
         return this.updateQuery(clazz, null);
     }
 
+    @NotNull
+    public <T> DeleteQuery<T> deleteQuery(@NotNull Class<T> clazz) {
+        ORMTable<T> table = this.getTable(clazz);
+        if(table == null) {
+            throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
+        }
+
+        return new DeleteQuery<>(table);
+    }
+
     @Override
     public boolean equals(Object o) {
         if(this == o) return true;
