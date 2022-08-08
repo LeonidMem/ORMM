@@ -3,10 +3,17 @@ package ru.leonidm.ormm.orm.thread;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class ORMTask<R> extends Thread {
+
+    public static void awaitAll(ORMTask<?> task1, ORMTask<?> task2, ORMTask<?>... tasks) {
+        task1.await();
+        task2.await();
+        Arrays.stream(tasks).forEach(ORMTask::await);
+    }
 
     private final Supplier<R> supplier;
     private final Consumer<R> consumer;
