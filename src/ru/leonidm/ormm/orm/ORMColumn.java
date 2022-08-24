@@ -386,7 +386,6 @@ public final class ORMColumn<T, F> {
 
     @Nullable
     public Object toFieldObject(@Nullable Object object) {
-        // TODO: add Integer to Long
         if(this.meta.foreignKey()) {
             if(ClassUtils.areTheSame(this.fieldClass, object.getClass())) {
                 return object;
@@ -408,6 +407,9 @@ public final class ORMColumn<T, F> {
         Class<?> objectClass = object.getClass();
 
         if(ClassUtils.areTheSame(this.fieldClass, objectClass)) return object;
+
+        if(object instanceof Integer && ClassUtils.isLong(this.databaseClass)) return (long) ((int) object);
+        if(object instanceof Float && ClassUtils.isDouble(this.databaseClass)) return (double) ((float) object);
 
         if(this.databaseClass.isAssignableFrom(objectClass) || ClassUtils.areTheSame(this.databaseClass, objectClass)) {
             try {

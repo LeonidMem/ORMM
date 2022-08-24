@@ -61,24 +61,35 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        queryBuilder.append("CREATE INDEX ");
+        // TODO: probably check, if column with the same name exists
+        switch(this.table.getDatabase().getDriver()) {
+            case MYSQL -> {
+                queryBuilder.append("CREATE INDEX ");
 
-        if(this.table.getDatabase().getDriver() == ORMDriver.SQLITE) {
-            queryBuilder.append("IF NOT EXISTS ");
+                this.columns.forEach(column -> {
+                    queryBuilder.append(column.getName()).append("_ormm_idx, ");
+                });
+
+                queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length())
+                        .append(" ON ").append(this.table.getName()).append('(');
+
+                this.columns.forEach(column -> {
+                    queryBuilder.append(column.getName()).append(", ");
+                });
+
+                queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length()).append(')');
+            }
+            case SQLITE -> {
+                this.columns.forEach(column -> {
+                    queryBuilder.append("CREATE INDEX IF NOT EXISTS ").append(column.getName()).append("_ormm_idx ON ")
+                            .append(this.table.getName()).append('(').append(column.getName()).append(");");
+                });
+
+                queryBuilder.deleteCharAt(queryBuilder.length() - 1);
+            }
         }
 
-        this.columns.forEach(column -> {
-            queryBuilder.append(column.getName()).append("_ormm_idx, ");
-        });
-
-        queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length())
-                .append(" ON ").append(this.table.getName()).append('(');
-
-        this.columns.forEach(column -> {
-            queryBuilder.append(column.getName()).append(", ");
-        });
-
-        return queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length()).append(')').toString();
+        return queryBuilder.toString();
     }
 
     @Override

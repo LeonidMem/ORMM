@@ -19,8 +19,6 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
     private String group = null;
     private int limit = 0;
 
-    private SingleSelectQuery<T> singleSelectQuery;
-
     public SelectQuery(@NotNull ORMTable<T> table) {
         super(table);
     }

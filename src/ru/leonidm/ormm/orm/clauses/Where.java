@@ -124,7 +124,7 @@ public final class Where {
                 stringBuilder.append(where.build(table)).append(") AND (");
             });
 
-            return stringBuilder.delete(stringBuilder.length() - 6, stringBuilder.length()).toString();
+            return stringBuilder.delete(stringBuilder.length() - 5, stringBuilder.length()).toString();
         }),
 
         OR(-1, (table, column, args) -> {
@@ -138,7 +138,7 @@ public final class Where {
                 stringBuilder.append(where.build(table)).append(") OR (");
             });
 
-            return stringBuilder.delete(stringBuilder.length() - 6, stringBuilder.length()).toString();
+            return stringBuilder.delete(stringBuilder.length() - 5, stringBuilder.length()).toString();
         }),
 
         NOT(1, (table, column, args) -> {
