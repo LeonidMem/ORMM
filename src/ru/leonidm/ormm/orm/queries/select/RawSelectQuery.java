@@ -1,6 +1,7 @@
 package ru.leonidm.ormm.orm.queries.select;
 
 import org.jetbrains.annotations.NotNull;
+import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
 
 import java.sql.ResultSet;
@@ -30,7 +31,8 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
                         Object[] objects = new Object[this.columns.length];
 
                         for(int i = 0; i < this.columns.length; i++) {
-                            objects[i] = resultSet.getObject(i + 1);
+                            ORMColumn<T, ?> column = this.table.getColumn(this.columns[i]);
+                            objects[i] = column.toFieldObject(resultSet.getObject(i + 1));
                         }
 
                         out.add(List.of(objects));
