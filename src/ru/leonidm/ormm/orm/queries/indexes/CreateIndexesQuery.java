@@ -18,7 +18,6 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
 
     private final List<ORMColumn<T, ?>> columns;
 
-    // TODO: transform to CreateIndexesQuery
     public CreateIndexesQuery(@NotNull ORMTable<T> table, @NotNull List<ORMColumn<T, ?>> columns) {
         super(table);
 
@@ -84,8 +83,6 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
                     queryBuilder.append("CREATE INDEX IF NOT EXISTS ").append(column.getName()).append("_ormm_idx ON ")
                             .append(this.table.getName()).append('(').append(column.getName()).append(");");
                 });
-
-                queryBuilder.deleteCharAt(queryBuilder.length() - 1);
             }
         }
 
