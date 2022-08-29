@@ -386,6 +386,8 @@ public final class ORMColumn<T, F> {
 
     @Nullable
     public Object toFieldObject(@Nullable Object object) {
+        if(object == null) return null;
+
         if(this.meta.foreignKey()) {
             if(ClassUtils.areTheSame(this.fieldClass, object.getClass())) {
                 return object;
@@ -401,8 +403,6 @@ public final class ORMColumn<T, F> {
             throw new IllegalArgumentException(getIdentifier() +
                     " Object \"" + object + "\" can't be converted from the database format!");
         }
-
-        if(object == null) return null;
 
         Class<?> objectClass = object.getClass();
 
