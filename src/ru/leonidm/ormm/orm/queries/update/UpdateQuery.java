@@ -74,7 +74,9 @@ public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T,
             queryBuilder.append(" WHERE ").append(this.where.build(this.table));
         }
         else {
-            // TODO: throw unsafe operation exception
+            if(!this.table.getMeta().allowUnsafeOperations()) {
+                throw new UnsafeQueryException("\"WHERE\" is not specified, so the query is unsafe!");
+            }
         }
 
         if(this.limit > 0) {

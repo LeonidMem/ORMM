@@ -3,6 +3,7 @@ package ru.leonidm.ormm.orm.queries;
 import org.jetbrains.annotations.NotNull;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.clauses.Where;
+import ru.leonidm.ormm.orm.exceptions.UnsafeQueryException;
 
 import java.util.function.Supplier;
 
@@ -29,6 +30,11 @@ public final class DeleteQuery<T> extends AbstractQuery<T, Void> {
 
         if(this.where != null) {
             queryBuilder.append(" WHERE ").append(this.where.build(this.table));
+        }
+        else {
+            if(!this.table.getMeta().allowUnsafeOperations()) {
+                throw new UnsafeQueryException("\"WHERE\" is not specified, so the query is unsafe!");
+            }
         }
 
         return queryBuilder.toString();

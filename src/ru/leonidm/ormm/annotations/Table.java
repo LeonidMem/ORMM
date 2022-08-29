@@ -11,5 +11,6 @@ public @interface Table {
 
     String value() default "";
     int cacheSize() default 1000;
+    boolean allowUnsafeOperations() default false;
 
 }

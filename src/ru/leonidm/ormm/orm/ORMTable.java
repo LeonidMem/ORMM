@@ -7,6 +7,7 @@ import ru.leonidm.ormm.annotations.Table;
 import ru.leonidm.ormm.orm.queries.DeleteQuery;
 import ru.leonidm.ormm.orm.queries.InsertQuery;
 import ru.leonidm.ormm.orm.queries.select.SelectQuery;
+import ru.leonidm.ormm.orm.queries.update.SingleUpdateQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateQuery;
 import ru.leonidm.ormm.utils.ReflectionUtils;
 
@@ -46,7 +47,7 @@ public final class ORMTable<T> {
 
         LinkedHashMap<String, ORMColumn<T, ?>> columns = new LinkedHashMap<>();
 
-        ORMTable<T> ormTable = new ORMTable<>(database, originalClass, name, table.cacheSize(), columns);
+        ORMTable<T> ormTable = new ORMTable<>(database, originalClass, name, table, columns);
 
         List<Class<?>> classes = new ArrayList<>();
 
@@ -88,18 +89,20 @@ public final class ORMTable<T> {
     private final ORMDatabase database;
     private final Class<T> originalClass;
     private final String name;
-    private final Map<?, T> cache;
+    private final Table meta;
     private final LinkedHashMap<String, ORMColumn<T, ?>> columns;
     private ORMColumn<T, ?> keyColumn;
+    private final Map<?, T> cache;
 
     public ORMTable(@NotNull ORMDatabase database, @NotNull Class<T> originalClass,
-                    @NotNull String name, int cacheSize,
+                    @NotNull String name, @NotNull Table meta,
                     @NotNull LinkedHashMap<String, ORMColumn<T, ?>> columns) {
         this.database = database;
         this.originalClass = originalClass;
         this.name = name;
-        this.cache = new HashMap<>(cacheSize, 1.1f);
+        this.meta = meta;
         this.columns = columns;
+        this.cache = new HashMap<>(meta.cacheSize(), 1.1f);
     }
 
     @NotNull
@@ -109,12 +112,17 @@ public final class ORMTable<T> {
 
     @NotNull
     public Class<T> getOriginalClass() {
-        return originalClass;
+        return this.originalClass;
     }
 
     @NotNull
     public String getName() {
         return this.name;
+    }
+
+    @NotNull
+    public Table getMeta() {
+        return this.meta;
     }
 
     @Nullable
@@ -128,8 +136,8 @@ public final class ORMTable<T> {
     }
 
     @NotNull
-    public List<String> getColumnsNames() {
-        return new ArrayList<>(this.columns.keySet());
+    public Set<String> getColumnsNames() {
+        return Collections.unmodifiableSet(this.columns.keySet());
     }
 
     @Nullable
