@@ -288,8 +288,6 @@ public final class ORMColumn<T, F> {
     // TODO: probably change parameter back to @NotNull T t
     @Nullable
     public F getValue(@NotNull Object object) {
-        if(object == null) return null;
-
         if(!object.getClass().equals(this.table.getOriginalClass())) {
             throw new IllegalArgumentException("Wrong object \"" + object + "\" provided! It's class must be \"" +
                     this.table.getOriginalClass() + "\"");
