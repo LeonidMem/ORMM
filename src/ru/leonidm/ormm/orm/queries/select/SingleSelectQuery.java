@@ -6,6 +6,8 @@ import ru.leonidm.ormm.orm.ORMTable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelectQuery<T>, T, T> {
@@ -42,6 +44,8 @@ public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelect
 
     @NotNull
     public RawSingleSelectQuery<T> columns(String... columns) {
+        checkIfColumnsExist(columns);
+
         RawSingleSelectQuery<T> rawSelectQuery = new RawSingleSelectQuery<>(this.table);
 
         this.copy(rawSelectQuery);

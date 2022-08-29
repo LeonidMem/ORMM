@@ -7,6 +7,7 @@ import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
 
 import java.util.Arrays;
+import java.util.Set;
 
 public abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O, T, R>, T, R> extends AbstractQuery<T, R> {
 
@@ -93,5 +94,12 @@ public abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O, T, R>
         to.order = this.order;
         to.group = this.group;
         to.limit = this.limit;
+    }
+
+    protected void checkIfColumnsExist(@NotNull String[] columns) {
+        Set<String> columnsNames = this.table.getColumnsNames();
+        if(Arrays.stream(columns).anyMatch(columnName -> !columnsNames.contains(columnName))) {
+            throw new IllegalArgumentException("Got columns that don't exist!");
+        }
     }
 }

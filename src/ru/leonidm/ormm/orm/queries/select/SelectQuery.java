@@ -9,15 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T, List<T>> {
-
-    private Where where = null;
-    private Order order = null;
-    private String group = null;
-    private int limit = 0;
 
     public SelectQuery(@NotNull ORMTable<T> table) {
         super(table);
@@ -57,6 +54,8 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
 
     @NotNull
     public RawSelectQuery<T> columns(String... columns) {
+        checkIfColumnsExist(columns);
+
         RawSelectQuery<T> rawSelectQuery = new RawSelectQuery<>(this.table);
 
         this.copy(rawSelectQuery);

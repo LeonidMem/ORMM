@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-// TODO: probably use map
 public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<T>, T, List<List<Object>>> {
 
     public RawSelectQuery(@NotNull ORMTable<T> table) {
