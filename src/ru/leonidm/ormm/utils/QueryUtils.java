@@ -12,9 +12,6 @@ public final class QueryUtils {
     public static void writeColumnDefinition(@NotNull StringBuilder queryBuilder, @NotNull ORMDriver driver,
                                              @NotNull ORMColumn<?, ?> column) {
         SQLType sqlType = column.getSQLType();
-        if(sqlType == null) {
-            throw new IllegalArgumentException("Can't find SQL type for \"" + column.getDatabaseClass() + "\"!");
-        }
 
         queryBuilder.append(column.getName()).append(' ').append(sqlType);
 
