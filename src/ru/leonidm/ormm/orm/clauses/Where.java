@@ -15,10 +15,10 @@ import java.util.Set;
 
 public final class Where {
 
-    private static final Set<String> operands = new HashSet<>(Arrays.asList("<", "<=", "=", ">=", ">", "<>", "!="));
+    private static final Set<String> OPERANDS = new HashSet<>(Arrays.asList("<", "<=", "=", ">=", ">", "<>", "!="));
 
-    public static Where compare(@NotNull String column, @NotNull String operand, @NotNull Object value) {
-        if(!operands.contains(operand)) {
+    public static Where compare(@NotNull String column, @NotNull String operand, @Nullable Object value) {
+        if(!OPERANDS.contains(operand)) {
             throw new IllegalArgumentException("Unknown operand \"" + operand + "\"!");
         }
 
@@ -69,7 +69,7 @@ public final class Where {
     private final String column;
     private final Object[] args;
 
-    private Where(@NotNull Type type, @Nullable String column, @NotNull Object... args) {
+    private Where(@NotNull Type type, @Nullable String column, @Nullable Object... args) {
         this.type = type;
         this.column = column;
         this.args = args;
