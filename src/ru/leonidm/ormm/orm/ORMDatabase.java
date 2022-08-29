@@ -11,6 +11,7 @@ import ru.leonidm.ormm.orm.queries.columns.DropColumnsQuery;
 import ru.leonidm.ormm.orm.queries.columns.SelectColumnsQuery;
 import ru.leonidm.ormm.orm.queries.indexes.CreateIndexesQuery;
 import ru.leonidm.ormm.orm.queries.select.SelectQuery;
+import ru.leonidm.ormm.orm.queries.update.SingleUpdateQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateQuery;
 
 import java.sql.Connection;
@@ -173,18 +174,23 @@ public final class ORMDatabase {
     }
 
     @NotNull
-    public <T> UpdateQuery<T> updateQuery(@NotNull Class<T> clazz, @Nullable T object) {
+    public <T> UpdateQuery<T> updateQuery(@NotNull Class<T> clazz) {
         ORMTable<T> table = this.getTable(clazz);
         if(table == null) {
             throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
         }
 
-        return new UpdateQuery<>(table, object);
+        return new UpdateQuery<>(table);
     }
 
     @NotNull
-    public <T> UpdateQuery<T> updateQuery(@NotNull Class<T> clazz) {
-        return this.updateQuery(clazz, null);
+    public <T> SingleUpdateQuery<T> updateQuery(@NotNull Class<T> clazz, @NotNull T object) {
+        ORMTable<T> table = this.getTable(clazz);
+        if(table == null) {
+            throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
+        }
+
+        return new SingleUpdateQuery<>(table, object);
     }
 
     @NotNull

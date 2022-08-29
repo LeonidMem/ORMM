@@ -169,13 +169,13 @@ public final class ORMTable<T> {
     }
 
     @NotNull
-    public UpdateQuery<T> updateQuery(@Nullable T object) {
-        return new UpdateQuery<>(this, object);
+    public UpdateQuery<T> updateQuery() {
+        return new UpdateQuery<>(this);
     }
 
     @NotNull
-    public UpdateQuery<T> updateQuery() {
-        return this.updateQuery(null);
+    public SingleUpdateQuery<T> updateQuery(@NotNull T object) {
+        return new SingleUpdateQuery<>(this, object);
     }
 
     @NotNull
