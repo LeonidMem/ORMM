@@ -1,11 +1,14 @@
 package ru.leonidm.ormm.orm.queries.columns;
 
 import org.jetbrains.annotations.NotNull;
+import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.general.ColumnData;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
@@ -43,8 +46,14 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
 
                 yield queryBuilder.substring(0, queryBuilder.length() - 2);
             }
-            // TODO: implement DropColumnsQuery for SQLITE
-            case SQLITE -> throw new IllegalStateException("Not implemented yet!");
+            case SQLITE -> {
+                this.columns.forEach(column -> {
+                    queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(" DROP COLUMN ")
+                            .append(column.getName()).append(';');
+                });
+
+                yield queryBuilder.toString();
+            }
         };
     }
 
