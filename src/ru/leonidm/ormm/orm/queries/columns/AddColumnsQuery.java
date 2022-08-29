@@ -9,6 +9,7 @@ import ru.leonidm.ormm.orm.queries.AbstractQuery;
 import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
@@ -23,7 +24,7 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
         }
 
         columns.forEach(pair -> {
-            ORMTable<T> leftTable = pair.getLeft().getTable();
+            ORMTable<T> leftTable = Objects.requireNonNull(pair.getLeft()).getTable();
             ORMColumn<T, ?> afterColumn = pair.getRight();
             if(afterColumn != null && leftTable != afterColumn.getTable() || leftTable != table) {
                 throw new IllegalArgumentException("There are columns with different tables!");
@@ -42,11 +43,12 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
 
         return switch(driver) {
             case MYSQL -> {
+
                 queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(' ');
 
                 this.columns.forEach(pair -> {
                     queryBuilder.append("ADD ");
-                    ORMColumn<T, ?> column = pair.getLeft();
+                    ORMColumn<T, ?> column = Objects.requireNonNull(pair.getLeft());
                     ORMColumn<T, ?> after = pair.getRight();
 
                     // TODO: implement foreign keys
@@ -64,8 +66,19 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
 
                 yield queryBuilder.substring(0, queryBuilder.length() - 2);
             }
-            // TODO: implement AddColumnsQuery for SQLITE
-            case SQLITE -> throw new IllegalStateException("Not implemented yet!");
+            case SQLITE -> {
+                this.columns.forEach(pair -> {
+                    queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(" ADD COLUMN ");
+
+                    ORMColumn<T, ?> column = Objects.requireNonNull(pair.getLeft());
+
+                    QueryUtils.writeColumnDefinition(queryBuilder, driver, column);
+
+                    queryBuilder.append(';');
+                });
+
+                yield queryBuilder.toString();
+            }
         };
     }
 
