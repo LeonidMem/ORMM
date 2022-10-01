@@ -328,11 +328,12 @@ public final class ORMColumn<T, F> {
                     || objectClass == Integer.class)) {
                 this.field.setLong(t, (long) (object != null ? object : 0L));
             }
-            else if(this.fieldClass == double.class && (objectClass == null || objectClass == Double.class)) {
-                this.field.setDouble(t, (double) (object != null ? object : 0D));
-            }
             else if(this.fieldClass == float.class && (objectClass == null || objectClass == Float.class)) {
                 this.field.setFloat(t, (float) (object != null ? object : 0F));
+            }
+            else if(this.fieldClass == double.class && (objectClass == null || objectClass == Double.class
+                    || objectClass == Float.class)) {
+                this.field.setDouble(t, (double) (object != null ? object : 0D));
             }
             else if(this.fieldClass == char.class && (objectClass == null || objectClass == Character.class)) {
                 this.field.setChar(t, (char) (object != null ? object : 0));
@@ -362,6 +363,10 @@ public final class ORMColumn<T, F> {
 
         if(ClassUtils.areTheSame(this.databaseClass, objectClass)) return object;
 
+        // TODO: add support for bytes and integers
+        if(object instanceof Integer obj && ClassUtils.isLong(this.databaseClass)) return (long) (obj);
+        if(object instanceof Float obj && ClassUtils.isDouble(this.databaseClass)) return (double) (obj);
+
         if(this.fieldClass.isAssignableFrom(objectClass) || ClassUtils.areTheSame(this.fieldClass, objectClass)) {
             try {
 
@@ -379,7 +384,7 @@ public final class ORMColumn<T, F> {
         }
 
         throw new IllegalArgumentException(getIdentifier() +
-                "Object \"" + object + "\" can't be converted to the database format!");
+                " Object \"" + object + "\" can't be converted to the database format!");
     }
 
     @Nullable
@@ -406,8 +411,8 @@ public final class ORMColumn<T, F> {
 
         if(ClassUtils.areTheSame(this.fieldClass, objectClass)) return object;
 
-        if(object instanceof Integer && ClassUtils.isLong(this.databaseClass)) return (long) ((int) object);
-        if(object instanceof Float && ClassUtils.isDouble(this.databaseClass)) return (double) ((float) object);
+        if(object instanceof Integer obj && ClassUtils.isLong(this.databaseClass)) return (long) (obj);
+        if(object instanceof Float obj && ClassUtils.isDouble(this.databaseClass)) return (double) (obj);
 
         if(this.databaseClass.isAssignableFrom(objectClass) || ClassUtils.areTheSame(this.databaseClass, objectClass)) {
             try {
