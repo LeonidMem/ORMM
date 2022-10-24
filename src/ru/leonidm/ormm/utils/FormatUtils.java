@@ -15,12 +15,12 @@ public final class FormatUtils {
 
     @NotNull
     public static StringBuilder writeColumnFullName(@NotNull ORMColumn<?, ?> column) {
-        return new StringBuilder().append(column.getTable().getName()).append('.').append(column.getName());
+        return writeColumnFullName(new StringBuilder(), column);
     }
 
     @NotNull
     public static StringBuilder writeColumnFullName(@NotNull StringBuilder stringBuilder,
-                                                     @NotNull ORMColumn<?, ?> column) {
+                                                    @NotNull ORMColumn<?, ?> column) {
         return stringBuilder.append(column.getTable().getName()).append('.').append(column.getName());
     }
 
