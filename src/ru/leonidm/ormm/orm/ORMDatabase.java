@@ -137,10 +137,12 @@ public final class ORMDatabase {
         this.tablesByClass.put(table.getOriginalClass(), table);
     }
 
-    public void addTable(@NotNull Class<?> clazz) {
-        ORMTable<?> table = ORMTable.of(this, clazz);
+    public <T> ORMTable<T> addTable(@NotNull Class<T> clazz) {
+        ORMTable<T> table = ORMTable.of(this, clazz);
 
         this.addTable(table);
+
+        return table;
     }
 
     @Nullable
