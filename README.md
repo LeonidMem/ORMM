@@ -235,6 +235,7 @@ public class QueryExample {
 
 
 # TODO:
+* Move to Maven
 * Make all queries as abstract classes or interfaces \[1\]
 * Cache for all tables
 * Tests
