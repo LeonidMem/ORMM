@@ -11,7 +11,8 @@ import static ru.leonidm.ormm.utils.ArrayConverter.*;
 
 public final class FormatUtils {
 
-    private FormatUtils() {}
+    private FormatUtils() {
+    }
 
     @NotNull
     public static StringBuilder writeColumnFullName(@NotNull ORMColumn<?, ?> column) {
@@ -26,84 +27,86 @@ public final class FormatUtils {
 
     @NotNull
     public static String toStringSQLValue(@Nullable Object object) {
-        if(object == null) return "NULL";
+        if (object == null) {
+            return "NULL";
+        }
 
-        if(object instanceof Byte || object instanceof Short
+        if (object instanceof Byte || object instanceof Short
                 || object instanceof Integer || object instanceof Long
                 || object instanceof Float || object instanceof Double
                 || object instanceof Character) {
             return object.toString();
         }
 
-        if(object instanceof Boolean bool) {
+        if (object instanceof Boolean bool) {
             return bool ? "1" : "0";
         }
 
-        if(object instanceof boolean[] booleans) {
+        if (object instanceof boolean[] booleans) {
             return toString(toBytes(booleans));
         }
 
-        if(object instanceof Boolean[] booleans) {
+        if (object instanceof Boolean[] booleans) {
             return toString(toBytes(booleans));
         }
 
-        if(object instanceof byte[] bytes) {
+        if (object instanceof byte[] bytes) {
             return toString(bytes);
         }
 
-        if(object instanceof Byte[] bytes) {
+        if (object instanceof Byte[] bytes) {
             return toString(bytes);
         }
 
-        if(object instanceof short[] shorts) {
+        if (object instanceof short[] shorts) {
             return toString(toBytes(shorts));
         }
 
-        if(object instanceof Short[] shorts) {
+        if (object instanceof Short[] shorts) {
             return toString(toBytes(shorts));
         }
 
-        if(object instanceof int[] ints) {
+        if (object instanceof int[] ints) {
             return toString(toBytes(ints));
         }
 
-        if(object instanceof Integer[] ints) {
+        if (object instanceof Integer[] ints) {
             return toString(toBytes(ints));
         }
 
-        if(object instanceof long[] longs) {
+        if (object instanceof long[] longs) {
             return toString(toBytes(longs));
         }
 
-        if(object instanceof Long[] longs) {
+        if (object instanceof Long[] longs) {
             return toString(toBytes(longs));
         }
 
-        if(object instanceof float[] floats) {
+        if (object instanceof float[] floats) {
             return toString(toBytes(floats));
         }
 
-        if(object instanceof Float[] floats) {
+        if (object instanceof Float[] floats) {
             return toString(toBytes(floats));
         }
 
-        if(object instanceof double[] doubles) {
+        if (object instanceof double[] doubles) {
             return toString(toBytes(doubles));
         }
 
-        if(object instanceof Double[] doubles) {
+        if (object instanceof Double[] doubles) {
             return toString(toBytes(doubles));
         }
 
-        if(object instanceof char[] chars) {
+        if (object instanceof char[] chars) {
             return toString(toBytes(chars));
         }
 
-        if(object instanceof Character[] chars) {
+        if (object instanceof Character[] chars) {
             return toString(toBytes(chars));
         }
 
-        if(object instanceof AbstractSelectQuery<?, ?, ?> selectQuery) {
+        if (object instanceof AbstractSelectQuery<?, ?, ?> selectQuery) {
             return '(' + selectQuery.getSQLQuery() + ')';
         }
 
@@ -116,7 +119,7 @@ public final class FormatUtils {
         byte[] hexChars = new byte[bytes.length * 2 + 3];
         hexChars[0] = 'X';
         hexChars[1] = '\'';
-        for(int j = 0; j < bytes.length; j++) {
+        for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
             hexChars[j * 2 + 2] = HEX_ARRAY[v >>> 4];
             hexChars[j * 2 + 3] = HEX_ARRAY[v & 0x0F];
@@ -129,7 +132,7 @@ public final class FormatUtils {
         byte[] hexChars = new byte[bytes.length * 2 + 3];
         hexChars[0] = 'X';
         hexChars[1] = '\'';
-        for(int j = 0; j < bytes.length; j++) {
+        for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
             hexChars[j * 2 + 2] = HEX_ARRAY[v >>> 4];
             hexChars[j * 2 + 3] = HEX_ARRAY[v & 0x0F];

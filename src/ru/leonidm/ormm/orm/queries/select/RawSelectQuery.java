@@ -23,13 +23,13 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
         return () -> {
             List<List<Object>> out = new ArrayList<>();
 
-            try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
 
-                try(ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
-                    while(resultSet.next()) {
+                try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
+                    while (resultSet.next()) {
                         Object[] objects = new Object[this.columns.length];
 
-                        for(int i = 0; i < this.columns.length; i++) {
+                        for (int i = 0; i < this.columns.length; i++) {
                             ORMColumn<T, ?> column = this.table.getColumn(this.columns[i]);
                             objects[i] = column.toFieldObject(resultSet.getObject(i + 1));
                         }
@@ -38,7 +38,7 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
                     }
                 }
 
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
 

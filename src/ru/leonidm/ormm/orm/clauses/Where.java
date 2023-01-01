@@ -18,7 +18,7 @@ public final class Where {
     private static final Set<String> OPERANDS = new HashSet<>(Arrays.asList("<", "<=", "=", ">=", ">", "<>", "!="));
 
     public static Where compare(@NotNull String column, @NotNull String operand, @Nullable Object value) {
-        if(!OPERANDS.contains(operand)) {
+        if (!OPERANDS.contains(operand)) {
             throw new IllegalArgumentException("Unknown operand \"" + operand + "\"!");
         }
 
@@ -30,7 +30,7 @@ public final class Where {
     }
 
     public static Where in(@NotNull String column, @NotNull Object... objects) {
-        if(objects.length < 2) {
+        if (objects.length < 2) {
             throw new IllegalArgumentException("Wrong amounts of the objects! Must be two or more!");
         }
 
@@ -46,7 +46,7 @@ public final class Where {
     }
 
     public static Where and(@NotNull Where... wheres) {
-        if(wheres.length < 2) {
+        if (wheres.length < 2) {
             throw new IllegalArgumentException("Wrong amounts of the \"Where\" clauses! Must be two or more!");
         }
 
@@ -54,7 +54,7 @@ public final class Where {
     }
 
     public static Where or(@NotNull Where... wheres) {
-        if(wheres.length < 2) {
+        if (wheres.length < 2) {
             throw new IllegalArgumentException("Wrong amounts of the \"Where\" clauses! Must be two or more!");
         }
 
@@ -117,7 +117,7 @@ public final class Where {
             StringBuilder stringBuilder = new StringBuilder("(");
 
             Arrays.stream(args).forEach(arg -> {
-                if(!(arg instanceof Where where)) {
+                if (!(arg instanceof Where where)) {
                     throw new IllegalArgumentException("At least one of the arguments isn't \"Where\" clause!");
                 }
 
@@ -131,7 +131,7 @@ public final class Where {
             StringBuilder stringBuilder = new StringBuilder("(");
 
             Arrays.stream(args).forEach(arg -> {
-                if(!(arg instanceof Where where)) {
+                if (!(arg instanceof Where where)) {
                     throw new IllegalArgumentException("At least one of the arguments isn't \"Where\" clause!");
                 }
 
@@ -142,7 +142,7 @@ public final class Where {
         }),
 
         NOT(1, (table, column, args) -> {
-            if(!(args[0] instanceof Where where)) {
+            if (!(args[0] instanceof Where where)) {
                 throw new IllegalArgumentException("At least one of the arguments isn't \"Where\" clause!");
             }
 
@@ -151,11 +151,11 @@ public final class Where {
 
         @NotNull
         private static String toStringSQLValue(@NotNull ORMColumn<?, ?> column, @Nullable Object arg) {
-            if(arg == null) {
+            if (arg == null) {
                 return FormatUtils.toStringSQLValue(null);
             }
 
-            if(ClassUtils.isBuiltIn(arg.getClass()) || arg instanceof AbstractSelectQuery<?, ?, ?>) {
+            if (ClassUtils.isBuiltIn(arg.getClass()) || arg instanceof AbstractSelectQuery<?, ?, ?>) {
                 return FormatUtils.toStringSQLValue(arg);
             }
 
@@ -172,20 +172,19 @@ public final class Where {
 
         @NotNull
         private String build(@NotNull ORMTable<?> table, @Nullable String columnName, @NotNull Object... args) {
-            if(this.argsAmount >= 0) {
-                if(this.argsAmount != args.length) {
+            if (this.argsAmount >= 0) {
+                if (this.argsAmount != args.length) {
                     throw new IllegalArgumentException("Provided arguments has wrong amount!");
                 }
             }
 
             ORMColumn<?, ?> column;
-            if(columnName != null) {
+            if (columnName != null) {
                 column = table.getColumn(columnName);
-                if(column == null) {
+                if (column == null) {
                     throw new IllegalArgumentException(table.getIdentifier() + " Unknown column \"" + columnName + "\"!");
                 }
-            }
-            else {
+            } else {
                 column = null;
             }
 

@@ -26,13 +26,13 @@ public final class RawSingleSelectQuery<T> extends AbstractSelectQuery<RawSingle
     @NotNull
     protected Supplier<List<Object>> prepareSupplier() {
         return () -> {
-            try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
 
-                try(ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
-                    if(resultSet.next()) {
+                try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
+                    if (resultSet.next()) {
                         Object[] objects = new Object[this.columns.length];
 
-                        for(int i = 0; i < this.columns.length; i++) {
+                        for (int i = 0; i < this.columns.length; i++) {
                             ORMColumn<T, ?> column = this.table.getColumn(this.columns[i]);
                             objects[i] = column.toFieldObject(resultSet.getObject(i + 1));
                         }
@@ -41,7 +41,7 @@ public final class RawSingleSelectQuery<T> extends AbstractSelectQuery<RawSingle
                     }
                 }
 
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
 

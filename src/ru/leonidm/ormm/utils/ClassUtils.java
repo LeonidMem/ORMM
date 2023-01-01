@@ -2,17 +2,34 @@ package ru.leonidm.ormm.utils;
 
 public final class ClassUtils {
 
-    private ClassUtils() {}
+    private ClassUtils() {
+    }
 
     public static boolean areTheSame(Class<?> clazz1, Class<?> clazz2) {
-        if(isBoolean(clazz1) && isBoolean(clazz2)) return true;
-        if(isByte(clazz1) && isByte(clazz2)) return true;
-        if(isShort(clazz1) && isShort(clazz2)) return true;
-        if(isInteger(clazz1) && isInteger(clazz2)) return true;
-        if(isLong(clazz1) && isLong(clazz2)) return true;
-        if(isFloat(clazz1) && isFloat(clazz2)) return true;
-        if(isDouble(clazz1) && isDouble(clazz2)) return true;
-        if(isChar(clazz1) && isChar(clazz2)) return true;
+        if (isBoolean(clazz1) && isBoolean(clazz2)) {
+            return true;
+        }
+        if (isByte(clazz1) && isByte(clazz2)) {
+            return true;
+        }
+        if (isShort(clazz1) && isShort(clazz2)) {
+            return true;
+        }
+        if (isInteger(clazz1) && isInteger(clazz2)) {
+            return true;
+        }
+        if (isLong(clazz1) && isLong(clazz2)) {
+            return true;
+        }
+        if (isFloat(clazz1) && isFloat(clazz2)) {
+            return true;
+        }
+        if (isDouble(clazz1) && isDouble(clazz2)) {
+            return true;
+        }
+        if (isChar(clazz1) && isChar(clazz2)) {
+            return true;
+        }
 
         return clazz1 == clazz2;
     }

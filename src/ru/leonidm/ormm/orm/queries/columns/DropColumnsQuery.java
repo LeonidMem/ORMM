@@ -18,12 +18,12 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
     public DropColumnsQuery(@NotNull ORMTable<T> table, @NotNull List<ColumnData> columns) {
         super(table);
 
-        if(columns.isEmpty()) {
+        if (columns.isEmpty()) {
             throw new IllegalArgumentException("Got empty list of the columns!");
         }
 
         columns.forEach(column -> {
-            if(!column.getTable().equals(table.getName())) {
+            if (!column.getTable().equals(table.getName())) {
                 throw new IllegalArgumentException("There is at least one column with different table!");
             }
         });
@@ -36,7 +36,7 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        return switch(this.table.getDatabase().getDriver()) {
+        return switch (this.table.getDatabase().getDriver()) {
             case MYSQL -> {
                 queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(' ');
 

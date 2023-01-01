@@ -29,16 +29,15 @@ public final class DeleteQuery<T> extends AbstractQuery<T, Void> {
 
         queryBuilder.append("DELETE FROM ").append(this.table.getName());
 
-        if(this.where != null) {
+        if (this.where != null) {
             queryBuilder.append(" WHERE ").append(this.where.build(this.table));
-        }
-        else {
-            if(!this.table.getMeta().allowUnsafeOperations()) {
+        } else {
+            if (!this.table.getMeta().allowUnsafeOperations()) {
                 throw new UnsafeQueryException("\"WHERE\" is not specified, so the query is unsafe!");
             }
         }
 
-        if(this.limit != 0) {
+        if (this.limit != 0) {
             queryBuilder.append(" LIMIT ").append(this.limit);
         }
 

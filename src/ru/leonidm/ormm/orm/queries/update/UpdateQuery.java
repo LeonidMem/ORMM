@@ -22,7 +22,7 @@ public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T,
     @NotNull
     public UpdateQuery<T> set(@NotNull String columnName, @Nullable Object object) {
         ORMColumn<T, ?> column = this.table.getColumn(columnName);
-        if(column == null) {
+        if (column == null) {
             throw new IllegalArgumentException("Can't find column \"" + columnName.toLowerCase() + "\"!");
         }
 
@@ -32,8 +32,9 @@ public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T,
 
     @NotNull
     public UpdateQuery<T> where(@NotNull Where where) {
-        if(this.object != null)
+        if (this.object != null) {
             throw new IllegalStateException("Where statement can't be specified if object was provided!");
+        }
 
         this.where = where;
         return this;
@@ -48,7 +49,7 @@ public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T,
     @Override
     @NotNull
     public String getSQLQuery() {
-        if(this.values.isEmpty()) {
+        if (this.values.isEmpty()) {
             throw new IllegalArgumentException("Got no values to update!");
         }
 
@@ -59,9 +60,10 @@ public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T,
         this.values.forEach((column, value) -> {
             queryBuilder.append(' ');
 
-            switch(this.table.getDatabase().getDriver()) {
+            switch (this.table.getDatabase().getDriver()) {
                 case MYSQL -> queryBuilder.append(this.table.getName()).append('.');
-                case SQLITE -> {}
+                case SQLITE -> {
+                }
             }
 
             queryBuilder.append(column).append(" = ")
@@ -70,16 +72,15 @@ public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T,
 
         queryBuilder.delete(queryBuilder.length() - 1, queryBuilder.length());
 
-        if(this.where != null) {
+        if (this.where != null) {
             queryBuilder.append(" WHERE ").append(this.where.build(this.table));
-        }
-        else {
-            if(!this.table.getMeta().allowUnsafeOperations()) {
+        } else {
+            if (!this.table.getMeta().allowUnsafeOperations()) {
                 throw new UnsafeQueryException("\"WHERE\" is not specified, so the query is unsafe!");
             }
         }
 
-        if(this.limit > 0) {
+        if (this.limit > 0) {
             queryBuilder.append(" LIMIT ").append(this.limit);
         }
 

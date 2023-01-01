@@ -24,24 +24,23 @@ public final class ORMTable<T> {
     public static <T> ORMTable<T> of(@NotNull ORMDatabase database, @NotNull Class<T> originalClass) {
         // TODO: probably cache ORMTable by database and original class
 
-        if(Modifier.isAbstract(originalClass.getModifiers())) {
+        if (Modifier.isAbstract(originalClass.getModifiers())) {
             throw new IllegalArgumentException("Can't register abstract class as the table!");
         }
 
-        if(Modifier.isInterface(originalClass.getModifiers())) {
+        if (Modifier.isInterface(originalClass.getModifiers())) {
             throw new IllegalArgumentException("Can't register interface as the table!");
         }
 
         Table table = ReflectionUtils.getAnnotation(originalClass, Table.class);
-        if(table == null) {
+        if (table == null) {
             throw new IllegalArgumentException("Can't register class without @Table annotation as the table!");
         }
 
         String name;
-        if(table.value().isBlank()) {
+        if (table.value().isBlank()) {
             name = originalClass.getSimpleName().toLowerCase();
-        }
-        else {
+        } else {
             name = table.value().toLowerCase();
         }
 
@@ -52,21 +51,21 @@ public final class ORMTable<T> {
         List<Class<?>> classes = new ArrayList<>();
 
         Class<?> superClass = originalClass;
-        while(superClass != Object.class) {
+        while (superClass != Object.class) {
             classes.add(superClass);
             superClass = superClass.getSuperclass();
         }
 
-        for(int i = classes.size() - 1; i >= 0; i--) {
-            for(Field field : classes.get(i).getDeclaredFields()) {
-                if(ReflectionUtils.hasAnnotation(field, Column.class)) {
+        for (int i = classes.size() - 1; i >= 0; i--) {
+            for (Field field : classes.get(i).getDeclaredFields()) {
+                if (ReflectionUtils.hasAnnotation(field, Column.class)) {
                     ORMColumn<T, ?> ormColumn = ORMColumn.of(ormTable, field);
                     columns.put(ormColumn.getName(), ormColumn);
                 }
             }
         }
 
-        if(columns.isEmpty()) {
+        if (columns.isEmpty()) {
             throw new IllegalArgumentException("Can't register class with zero @Column fields as the table!");
         }
 
@@ -75,11 +74,11 @@ public final class ORMTable<T> {
                 .limit(2)
                 .toArray(ORMColumn[]::new);
 
-        if(keyColumns.length == 2) {
+        if (keyColumns.length == 2) {
             throw new IllegalStateException("There can be only one primary key or autoincrement column!");
         }
 
-        if(keyColumns.length == 1) {
+        if (keyColumns.length == 1) {
             ormTable.keyColumn = keyColumns[0];
         }
 
@@ -142,13 +141,13 @@ public final class ORMTable<T> {
 
     @Nullable
     public T objectFrom(@NotNull ResultSet resultSet) throws SQLException {
-        if(resultSet.isClosed()) {
+        if (resultSet.isClosed()) {
             throw new IllegalStateException("ResultSet is already closed!");
         }
 
         T t = ReflectionUtils.getNewInstance(this.originalClass);
 
-        for(ORMColumn<T, ?> column : this.columns.values()) {
+        for (ORMColumn<T, ?> column : this.columns.values()) {
             column.setValue(t, column.toFieldObject(resultSet.getObject(column.getName())));
         }
 
@@ -193,8 +192,12 @@ public final class ORMTable<T> {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
-        if(o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ORMTable<?> ormTable = (ORMTable<?>) o;
         return this.database.equals(ormTable.database) && this.name.equals(ormTable.name);
     }

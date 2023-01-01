@@ -27,9 +27,9 @@ public abstract class AbstractQuery<T, R> {
     @NotNull
     protected final Supplier<R> getUpdateSupplier() {
         return () -> {
-            try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
                 statement.executeUpdate(this.getSQLQuery());
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
 
@@ -46,7 +46,8 @@ public abstract class AbstractQuery<T, R> {
 
     @NotNull
     public final ORMTask<R> queue() {
-        return this.queue(r -> {});
+        return this.queue(r -> {
+        });
     }
 
     // TODO: think about name

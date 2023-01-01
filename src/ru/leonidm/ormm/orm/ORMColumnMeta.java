@@ -78,7 +78,7 @@ public final class ORMColumnMeta implements Column, PrimaryKey, ForeignKey {
     // TODO: probably rename
     @Override
     public String table() {
-        if(this.foreignKey == null) {
+        if (this.foreignKey == null) {
             throw new IllegalArgumentException("Can't get table() value because @ForeignKey is null!");
         }
 
@@ -87,7 +87,7 @@ public final class ORMColumnMeta implements Column, PrimaryKey, ForeignKey {
 
     @Override
     public String key() {
-        if(this.foreignKey == null) {
+        if (this.foreignKey == null) {
             throw new IllegalArgumentException("Can't get key() value because @ForeignKey is null!");
         }
 
@@ -96,7 +96,7 @@ public final class ORMColumnMeta implements Column, PrimaryKey, ForeignKey {
 
     @Override
     public boolean makeReference() {
-        if(this.foreignKey == null) {
+        if (this.foreignKey == null) {
             throw new IllegalArgumentException("Can't get makeReference() value because @ForeignKey is null!");
         }
 

@@ -33,7 +33,7 @@ public final class InsertQuery<T> extends AbstractQuery<T, T> {
 
     @NotNull
     public InsertQuery<T> value(@NotNull String column, @Nullable Object value) {
-        if(this.table.getColumn(column) == null) {
+        if (this.table.getColumn(column) == null) {
             throw new IllegalArgumentException("Can't find column \"" + column.toLowerCase() + "\"!");
         }
 
@@ -50,7 +50,7 @@ public final class InsertQuery<T> extends AbstractQuery<T, T> {
 
         queryBuilder.append("INSERT ");
 
-        if(this.ignore) {
+        if (this.ignore) {
             queryBuilder.append(driver.get(ORMDriver.Key.INSERT_IGNORE)).append(' ');
         }
 
@@ -60,13 +60,13 @@ public final class InsertQuery<T> extends AbstractQuery<T, T> {
                 .filter(column -> !(column.getMeta().autoIncrement()) || this.values.containsKey(column.getName()))
                 .toList();
 
-        if(columns.isEmpty()) {
+        if (columns.isEmpty()) {
             queryBuilder.append(") VALUES ()");
             return queryBuilder.toString();
         }
 
         queryBuilder.append(columns.get(0).getName());
-        for(int i = 1; i < columns.size(); i++) {
+        for (int i = 1; i < columns.size(); i++) {
             queryBuilder.append(", ").append(columns.get(i).getName());
         }
 
@@ -85,13 +85,13 @@ public final class InsertQuery<T> extends AbstractQuery<T, T> {
     @NotNull
     protected Supplier<T> prepareSupplier() {
         return () -> {
-            try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
-                int affected = switch(this.table.getDatabase().getDriver()) {
+            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+                int affected = switch (this.table.getDatabase().getDriver()) {
                     case MYSQL -> statement.executeUpdate(getSQLQuery(), Statement.RETURN_GENERATED_KEYS);
                     case SQLITE -> statement.executeUpdate(this.getSQLQuery());
                 };
 
-                if(affected == 0) {
+                if (affected == 0) {
                     return null;
                 }
 
@@ -103,23 +103,21 @@ public final class InsertQuery<T> extends AbstractQuery<T, T> {
                 ResultSet generatedKeys = statement.getGeneratedKeys();
 
                 ORMColumn<T, ?> keyColumn = this.table.getKeyColumn();
-                if(keyColumn != null && !this.values.containsKey(keyColumn.getName()) && generatedKeys.next()) {
+                if (keyColumn != null && !this.values.containsKey(keyColumn.getName()) && generatedKeys.next()) {
                     ORMColumn<T, ?> column = this.table.getKeyColumn();
 
-                    if(ClassUtils.isInteger(column.getFieldClass())) {
+                    if (ClassUtils.isInteger(column.getFieldClass())) {
                         column.setValue(t, generatedKeys.getInt(1));
-                    }
-                    else if(ClassUtils.isLong(column.getFieldClass())) {
+                    } else if (ClassUtils.isLong(column.getFieldClass())) {
                         column.setValue(t, generatedKeys.getLong(1));
-                    }
-                    else {
+                    } else {
                         throw new IllegalStateException("Got wrong @PrimaryKey with wrong field class!");
                     }
                 }
 
                 return t;
 
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
                 return null;
             }

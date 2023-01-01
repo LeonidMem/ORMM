@@ -26,15 +26,15 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
         return () -> {
             List<T> out = new ArrayList<>();
 
-            try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
 
-                try(ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
-                    while(resultSet.next()) {
+                try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
+                    while (resultSet.next()) {
                         out.add(this.table.objectFrom(resultSet));
                     }
                 }
 
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
 

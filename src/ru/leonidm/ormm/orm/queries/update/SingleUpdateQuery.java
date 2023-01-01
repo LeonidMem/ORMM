@@ -19,7 +19,7 @@ public final class SingleUpdateQuery<T> extends AbstractUpdateQuery<SingleUpdate
         super(table, object);
 
         ORMColumn<T, ?> keyColumn = table.getKeyColumn();
-        if(keyColumn == null) {
+        if (keyColumn == null) {
             throw new IllegalArgumentException("SingleUpdateQuery can be used only in the tables with the primary key!");
         }
 
@@ -52,9 +52,9 @@ public final class SingleUpdateQuery<T> extends AbstractUpdateQuery<SingleUpdate
     @NotNull
     protected Supplier<T> prepareSupplier() {
         return () -> {
-            try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
                 statement.executeUpdate(this.getSQLQuery());
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
 

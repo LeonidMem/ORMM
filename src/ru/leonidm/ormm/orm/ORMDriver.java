@@ -22,6 +22,8 @@ public enum ORMDriver {
     }
 
     public enum Key {
-        LINK_PREFIX, AUTOINCREMENT, INSERT_IGNORE
+        LINK_PREFIX,
+        AUTOINCREMENT,
+        INSERT_IGNORE
     }
 }

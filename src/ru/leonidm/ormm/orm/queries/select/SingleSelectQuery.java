@@ -26,15 +26,15 @@ public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelect
     @NotNull
     protected Supplier<T> prepareSupplier() {
         return () -> {
-            try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
 
-                try(ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
-                    if(resultSet.next()) {
+                try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
+                    if (resultSet.next()) {
                         return this.table.objectFrom(resultSet);
                     }
                 }
 
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
 

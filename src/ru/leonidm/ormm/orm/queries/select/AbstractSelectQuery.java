@@ -40,7 +40,7 @@ public abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O, T, R>
 
         stringBuilder.append(column);
 
-        for(String column1 : columns) {
+        for (String column1 : columns) {
             stringBuilder.append(", ").append(column1);
         }
 
@@ -69,19 +69,19 @@ public abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O, T, R>
 
         queryBuilder.append(" FROM ").append(this.table.getName());
 
-        if(this.where != null) {
+        if (this.where != null) {
             queryBuilder.append(" WHERE ").append(this.where.build(this.table));
         }
 
-        if(this.order != null) {
+        if (this.order != null) {
             queryBuilder.append(" ORDER BY ").append(this.order);
         }
 
-        if(this.group != null) {
+        if (this.group != null) {
             queryBuilder.append(" GROUP BY ").append(this.group);
         }
 
-        if(this.limit > 0) {
+        if (this.limit > 0) {
             queryBuilder.append(" LIMIT ").append(this.limit);
         }
 
@@ -98,7 +98,7 @@ public abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O, T, R>
 
     protected void checkIfColumnsExist(@NotNull String[] columns) {
         Set<String> columnsNames = this.table.getColumnsNames();
-        if(Arrays.stream(columns).anyMatch(columnName -> !columnsNames.contains(columnName))) {
+        if (Arrays.stream(columns).anyMatch(columnName -> !columnsNames.contains(columnName))) {
             throw new IllegalArgumentException("Got columns that don't exist!");
         }
     }

@@ -24,7 +24,7 @@ public final class Order {
     }
 
     public static Order combine(@NotNull Order... orders) {
-        if(orders.length == 0) {
+        if (orders.length == 0) {
             throw new IllegalArgumentException("Got empty orders!");
         }
 
@@ -65,14 +65,14 @@ public final class Order {
         RAND(0, (table, column, args) -> "RAND()"),
 
         COMBINE(-1, (table, column, args) -> {
-            if(args.length == 0) {
+            if (args.length == 0) {
                 throw new IllegalArgumentException("Got empty args!");
             }
 
             StringBuilder stringBuilder = new StringBuilder();
 
             Arrays.stream(args).forEach(arg -> {
-                if(!(arg instanceof Order order)) {
+                if (!(arg instanceof Order order)) {
                     throw new IllegalArgumentException("At least one of the arguments isn't \"Order\" clause!");
                 }
 
@@ -92,20 +92,19 @@ public final class Order {
 
         @NotNull
         private String build(@NotNull ORMTable<?> table, @Nullable String columnName, @NotNull Object... args) {
-            if(this.argsAmount >= 0) {
-                if(this.argsAmount != args.length) {
+            if (this.argsAmount >= 0) {
+                if (this.argsAmount != args.length) {
                     throw new IllegalArgumentException("Provided arguments has wrong amount!");
                 }
             }
 
             ORMColumn<?, ?> column;
-            if(columnName != null) {
+            if (columnName != null) {
                 column = table.getColumn(columnName);
-                if(column == null) {
+                if (column == null) {
                     throw new IllegalArgumentException(table.getIdentifier() + " Unknown column \"" + columnName + "\"!");
                 }
-            }
-            else {
+            } else {
                 column = null;
             }
 

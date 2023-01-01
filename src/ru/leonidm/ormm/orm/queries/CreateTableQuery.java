@@ -30,10 +30,10 @@ public final class CreateTableQuery<T> extends AbstractQuery<T, Void> {
 
         this.table.getColumnsStream().filter(column -> column.getMeta().foreignKey() && column.getMeta().makeReference())
                 .forEachOrdered(column -> {
-            ORMColumnMeta meta = column.getMeta();
-            queryBuilder.append("FOREIGN KEY(").append(column.getName()).append(") REFERENCES ")
-                    .append(meta.table()).append('(').append(meta.key()).append("), ");
-        });
+                    ORMColumnMeta meta = column.getMeta();
+                    queryBuilder.append("FOREIGN KEY(").append(column.getName()).append(") REFERENCES ")
+                            .append(meta.table()).append('(').append(meta.key()).append("), ");
+                });
 
         return queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length()).append(')').toString();
     }

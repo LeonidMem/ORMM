@@ -33,7 +33,7 @@ public final class ORMTask<R> extends Thread {
 
     @NotNull
     public ORMTask<R> await() {
-        while(!this.done) {
+        while (!this.done) {
             Thread.onSpinWait();
         }
 
@@ -44,10 +44,10 @@ public final class ORMTask<R> extends Thread {
     public void run() {
         try {
             this.result = this.supplier.get();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Task initialize StackTrace:");
-            for(StackTraceElement traceElement : this.stackTraceElements) {
+            for (StackTraceElement traceElement : this.stackTraceElements) {
                 System.err.println("\tat " + traceElement);
             }
         }
@@ -61,7 +61,7 @@ public final class ORMTask<R> extends Thread {
 
     @Nullable
     public R getResult() {
-        if(!this.done) {
+        if (!this.done) {
             throw new IllegalStateException("Can't get result because the task isn't done yet!");
         }
 

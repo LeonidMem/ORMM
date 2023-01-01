@@ -23,7 +23,7 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
 
         columns.forEach(column -> {
             SQLType sqlType = column.getSQLType();
-            if(!sqlType.isIndexable(column.getTable().getDatabase().getDriver())) {
+            if (!sqlType.isIndexable(column.getTable().getDatabase().getDriver())) {
                 throw new IllegalArgumentException(column.getIdentifier() +
                         " This type isn't indexable!");
             }
@@ -36,12 +36,12 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
 
     @Nullable
     public String getSQLCheck() {
-        return switch(this.table.getDatabase().getDriver()) {
+        return switch (this.table.getDatabase().getDriver()) {
             case MYSQL -> {
                 StringBuilder queryBuilder = new StringBuilder();
 
                 queryBuilder.append("SELECT COUNT(1) FROM information_schema.statistics " +
-                        "WHERE table_schema = DATABASE() AND table_name = \"")
+                                "WHERE table_schema = DATABASE() AND table_name = \"")
                         .append(this.table.getName()).append("\" ")
                         .append("AND index_name IN (");
 
@@ -61,7 +61,7 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
         StringBuilder queryBuilder = new StringBuilder();
 
         // TODO: probably check, if column with the same name exists
-        switch(this.table.getDatabase().getDriver()) {
+        switch (this.table.getDatabase().getDriver()) {
             case MYSQL -> {
                 queryBuilder.append("CREATE INDEX ");
 
@@ -93,21 +93,23 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
     @NotNull
     protected Supplier<Void> prepareSupplier() {
         return () -> {
-            try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
 
                 String sqlCheck = getSQLCheck();
 
-                if(sqlCheck != null) {
-                    try(ResultSet resultSet = statement.executeQuery(sqlCheck)) {
+                if (sqlCheck != null) {
+                    try (ResultSet resultSet = statement.executeQuery(sqlCheck)) {
                         resultSet.next();
 
                         int count = resultSet.getInt(1);
-                        if(count != 0) return null;
+                        if (count != 0) {
+                            return null;
+                        }
                     }
                 }
 
                 statement.executeUpdate(this.getSQLQuery());
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
 

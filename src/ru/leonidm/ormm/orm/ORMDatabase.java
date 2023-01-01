@@ -32,7 +32,7 @@ public final class ORMDatabase {
 
         try {
             this.connection = DriverManager.getConnection(driver.get(ORMDriver.Key.LINK_PREFIX) + link);
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
 
@@ -45,7 +45,7 @@ public final class ORMDatabase {
         try {
             this.connection = DriverManager.getConnection(driver.get(ORMDriver.Key.LINK_PREFIX) + link,
                     user, password);
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
 
@@ -64,13 +64,13 @@ public final class ORMDatabase {
 
     public <T> void addTable(@NotNull ORMTable<T> table) {
         ORMTable<?> checkTable = this.getTable(table.getOriginalClass());
-        if(checkTable != null) {
+        if (checkTable != null) {
             throw new IllegalArgumentException("Table with class \"" + table.getOriginalClass() + "\" was already " +
                     "registered!");
         }
 
         checkTable = this.getTable(table.getName());
-        if(checkTable != null) {
+        if (checkTable != null) {
             throw new IllegalArgumentException("Table with name \"" + table.getName() + "\" was already registered!");
         }
 
@@ -84,14 +84,14 @@ public final class ORMDatabase {
 
         existingColumns.forEach(columnData -> {
             ORMColumn<T, ?> column = table.getColumn(columnData.getName());
-            if(column == null) {
+            if (column == null) {
                 columnsToDrop.add(columnData);
                 return;
             }
 
             SQLType sqlType1 = column.getSQLType();
             SQLType sqlType2 = SQLType.of(columnData.getType());
-            if(sqlType1 != sqlType2) {
+            if (sqlType1 != sqlType2) {
                 // TODO: change type of the column via ALTER TABLE
                 //ALTER TABLE contacts
                 //  MODIFY last_name varchar(55) NULL
@@ -104,20 +104,20 @@ public final class ORMDatabase {
         List<Pair<ORMColumn<T, ?>, ORMColumn<T, ?>>> columnsToAdd = new ArrayList<>();
 
         ORMColumn<T, ?>[] tableColumns = table.getColumnsStream().toArray(ORMColumn[]::new);
-        for(int i = 0; i < tableColumns.length; i++) {
+        for (int i = 0; i < tableColumns.length; i++) {
             ORMColumn<T, ?> column = tableColumns[i];
 
-            if(existingColumns.stream().noneMatch(columnData -> columnData.getName().equals(column.getName()))) {
+            if (existingColumns.stream().noneMatch(columnData -> columnData.getName().equals(column.getName()))) {
                 columnsToAdd.add(new Pair<>(column, i > 0 ? tableColumns[i - 1] : null));
             }
         }
 
-        if(!columnsToDrop.isEmpty()) {
+        if (!columnsToDrop.isEmpty()) {
             DropColumnsQuery<T> dropColumnsQuery = new DropColumnsQuery<>(table, columnsToDrop);
             dropColumnsQuery.waitQueue();
         }
 
-        if(!columnsToAdd.isEmpty()) {
+        if (!columnsToAdd.isEmpty()) {
             AddColumnsQuery<T> addColumnsQuery = new AddColumnsQuery<>(table, columnsToAdd);
             addColumnsQuery.waitQueue();
         }
@@ -128,7 +128,7 @@ public final class ORMDatabase {
                         && !column.getMeta().primaryKey())
                 .toList();
 
-        if(!columnsIndexesToAdd.isEmpty()) {
+        if (!columnsIndexesToAdd.isEmpty()) {
             CreateIndexesQuery<T> createIndexesQuery = new CreateIndexesQuery<>(table, columnsIndexesToAdd);
             createIndexesQuery.waitQueue();
         }
@@ -158,7 +158,7 @@ public final class ORMDatabase {
     @NotNull
     public <T> SelectQuery<T> selectQuery(@NotNull Class<T> clazz) {
         ORMTable<T> table = this.getTable(clazz);
-        if(table == null) {
+        if (table == null) {
             throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
         }
 
@@ -168,7 +168,7 @@ public final class ORMDatabase {
     @NotNull
     public <T> InsertQuery<T> insertQuery(@NotNull Class<T> clazz) {
         ORMTable<T> table = this.getTable(clazz);
-        if(table == null) {
+        if (table == null) {
             throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
         }
 
@@ -178,7 +178,7 @@ public final class ORMDatabase {
     @NotNull
     public <T> UpdateQuery<T> updateQuery(@NotNull Class<T> clazz) {
         ORMTable<T> table = this.getTable(clazz);
-        if(table == null) {
+        if (table == null) {
             throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
         }
 
@@ -188,7 +188,7 @@ public final class ORMDatabase {
     @NotNull
     public <T> SingleUpdateQuery<T> updateQuery(@NotNull Class<T> clazz, @NotNull T object) {
         ORMTable<T> table = this.getTable(clazz);
-        if(table == null) {
+        if (table == null) {
             throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
         }
 
@@ -198,7 +198,7 @@ public final class ORMDatabase {
     @NotNull
     public <T> DeleteQuery<T> deleteQuery(@NotNull Class<T> clazz) {
         ORMTable<T> table = this.getTable(clazz);
-        if(table == null) {
+        if (table == null) {
             throw new IllegalArgumentException("Given class \"" + clazz + "\" wasn't registered as table!");
         }
 
@@ -207,8 +207,12 @@ public final class ORMDatabase {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
-        if(o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ORMDatabase database = (ORMDatabase) o;
         return this.linkUserPasswordHash == database.linkUserPasswordHash && this.driver == database.driver;
     }

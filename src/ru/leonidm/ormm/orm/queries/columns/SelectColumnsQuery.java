@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnData>>  {
+public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnData>> {
 
     public SelectColumnsQuery(@NotNull ORMTable<T> table) {
         super(table);
@@ -21,7 +21,7 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
     @Override
     @NotNull
     public String getSQLQuery() {
-        return switch(this.table.getDatabase().getDriver()) {
+        return switch (this.table.getDatabase().getDriver()) {
             case MYSQL -> "SELECT column_name, data_type, character_maximum_length " +
                     "FROM information_schema.columns " +
                     "WHERE table_schema = DATABASE() " +
@@ -37,17 +37,19 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
         return () -> {
             List<ColumnData> out = new ArrayList<>();
 
-            try(Statement statement = this.table.getDatabase().getConnection().createStatement()) {
-                try(ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
-                    while(resultSet.next()) {
+            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+                try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
+                    while (resultSet.next()) {
                         String columnName, columnType;
                         int length;
 
-                        switch(this.table.getDatabase().getDriver()) {
+                        switch (this.table.getDatabase().getDriver()) {
                             case MYSQL -> {
                                 columnName = resultSet.getString("column_name").toLowerCase();
                                 columnType = resultSet.getString("data_type").toUpperCase();
-                                if(columnType.equals("INT")) columnType = "INTEGER";
+                                if (columnType.equals("INT")) {
+                                    columnType = "INTEGER";
+                                }
 
                                 length = resultSet.getInt("character_maximum_length");
                             }
@@ -56,11 +58,10 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
                                 columnType = resultSet.getString("type").toUpperCase();
 
                                 int index = columnType.indexOf('(');
-                                if(index != -1) {
+                                if (index != -1) {
                                     length = Integer.parseInt(columnType.substring(index + 1, columnType.length() - 1));
                                     columnType = columnType.substring(0, index);
-                                }
-                                else {
+                                } else {
                                     length = 0;
                                 }
                             }
@@ -73,7 +74,7 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
                         out.add(new ColumnData(this.table.getName(), columnName, columnType, length));
                     }
                 }
-            } catch(SQLException e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
 

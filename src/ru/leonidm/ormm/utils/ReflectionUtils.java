@@ -13,13 +13,14 @@ import java.util.function.Predicate;
 
 public final class ReflectionUtils {
 
-    private ReflectionUtils() {}
+    private ReflectionUtils() {
+    }
 
     @Nullable
     public static <T extends Annotation> T getAnnotation(@NotNull Field field, @NotNull Class<T> annotationClass) {
         try {
             return field.getAnnotationsByType(annotationClass)[0];
-        } catch(Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -27,7 +28,7 @@ public final class ReflectionUtils {
     public static <T extends Annotation> boolean hasAnnotation(@NotNull Field field, @NotNull Class<T> annotationClass) {
         try {
             return field.getAnnotationsByType(annotationClass).length != 0;
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -42,7 +43,7 @@ public final class ReflectionUtils {
     public static Class<?> getClass(@NotNull String name) {
         try {
             return Class.forName(name);
-        } catch(ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             return null;
         }
     }
@@ -68,7 +69,7 @@ public final class ReflectionUtils {
                                            @NotNull Class<?>... parameterTypes) {
         try {
             return clazz.getDeclaredMethod(name, parameterTypes);
-        } catch(NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             return null;
         }
     }
@@ -77,7 +78,7 @@ public final class ReflectionUtils {
     public static <T> Constructor<T> getEmptyConstructor(Class<T> clazz) {
         try {
             return clazz.getConstructor();
-        } catch(NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             return null;
         }
     }
@@ -88,7 +89,7 @@ public final class ReflectionUtils {
             Constructor<T> constructor = getEmptyConstructor(clazz);
             constructor.setAccessible(true);
             return constructor.newInstance();
-        } catch(InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             return null;
         }
     }

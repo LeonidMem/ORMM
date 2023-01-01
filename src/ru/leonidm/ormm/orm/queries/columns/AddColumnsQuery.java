@@ -19,14 +19,14 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
     public AddColumnsQuery(@NotNull ORMTable<T> table, @NotNull List<Pair<ORMColumn<T, ?>, ORMColumn<T, ?>>> columns) {
         super(table);
 
-        if(columns.isEmpty()) {
+        if (columns.isEmpty()) {
             throw new IllegalArgumentException("Got empty list of the columns!");
         }
 
         columns.forEach(pair -> {
             ORMTable<T> leftTable = Objects.requireNonNull(pair.getLeft()).getTable();
             ORMColumn<T, ?> afterColumn = pair.getRight();
-            if(afterColumn != null && leftTable != afterColumn.getTable() || leftTable != table) {
+            if (afterColumn != null && leftTable != afterColumn.getTable() || leftTable != table) {
                 throw new IllegalArgumentException("There are columns with different tables!");
             }
         });
@@ -41,7 +41,7 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
 
         StringBuilder queryBuilder = new StringBuilder();
 
-        return switch(driver) {
+        return switch (driver) {
             case MYSQL -> {
 
                 queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(' ');
@@ -54,10 +54,9 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
                     // TODO: implement foreign keys
                     QueryUtils.writeColumnDefinition(queryBuilder, driver, column);
 
-                    if(after == null) {
+                    if (after == null) {
                         queryBuilder.append(" FIRST");
-                    }
-                    else {
+                    } else {
                         queryBuilder.append(" AFTER ").append(after.getName());
                     }
 

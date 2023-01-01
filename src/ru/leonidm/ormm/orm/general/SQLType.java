@@ -14,16 +14,19 @@ public enum SQLType {
 
     // TODO: timestamp
 
-    INTEGER, BIGINT, FLOAT, DOUBLE,
+    INTEGER,
+    BIGINT,
+    FLOAT,
+    DOUBLE,
 
-    BLOB(SQLTypeMeta.builder().length(true).defaultLength(65535).indexable(driver -> switch(driver) {
+    BLOB(SQLTypeMeta.builder().length(true).defaultLength(65535).indexable(driver -> switch (driver) {
         case MYSQL -> false;
         case SQLITE -> true;
     }).build()),
 
     VARCHAR(SQLTypeMeta.builder().length(true).defaultLength(-1).build()),
 
-    TEXT(SQLTypeMeta.builder().length(true).defaultLength(65535).indexable(driver -> switch(driver) {
+    TEXT(SQLTypeMeta.builder().length(true).defaultLength(65535).indexable(driver -> switch (driver) {
         case MYSQL -> false;
         case SQLITE -> true;
     }).build());
@@ -123,13 +126,12 @@ public enum SQLType {
 
     @Nullable
     public static SQLType of(@NotNull ORMColumn<?, ?> column) {
-        if(column.getDatabaseClass() == String.class) {
+        if (column.getDatabaseClass() == String.class) {
             int length = column.getMeta().length();
 
-            if(length > 0 && length < 65536) {
+            if (length > 0 && length < 65536) {
                 return VARCHAR;
-            }
-            else {
+            } else {
                 return TEXT;
             }
         }
@@ -141,7 +143,7 @@ public enum SQLType {
     public static SQLType of(@NotNull String name) {
         try {
             return valueOf(name);
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }
@@ -168,7 +170,8 @@ public enum SQLType {
             private int defaultLength = -1;
             private Predicate<ORMDriver> indexablePredicate = driver -> true;
 
-            private Builder() {}
+            private Builder() {
+            }
 
             private Builder length(boolean length) {
                 this.length = length;

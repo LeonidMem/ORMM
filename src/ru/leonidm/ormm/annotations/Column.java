@@ -12,13 +12,17 @@ public @interface Column {
     String name() default "";
 
     boolean unique() default false;
+
     boolean notNull() default false;
 
     int length() default -1;
+
     boolean index() default false;
 
     Class<?> databaseClass() default Void.class;
+
     String loadFunction() default "";
+
     String saveFunction() default "";
 
     // TODO: default value

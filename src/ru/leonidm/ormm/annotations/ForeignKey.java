@@ -10,7 +10,9 @@ import java.lang.annotation.Target;
 public @interface ForeignKey {
 
     String table() default "";
+
     String key() default "";
+
     // TODO: rename
     boolean makeReference() default false;
 

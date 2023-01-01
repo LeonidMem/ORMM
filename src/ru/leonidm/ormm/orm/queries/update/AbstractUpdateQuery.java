@@ -19,10 +19,11 @@ public abstract class AbstractUpdateQuery<O, T, R> extends AbstractQuery<T, R> {
         super(table);
         this.object = object;
 
-        if(this.object != null) {
+        if (this.object != null) {
             ORMColumn<T, ?> keyColumn = table.getKeyColumn();
-            if(keyColumn == null)
+            if (keyColumn == null) {
                 throw new IllegalArgumentException("Object of table without key column can't be served!");
+            }
 
             this.where = Where.compare(keyColumn.getName(), "=", keyColumn.getValue(object));
         }
