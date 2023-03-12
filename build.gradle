@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group 'ru.leonidm'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.jetbrains:annotations:23.1.0'
+
+    runtimeOnly 'com.mysql:mysql-connector-j:8.0.32'
+    testRuntimeOnly 'com.mysql:mysql-connector-j:8.0.32'
+    runtimeOnly 'org.xerial:sqlite-jdbc:3.40.0.0'
+    testRuntimeOnly 'org.xerial:sqlite-jdbc:3.40.0.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+}
+
+test {
+    useJUnitPlatform()
+}
