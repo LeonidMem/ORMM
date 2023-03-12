@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import ru.leonidm.ormm.annotations.Column;
+import ru.leonidm.ormm.annotations.PrimaryKey;
 import ru.leonidm.ormm.annotations.Table;
 import ru.leonidm.ormm.orm.ORMDatabase;
 import ru.leonidm.ormm.orm.ORMDriver;
@@ -17,6 +18,7 @@ import ru.leonidm.ormm.orm.ORMSettings;
 public class SimpleTest {
 
     @Column
+    @PrimaryKey
     private int a;
     @Column
     private long b;

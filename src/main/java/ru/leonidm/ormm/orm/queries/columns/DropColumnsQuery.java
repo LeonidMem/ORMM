@@ -35,7 +35,7 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
         StringBuilder queryBuilder = new StringBuilder();
 
         return switch (this.table.getDatabase().getDriver()) {
-            case ORMDriver.MYSQL -> {
+            case MYSQL -> {
                 queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(' ');
 
                 this.columns.forEach(column -> {
@@ -44,7 +44,7 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
 
                 yield queryBuilder.substring(0, queryBuilder.length() - 2);
             }
-            case ORMDriver.SQLITE -> {
+            case SQLITE -> {
                 this.columns.forEach(column -> {
                     queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(" DROP COLUMN ")
                             .append(column.getName()).append(';');

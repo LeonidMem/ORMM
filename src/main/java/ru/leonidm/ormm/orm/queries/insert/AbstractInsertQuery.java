@@ -101,7 +101,7 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
             }
 
             switch (this.table.getDatabase().getDriver()) {
-                case ORMDriver.MYSQL -> {
+                case MYSQL -> {
                     queryBuilder.append(" ON DUPLICATE KEY UPDATE ");
 
                     updateColumns.forEach(column -> appendColumn(column, queryBuilder));
@@ -125,8 +125,8 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
         return () -> {
             try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
                 int affected = switch (this.table.getDatabase().getDriver()) {
-                    case ORMDriver.MYSQL -> statement.executeUpdate(this.getSQLQuery(), Statement.RETURN_GENERATED_KEYS);
-                    case ORMDriver.SQLITE -> statement.executeUpdate(this.getSQLQuery());
+                    case MYSQL -> statement.executeUpdate(this.getSQLQuery(), Statement.RETURN_GENERATED_KEYS);
+                    case SQLITE -> statement.executeUpdate(this.getSQLQuery());
                 };
 
                 if (affected == 0) {

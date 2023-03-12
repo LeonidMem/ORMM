@@ -65,8 +65,8 @@ public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T,
             queryBuilder.append(' ');
 
             switch (this.table.getDatabase().getDriver()) {
-                case ORMDriver.MYSQL -> queryBuilder.append(this.table.getName()).append('.');
-                case ORMDriver.SQLITE -> {
+                case MYSQL -> queryBuilder.append(this.table.getName()).append('.');
+                case SQLITE -> {
                 }
             }
 

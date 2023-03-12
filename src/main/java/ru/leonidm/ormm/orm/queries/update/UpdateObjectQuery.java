@@ -2,7 +2,6 @@ package ru.leonidm.ormm.orm.queries.update;
 
 import org.jetbrains.annotations.NotNull;
 import ru.leonidm.ormm.orm.ORMColumn;
-import ru.leonidm.ormm.orm.ORMDriver;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.utils.FormatUtils;
@@ -41,8 +40,8 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
             queryBuilder.append(' ');
 
             switch (this.table.getDatabase().getDriver()) {
-                case ORMDriver.MYSQL -> queryBuilder.append(this.table.getName()).append('.');
-                case ORMDriver.SQLITE -> {
+                case MYSQL -> queryBuilder.append(this.table.getName()).append('.');
+                case SQLITE -> {
                 }
             }
 
@@ -55,10 +54,10 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
         queryBuilder.append(" WHERE ").append(this.where.build(this.table));
 
         switch (this.table.getDatabase().getDriver()) {
-            case ORMDriver.MYSQL -> {
+            case MYSQL -> {
                 queryBuilder.append(" LIMIT ").append(1);
             }
-            case ORMDriver.SQLITE -> {
+            case SQLITE -> {
 
             }
         }

@@ -37,7 +37,7 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
     @Nullable
     public String getSQLCheck() {
         return switch (this.table.getDatabase().getDriver()) {
-            case ORMDriver.MYSQL -> {
+            case MYSQL -> {
                 StringBuilder queryBuilder = new StringBuilder();
 
                 queryBuilder.append("SELECT COUNT(1) FROM information_schema.statistics " +
@@ -51,7 +51,7 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
 
                 yield queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length()).append(")").toString();
             }
-            case ORMDriver.SQLITE -> null;
+            case SQLITE -> null;
         };
     }
 
@@ -61,7 +61,7 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
         StringBuilder queryBuilder = new StringBuilder();
 
         switch (this.table.getDatabase().getDriver()) {
-            case ORMDriver.MYSQL -> {
+            case MYSQL -> {
                 queryBuilder.append("CREATE INDEX ");
 
                 this.columns.forEach(column -> {
@@ -77,7 +77,7 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
 
                 queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length()).append(')');
             }
-            case ORMDriver.SQLITE -> {
+            case SQLITE -> {
                 this.columns.forEach(column -> {
                     queryBuilder.append("CREATE INDEX IF NOT EXISTS ").append(column.getName()).append("_ormm_idx ON ")
                             .append(this.table.getName()).append('(').append(column.getName()).append(");");

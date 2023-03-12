@@ -13,7 +13,7 @@ import ru.leonidm.ormm.orm.ORMSettings;
 
 @Table(value = "array_test", allowUnsafeOperations = true)
 public class ArraysTest {
-    
+
     public @Column boolean[] booleans1;
     public @Column Boolean[] booleans2;
 

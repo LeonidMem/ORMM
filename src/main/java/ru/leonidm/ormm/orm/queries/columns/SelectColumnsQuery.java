@@ -23,12 +23,12 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
     @NotNull
     public String getSQLQuery() {
         return switch (this.table.getDatabase().getDriver()) {
-            case ORMDriver.MYSQL -> "SELECT column_name, data_type, character_maximum_length " +
+            case MYSQL -> "SELECT column_name, data_type, character_maximum_length " +
                     "FROM information_schema.columns " +
                     "WHERE table_schema = DATABASE() " +
                     "AND table_name = \"" + this.table.getName() + "\" " +
                     "ORDER BY ordinal_position";
-            case ORMDriver.SQLITE -> "PRAGMA table_info(\"" + this.table.getName() + "\")";
+            case SQLITE -> "PRAGMA table_info(\"" + this.table.getName() + "\")";
         };
     }
 
@@ -45,7 +45,7 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
                         int length;
 
                         switch (this.table.getDatabase().getDriver()) {
-                            case ORMDriver.MYSQL -> {
+                            case MYSQL -> {
                                 columnName = resultSet.getString("column_name").toLowerCase();
                                 columnType = resultSet.getString("data_type").toUpperCase();
                                 if (columnType.equals("INT")) {
@@ -54,7 +54,7 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
 
                                 length = resultSet.getInt("character_maximum_length");
                             }
-                            case ORMDriver.SQLITE -> {
+                            case SQLITE -> {
                                 columnName = resultSet.getString("name").toLowerCase();
                                 columnType = resultSet.getString("type").toUpperCase();
 
