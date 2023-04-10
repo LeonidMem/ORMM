@@ -44,7 +44,7 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
         return switch (driver) {
             case MYSQL -> {
 
-                queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(' ');
+                queryBuilder.append("ALTER TABLE ").append(QueryUtils.getTableName(this.table)).append(' ');
 
                 this.columns.forEach(pair -> {
                     queryBuilder.append("ADD ");
@@ -67,7 +67,7 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
             }
             case SQLITE -> {
                 this.columns.forEach(pair -> {
-                    queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(" ADD COLUMN ");
+                    queryBuilder.append("ALTER TABLE ").append(QueryUtils.getTableName(this.table)).append(" ADD COLUMN ");
 
                     ORMColumn<T, ?> column = Objects.requireNonNull(pair.getLeft());
 

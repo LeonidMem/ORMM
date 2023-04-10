@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.resolvers.builtin.ArrayResolver;
+import ru.leonidm.ormm.orm.resolvers.builtin.EnumResolver;
 import ru.leonidm.ormm.orm.resolvers.builtin.UUIDResolver;
 
 import java.util.LinkedHashSet;
@@ -16,6 +17,7 @@ public final class ORMResolverRegistry {
     static {
         ARGUMENT_RESOLVERS.add(new ArrayResolver());
         ARGUMENT_RESOLVERS.add(new UUIDResolver());
+        ARGUMENT_RESOLVERS.add(new EnumResolver());
     }
 
     private ORMResolverRegistry() {

@@ -5,6 +5,7 @@ import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.clauses.Order;
 import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -63,12 +64,12 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         queryBuilder.append("SELECT ");
 
         Arrays.stream(this.columns).forEach(column -> {
-            queryBuilder.append(this.table.getName()).append('.').append(column).append(", ");
+            queryBuilder.append(QueryUtils.getTableName(this.table)).append('.').append(column).append(", ");
         });
 
         queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length());
 
-        queryBuilder.append(" FROM ").append(this.table.getName());
+        queryBuilder.append(" FROM ").append(QueryUtils.getTableName(this.table));
 
         if (this.where != null) {
             queryBuilder.append(" WHERE ").append(this.where.build(this.table));

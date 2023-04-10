@@ -16,6 +16,7 @@ import ru.leonidm.ormm.orm.queries.select.SelectQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateObjectQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateQuery;
 import ru.leonidm.ormm.utils.Pair;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -81,10 +82,10 @@ public final class ORMDatabase {
                     .formatted(table.getOriginalClass()));
         }
 
-        checkTable = this.getTable(table.getName());
+        checkTable = this.getTable(QueryUtils.getTableName(table));
         if (checkTable != null) {
             throw new IllegalArgumentException("Table with name \"%s\" was already registered"
-                    .formatted(table.getName()));
+                    .formatted(QueryUtils.getTableName(table)));
         }
 
         CreateTableQuery<T> createTableQuery = new CreateTableQuery<>(table);
@@ -121,7 +122,7 @@ public final class ORMDatabase {
             ORMColumn<T, ?> column = tableColumns[i];
 
             if (existingColumns.stream().noneMatch(columnData -> columnData.getName().equals(column.getName()))) {
-                columnsToAdd.add(Pair.of(column, i > 0 ? tableColumns[i - 1] : null));
+                columnsToAdd.add(new Pair<>(column, i > 0 ? tableColumns[i - 1] : null));
             }
         }
 
@@ -146,7 +147,7 @@ public final class ORMDatabase {
             createIndexesQuery.complete();
         }
 
-        this.tablesByName.put(table.getName(), table);
+        this.tablesByName.put(QueryUtils.getTableName(table), table);
         this.tablesByClass.put(table.getOriginalClass(), table);
     }
 

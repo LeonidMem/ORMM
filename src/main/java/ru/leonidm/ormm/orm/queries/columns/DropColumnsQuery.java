@@ -1,10 +1,10 @@
 package ru.leonidm.ormm.orm.queries.columns;
 
 import org.jetbrains.annotations.NotNull;
-import ru.leonidm.ormm.orm.ORMDriver;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.general.ColumnData;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -21,7 +21,7 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
         }
 
         columns.forEach(column -> {
-            if (!column.getTable().equals(table.getName())) {
+            if (!column.getTable().equals(QueryUtils.getTableName(table))) {
                 throw new IllegalArgumentException("There is at least one column with different table");
             }
         });
@@ -36,7 +36,7 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
 
         return switch (this.table.getDatabase().getDriver()) {
             case MYSQL -> {
-                queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(' ');
+                queryBuilder.append("ALTER TABLE ").append(QueryUtils.getTableName(this.table)).append(' ');
 
                 this.columns.forEach(column -> {
                     queryBuilder.append("DROP COLUMN ").append(column.getName()).append(", ");
@@ -46,7 +46,7 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
             }
             case SQLITE -> {
                 this.columns.forEach(column -> {
-                    queryBuilder.append("ALTER TABLE ").append(this.table.getName()).append(" DROP COLUMN ")
+                    queryBuilder.append("ALTER TABLE ").append(QueryUtils.getTableName(this.table)).append(" DROP COLUMN ")
                             .append(column.getName()).append(';');
                 });
 

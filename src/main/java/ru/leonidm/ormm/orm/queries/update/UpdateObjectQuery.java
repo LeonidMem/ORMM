@@ -5,6 +5,7 @@ import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.utils.FormatUtils;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -28,7 +29,7 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        queryBuilder.append("UPDATE ").append(this.table.getName()).append(" SET");
+        queryBuilder.append("UPDATE ").append(QueryUtils.getTableName(this.table)).append(" SET");
 
         this.table.getColumnsStream().forEachOrdered(column -> {
             if (column.getMeta().primaryKey()) {
@@ -40,7 +41,7 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
             queryBuilder.append(' ');
 
             switch (this.table.getDatabase().getDriver()) {
-                case MYSQL -> queryBuilder.append(this.table.getName()).append('.');
+                case MYSQL -> queryBuilder.append(QueryUtils.getTableName(this.table)).append('.');
                 case SQLITE -> {
                 }
             }

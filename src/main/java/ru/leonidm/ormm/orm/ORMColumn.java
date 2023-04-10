@@ -7,14 +7,17 @@ import ru.leonidm.ormm.annotations.ForeignKey;
 import ru.leonidm.ormm.annotations.PrimaryKey;
 import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.orm.general.SQLType;
-import ru.leonidm.ormm.utils.ClassUtils;
 import ru.leonidm.ormm.orm.resolvers.CannotResolveException;
 import ru.leonidm.ormm.orm.resolvers.ORMResolverRegistry;
+import ru.leonidm.ormm.utils.ClassUtils;
+import ru.leonidm.ormm.utils.QueryUtils;
+import ru.leonidm.ormm.utils.TextCase;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.UUID;
 
 public final class ORMColumn<T, F> {
 
@@ -27,6 +30,7 @@ public final class ORMColumn<T, F> {
     private final Field field;
     private final Class<F> fieldClass;
     private final Class<?> databaseClass;
+
     private ORMColumn(@NotNull ORMTable<T> table, @NotNull String name,
                       @NotNull ORMColumnMeta meta, @Nullable ORMColumn<?, ?> joinColumn,
                       @NotNull Field field, @NotNull Class<F> fieldClass,
@@ -46,7 +50,7 @@ public final class ORMColumn<T, F> {
         this.fieldClass = fieldClass;
         this.databaseClass = databaseClass;
         this.sqlType = SQLType.of(this);
-        if (sqlType == null) {
+        if (this.sqlType == null) {
             throw new IllegalArgumentException("%s Can't get SQL type of this column".formatted(getIdentifier()));
         }
     }
@@ -65,7 +69,12 @@ public final class ORMColumn<T, F> {
         Class<?> fieldClass = field.getType();
         Class<?> databaseClass;
         if (column.databaseClass() == Void.class) {
-            databaseClass = fieldClass;
+            if (Enum.class.isAssignableFrom(fieldClass) || fieldClass == UUID.class) {
+                databaseClass = String.class;
+            } else {
+                databaseClass = fieldClass;
+            }
+
             // TODO: check for allowed classes
         } else {
             databaseClass = column.databaseClass();
@@ -73,7 +82,14 @@ public final class ORMColumn<T, F> {
 
         String name;
         if (column.name().isBlank()) {
-            name = field.getName().toLowerCase();
+            String finalName = field.getName();
+
+            TextCase textCase = TextCase.from(finalName);
+            if (textCase != null) {
+                finalName = TextCase.SNAKE.wordsTo(textCase.wordsFrom(finalName));
+            }
+
+            name = finalName.toLowerCase();
         } else {
             name = column.name().toLowerCase();
         }
@@ -102,7 +118,7 @@ public final class ORMColumn<T, F> {
                         .formatted(getColumnIdentifier(table, name)));
             }
 
-            if (foreignKey.table().equals(table.getName())) {
+            if (foreignKey.table().equals(QueryUtils.getTableName(table))) {
                 throw new IllegalArgumentException("%s Column can't be foreign key for the same table"
                         .formatted(getColumnIdentifier(table, name)));
             }
@@ -137,12 +153,12 @@ public final class ORMColumn<T, F> {
 
     @NotNull
     private static String getColumnIdentifier(@NotNull ORMTable<?> table, @NotNull String name) {
-        return "[Column \"%s\" | Table \"%s\"]".formatted(name, table.getName());
+        return "[Column \"%s\" | Table \"%s\"]".formatted(name, QueryUtils.getTableName(table));
     }
 
     @NotNull
     public ORMTable<T> getTable() {
-        return table;
+        return this.table;
     }
 
     @NotNull
@@ -157,7 +173,7 @@ public final class ORMColumn<T, F> {
 
     @NotNull
     public SQLType getSQLType() {
-        return sqlType;
+        return this.sqlType;
     }
 
     @NotNull
@@ -268,7 +284,7 @@ public final class ORMColumn<T, F> {
             return ORMResolverRegistry.resolveToDatabase(this, object);
         } catch (CannotResolveException e) {
             throw new IllegalArgumentException(getIdentifier() +
-                    " Object \"%s\" can't be converted from the database format!".formatted(object), e);
+                    " Object \"%s\" can't be converted to the database format".formatted(object), e);
         }
     }
 
@@ -279,7 +295,7 @@ public final class ORMColumn<T, F> {
         }
 
         if (this.meta.foreignKey()) {
-            if (ClassUtils.areTheSame(this.fieldClass, object.getClass())) {
+            if (ClassUtils.areTheSame(this.fieldClass, object.getClass()) || this.fieldClass.isAssignableFrom(object.getClass())) {
                 return object;
             }
 
@@ -296,7 +312,7 @@ public final class ORMColumn<T, F> {
 
         Class<?> objectClass = object.getClass();
 
-        if (ClassUtils.areTheSame(this.fieldClass, objectClass)) {
+        if (ClassUtils.areTheSame(this.fieldClass, objectClass) || this.fieldClass.isAssignableFrom(objectClass)) {
             return object;
         }
 
@@ -324,7 +340,7 @@ public final class ORMColumn<T, F> {
             return ORMResolverRegistry.resolveFromDatabase(this, object);
         } catch (Exception e) {
             throw new IllegalArgumentException(getIdentifier() +
-                    " Object \"%s\" can't be converted from the database format!".formatted(object), e);
+                    " Object \"%s\" can't be converted from the database format".formatted(object), e);
         }
     }
 

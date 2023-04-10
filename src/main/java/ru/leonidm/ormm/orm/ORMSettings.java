@@ -14,6 +14,8 @@ public final class ORMSettings {
     private final int port;
     private final String databaseName;
     @lombok.Builder.Default
+    private final String tableNamePrefix = "";
+    @lombok.Builder.Default
     private final String connectionParameters = "";
     private final String jdbcLink;
     private final String user;

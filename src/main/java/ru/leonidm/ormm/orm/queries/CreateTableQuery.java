@@ -19,7 +19,7 @@ public final class CreateTableQuery<T> extends AbstractQuery<T, Void> {
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        queryBuilder.append("CREATE TABLE IF NOT EXISTS ").append(this.table.getName()).append(" (");
+        queryBuilder.append("CREATE TABLE IF NOT EXISTS ").append(QueryUtils.getTableName(this.table)).append(" (");
 
         ORMDriver driver = this.table.getDatabase().getDriver();
 

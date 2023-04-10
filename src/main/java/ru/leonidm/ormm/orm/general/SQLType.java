@@ -8,6 +8,7 @@ import ru.leonidm.ormm.orm.ORMDriver;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 public enum SQLType {
@@ -23,13 +24,19 @@ public enum SQLType {
     }).build()),
 
     VARCHAR(SQLTypeMeta.builder().length(true).defaultLength(-1).build()),
+    UUID_VARCHAR(SQLTypeMeta.builder().length(true).defaultLength(36).build()) {
+        @Override
+        public String toString() {
+            return "VARCHAR";
+        }
+    },
 
     TEXT(SQLTypeMeta.builder().length(true).defaultLength(65535).indexable(driver -> switch (driver) {
         case MYSQL -> false;
         case SQLITE -> true;
     }).build());
 
-    private static final EnumMap<ORMDriver, Map<Class<?>, SQLType>> typesByClass = new EnumMap<>(ORMDriver.class) {{
+    private static final EnumMap<ORMDriver, Map<Class<?>, SQLType>> TYPES_BY_CLASS = new EnumMap<>(ORMDriver.class) {{
         put(ORMDriver.MYSQL, new HashMap<>() {{
             put(byte.class, INTEGER);
             put(Byte.class, INTEGER);
@@ -65,6 +72,8 @@ public enum SQLType {
             put(Float[].class, BLOB);
             put(double[].class, BLOB);
             put(Double[].class, BLOB);
+
+            put(UUID.class, UUID_VARCHAR);
         }});
 
         put(ORMDriver.SQLITE, new HashMap<>() {{
@@ -101,6 +110,8 @@ public enum SQLType {
             put(Float[].class, BLOB);
             put(double[].class, BLOB);
             put(Double[].class, BLOB);
+
+            put(UUID.class, UUID_VARCHAR);
         }});
     }};
 
@@ -129,6 +140,10 @@ public enum SQLType {
     @Nullable
     public static SQLType of(@NotNull ORMColumn<?, ?> column) {
         if (column.getDatabaseClass() == String.class) {
+            if (column.getFieldClass() == UUID.class) {
+                return UUID_VARCHAR;
+            }
+
             int length = column.getMeta().length();
 
             if (length > 0 && length < 65536) {
@@ -138,7 +153,7 @@ public enum SQLType {
             }
         }
 
-        return typesByClass.get(column.getTable().getDatabase().getDriver()).get(column.getDatabaseClass());
+        return TYPES_BY_CLASS.get(column.getTable().getDatabase().getDriver()).get(column.getDatabaseClass());
     }
 
     @Nullable

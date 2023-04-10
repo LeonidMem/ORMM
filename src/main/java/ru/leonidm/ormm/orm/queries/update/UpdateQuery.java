@@ -8,6 +8,7 @@ import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.orm.exceptions.UnsafeQueryException;
 import ru.leonidm.ormm.utils.FormatUtils;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.function.Supplier;
 
@@ -59,13 +60,13 @@ public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T,
 
         StringBuilder queryBuilder = new StringBuilder();
 
-        queryBuilder.append("UPDATE ").append(this.table.getName()).append(" SET");
+        queryBuilder.append("UPDATE ").append(QueryUtils.getTableName(this.table)).append(" SET");
 
         this.values.forEach((column, value) -> {
             queryBuilder.append(' ');
 
             switch (this.table.getDatabase().getDriver()) {
-                case MYSQL -> queryBuilder.append(this.table.getName()).append('.');
+                case MYSQL -> queryBuilder.append(QueryUtils.getTableName(this.table)).append('.');
                 case SQLITE -> {
                 }
             }

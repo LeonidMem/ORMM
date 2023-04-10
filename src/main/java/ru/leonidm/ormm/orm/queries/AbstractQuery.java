@@ -67,7 +67,15 @@ public abstract class AbstractQuery<T, R> {
 
     @Nullable
     public final R complete() {
-        return this.prepareSupplier().get();
+        return this.complete(null);
+    }
+
+    @Nullable
+    public final R complete(@Nullable Lock lock) {
+        ORMTask<R> task = new ORMTask<>(this.table.getDatabase(), this.prepareSupplier(), o -> {},
+                lock, this.getSQLQuery());
+        task.run();
+        return task.getResult();
     }
 
     @NotNull

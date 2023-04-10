@@ -2,11 +2,11 @@ package ru.leonidm.ormm.orm.queries.indexes;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.leonidm.ormm.orm.ORMDriver;
+import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.general.SQLType;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
-import ru.leonidm.ormm.orm.ORMColumn;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,26 +32,37 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
         this.columns = columns;
     }
 
-    // TODO: index TEXT and BLOB with prefix length
-
     @Nullable
-    public String getSQLCheck() {
+    public String getSQLCheck(@NotNull ORMColumn<T, ?> column) {
+        return switch (this.table.getDatabase().getDriver()) {
+            case MYSQL -> "SELECT COUNT(1) FROM information_schema.statistics " +
+                    "WHERE table_schema = DATABASE() AND table_name = \"" +
+                    QueryUtils.getTableName(this.table) + "\" " +
+                    "AND index_name = " +
+                    '"' + column.getName() + "_ormm_idx\"";
+            case SQLITE -> null;
+        };
+    }
+
+    @NotNull
+    public String getSQLQuery(@NotNull ORMColumn<T, ?> column) {
         return switch (this.table.getDatabase().getDriver()) {
             case MYSQL -> {
                 StringBuilder queryBuilder = new StringBuilder();
 
-                queryBuilder.append("SELECT COUNT(1) FROM information_schema.statistics " +
-                                "WHERE table_schema = DATABASE() AND table_name = \"")
-                        .append(this.table.getName()).append("\" ")
-                        .append("AND index_name IN (");
+                queryBuilder.append("CREATE INDEX ").append(column.getName()).append("_ormm_idx ON ")
+                        .append(QueryUtils.getTableName(this.table)).append('(').append(column.getName());
 
-                this.columns.forEach(column -> {
-                    queryBuilder.append('"').append(column.getName()).append("_ormm_idx\", ");
-                });
+                SQLType sqlType = column.getSQLType();
+                if (sqlType == SQLType.TEXT) {
+                    queryBuilder.append("(256)");
+                } else if (sqlType.hasLength()) {
+                    queryBuilder.append('(').append(QueryUtils.getLength(column)).append(')');
+                }
 
-                yield queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length()).append(")").toString();
+                yield queryBuilder.append(')').toString();
             }
-            case SQLITE -> null;
+            case SQLITE -> throw new IllegalStateException("Bad");
         };
     }
 
@@ -62,25 +73,24 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
 
         switch (this.table.getDatabase().getDriver()) {
             case MYSQL -> {
-                queryBuilder.append("CREATE INDEX ");
-
                 this.columns.forEach(column -> {
-                    queryBuilder.append(column.getName()).append("_ormm_idx, ");
+                    queryBuilder.append("CREATE INDEX ").append(column.getName()).append("_ormm_idx ON ")
+                            .append(QueryUtils.getTableName(this.table)).append('(').append(column.getName());
+
+                    SQLType sqlType = column.getSQLType();
+                    if (sqlType == SQLType.TEXT) {
+                        queryBuilder.append("(256)");
+                    } else if (sqlType.hasLength()) {
+                        queryBuilder.append('(').append(QueryUtils.getLength(column)).append(')');
+                    }
+
+                    queryBuilder.append("); ");
                 });
-
-                queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length())
-                        .append(" ON ").append(this.table.getName()).append('(');
-
-                this.columns.forEach(column -> {
-                    queryBuilder.append(column.getName()).append(", ");
-                });
-
-                queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length()).append(')');
             }
             case SQLITE -> {
                 this.columns.forEach(column -> {
                     queryBuilder.append("CREATE INDEX IF NOT EXISTS ").append(column.getName()).append("_ormm_idx ON ")
-                            .append(this.table.getName()).append('(').append(column.getName()).append(");");
+                            .append(QueryUtils.getTableName(this.table)).append('(').append(column.getName()).append(");");
                 });
             }
         }
@@ -94,20 +104,29 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
         return () -> {
             try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
 
-                String sqlCheck = getSQLCheck();
+                switch (this.table.getDatabase().getDriver()) {
+                    case MYSQL -> {
+                        this.columns.forEach((column) -> {
+                            try {
+                                try (ResultSet resultSet = statement.executeQuery(this.getSQLCheck(column))) {
+                                    resultSet.next();
 
-                if (sqlCheck != null) {
-                    try (ResultSet resultSet = statement.executeQuery(sqlCheck)) {
-                        resultSet.next();
+                                    int count = resultSet.getInt(1);
+                                    if (count != 0) {
+                                        return;
+                                    }
+                                }
 
-                        int count = resultSet.getInt(1);
-                        if (count != 0) {
-                            return null;
-                        }
+                                statement.executeUpdate(this.getSQLQuery(column));
+                            } catch (SQLException e) {
+                                throw new IllegalStateException(e);
+                            }
+                        });
+                    }
+                    case SQLITE -> {
+                        statement.executeUpdate(this.getSQLQuery());
                     }
                 }
-
-                statement.executeUpdate(this.getSQLQuery());
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }

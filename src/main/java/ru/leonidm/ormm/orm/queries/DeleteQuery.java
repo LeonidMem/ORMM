@@ -1,9 +1,10 @@
 package ru.leonidm.ormm.orm.queries;
 
 import org.jetbrains.annotations.NotNull;
-import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.orm.clauses.Where;
 import ru.leonidm.ormm.orm.exceptions.UnsafeQueryException;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.function.Supplier;
 
@@ -33,7 +34,7 @@ public final class DeleteQuery<T> extends AbstractQuery<T, Void> {
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        queryBuilder.append("DELETE FROM ").append(this.table.getName());
+        queryBuilder.append("DELETE FROM ").append(QueryUtils.getTableName(this.table));
 
         if (this.where != null) {
             queryBuilder.append(" WHERE ").append(this.where.build(this.table));

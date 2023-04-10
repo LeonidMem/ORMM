@@ -20,7 +20,7 @@ public final class FormatUtils {
     @NotNull
     public static StringBuilder writeColumnFullName(@NotNull StringBuilder stringBuilder,
                                                     @NotNull ORMColumn<?, ?> column) {
-        return stringBuilder.append(column.getTable().getName()).append('.').append(column.getName());
+        return stringBuilder.append(QueryUtils.getTableName(column)).append('.').append(column.getName());
     }
 
     @NotNull

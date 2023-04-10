@@ -1,6 +1,43 @@
+# ORMM
+
+**ORMM** is a light-weight queries-builder with convenient usage, which is also easy to extend.
+
+# Importing
+
+* Maven:
+```xml
+<repositories>
+  <repository>
+    <id>smashup-repository</id>
+    <name>SmashUp Repository</name>
+    <url>https://mvn.smashup.ru/releases</url>
+  </repository>
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>ru.leonidm</groupId>
+    <artifactId>ORMM</artifactId>
+    <version>1.0</version>
+  </dependency>
+</dependencies>
+```
+
+* Gradle:
+```groovy
+repositories {
+  maven { url 'https://mvn.smashup.ru/releases' }
+}
+
+dependencies {
+  implementation 'ru.leonidm:ORMM:1.0'
+}
+```
+
 # ORMM usage
 
 **User** class as ORMM object:
+
 ```java
 package ru.leonidm.ormm.tests;
 
@@ -38,6 +75,7 @@ public class User {
 ```
 
 **ImageUtils** class:
+
 ```java
 package ru.leonidm.ormm.tests;
 
@@ -45,13 +83,14 @@ import ...;
 
 public class ImageUtils {
 
-    private ImageUtils() {}
+    private ImageUtils() {
+    }
 
     @Nullable
     public static BufferedImage decode(byte[] bytes) {
         try {
             return ImageIO.read(new ByteArrayInputStream(bytes));
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
@@ -59,12 +98,12 @@ public class ImageUtils {
 
     @Nullable
     public static byte[] encode(BufferedImage image) {
-        if(image == null) return null;
+        if (image == null) return null;
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             ImageIO.write(image, "png", outputStream);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
@@ -76,6 +115,7 @@ public class ImageUtils {
 ```
 
 **Comment** class as ORMM object with **@ForeignKey**:
+
 ```java
 package ru.leonidm.ormm.tests;
 
@@ -102,11 +142,12 @@ public class Comment {
                 ", user=" + user +
                 ", text='" + text + '\'' +
                 '}';
-  }
+    }
 }
 ```
 
 Also, you can extend ORMM object's class from another ORMM object's class, but don't forget to register it:
+
 ```java
 package ru.leonidm.ormm.tests;
 
@@ -122,6 +163,7 @@ public class DeletedUser extends User {
 ```
 
 **Queries**:
+
 ```java
 package ru.leonidm.ormm.tests;
 
@@ -165,8 +207,7 @@ public class QueryExample {
                 .value("text", "Aboba")
                 .waitQueue();
 
-        
-        
+
         // Select query
         database.selectQuery(User.class)
                 .order(desc("rating"))
@@ -200,7 +241,7 @@ public class QueryExample {
                 .single()
                 // Or .getSQLQuery()
                 .toString();
-      
+
         // One more example of complicated query:
         Comment comment = database.selectQuery(Comment.class)
                 .where(compare("user", "=", database.selectQuery(User.class)
@@ -209,22 +250,22 @@ public class QueryExample {
                         .single()))
                 .single()
                 .waitQueue();
-        
-        
+
+
         // Update query
         database.updateQuery(User.class, user)
                 // You can set BufferedImage as field and even raw bytes in this updateQuery too
                 .set("image", new byte[]{1, 2, 3, 4, 5, 6, 7})
                 .where(compare("username", "=", "MdinoeL"))
                 .queue();
-        
+
         database.updateQuery(User.class, user)
                 .set("image", ImageIO.read(new File("test2.png")))
                 .where(or(isNull("username"),
-                          and(like("username", "%NULL%"),
-                              compare("rating", "<=", 0))))
+                        and(like("username", "%NULL%"),
+                                compare("rating", "<=", 0))))
                 .queue();
-        
+
         // Delete query
         database.deleteQuery(User.class)
                 .where(compare("username", "=", "LeonidM"))
@@ -233,22 +274,82 @@ public class QueryExample {
 }
 ```
 
+## Custom resolvers of objects
+
+```java
+public final class UUIDResolver implements DatabaseResolver {
+
+    /**
+     * @return true if object from field can be converted to database format
+     */
+    @Override
+    public boolean supportsToType(@NotNull ORMColumn<?, ?> column, @NotNull Object fieldObject) {
+        Class<?> databaseClass = column.getDatabaseClass();
+        return fieldObject.getClass() == UUID.class && (databaseClass == String.class || databaseClass == byte[].class);
+    }
+
+    @Override
+    public Object resolveToDatabase(@NotNull ORMColumn<?, ?> column, @NotNull Object fieldObject) throws Exception {
+        if (fieldObject instanceof UUID uuid) {
+            Class<?> databaseClass = column.getDatabaseClass();
+            if (databaseClass == String.class) {
+                return uuid.toString();
+            } else if (databaseClass == byte[].class) {
+                long most = uuid.getMostSignificantBits();
+                long least = uuid.getLeastSignificantBits();
+                return ArrayConverter.toBytes(new long[]{most, least});
+            } else {
+                throw new CannotResolveException();
+            }
+        }
+
+        throw new CannotResolveException();
+    }
+
+    /**
+     * @return true if object from database can be converted to field instance
+     */
+    @Override
+    public boolean supportsFromType(@NotNull ORMColumn<?, ?> column, @NotNull Object databaseObject) {
+        Class<?> objectClass = databaseObject.getClass();
+        return column.getFieldClass() == UUID.class && (objectClass == String.class || objectClass == byte[].class);
+    }
+
+    @Override
+    public Object resolveFromDatabase(@NotNull ORMColumn<?, ?> column, @NotNull Object databaseObject) throws Exception {
+        if (databaseObject instanceof String string) {
+            return UUID.fromString(string);
+        } else if (databaseObject instanceof byte[] bytes) {
+            long[] longs = ArrayConverter.toLongs(bytes);
+            return new UUID(longs[0], longs[1]);
+        } else {
+            throw new CannotResolveException();
+        }
+    }
+}
+```
+
+After you created class, you need to register it like here:
+
+```java
+ORMResolverRegistry.addArgumentResolver(new UUIDResolver());
+```
+
+Built-in argument resolvers:
+* Primitives and their wrappers, also arrays of them
+* String
+* UUID
+* Enum
 
 # TODO:
-* Move to Maven
 * Make all queries as abstract classes or interfaces \[1\]
 * Cache for all tables
-* Tests
-* Integer to Long cast
-* InsertQuery with provided object
 * Disable column names like `index`, `integer`, etc.
 * Default values of the columns
 * Queries:
-  * DeleteIndexQuery
-  * ModifyColumnQuery
-  * DeleteQuery for instance
-* Throw an exception if table is going to be registered again
-* Add support for enums as columns
+    * DeleteIndexQuery
+    * ModifyColumnQuery
+    * DeleteQuery for instance
 
 \[1\] When I was designing ORMM, I thought that ORMM would only support **MySQL** and **SQLite**, so it hasn't abstract
 queries now.

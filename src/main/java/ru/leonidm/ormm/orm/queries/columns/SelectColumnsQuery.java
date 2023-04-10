@@ -1,10 +1,10 @@
 package ru.leonidm.ormm.orm.queries.columns;
 
 import org.jetbrains.annotations.NotNull;
-import ru.leonidm.ormm.orm.ORMDriver;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.general.ColumnData;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,9 +26,9 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
             case MYSQL -> "SELECT column_name, data_type, character_maximum_length " +
                     "FROM information_schema.columns " +
                     "WHERE table_schema = DATABASE() " +
-                    "AND table_name = \"" + this.table.getName() + "\" " +
+                    "AND table_name = \"" + QueryUtils.getTableName(this.table) + "\" " +
                     "ORDER BY ordinal_position";
-            case SQLITE -> "PRAGMA table_info(\"" + this.table.getName() + "\")";
+            case SQLITE -> "PRAGMA table_info(\"" + QueryUtils.getTableName(this.table) + "\")";
         };
     }
 
@@ -71,7 +71,7 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
                             }
                         }
 
-                        out.add(new ColumnData(this.table.getName(), columnName, columnType, length));
+                        out.add(new ColumnData(QueryUtils.getTableName(this.table), columnName, columnType, length));
                     }
                 }
             } catch (SQLException e) {

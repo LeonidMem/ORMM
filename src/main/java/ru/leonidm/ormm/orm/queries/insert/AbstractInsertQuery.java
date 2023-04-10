@@ -6,6 +6,7 @@ import ru.leonidm.ormm.orm.ORMDriver;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
 import ru.leonidm.ormm.utils.FormatUtils;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -55,7 +56,7 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
             queryBuilder.append("OR REPLACE ");
         }
 
-        queryBuilder.append("INTO ").append(this.table.getName()).append(" (");
+        queryBuilder.append("INTO ").append(QueryUtils.getTableName(this.table)).append(" (");
 
         List<ORMColumn<T, ?>> columns = this.table.getColumnsStream()
                 .filter(column -> !(column.getMeta().autoIncrement()) || this.values.containsKey(column.getName()))
