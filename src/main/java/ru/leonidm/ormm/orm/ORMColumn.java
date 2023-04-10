@@ -2,6 +2,7 @@ package ru.leonidm.ormm.orm;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.leonidm.commons.text.TextCase;
 import ru.leonidm.ormm.annotations.Column;
 import ru.leonidm.ormm.annotations.ForeignKey;
 import ru.leonidm.ormm.annotations.PrimaryKey;
@@ -11,7 +12,6 @@ import ru.leonidm.ormm.orm.resolvers.CannotResolveException;
 import ru.leonidm.ormm.orm.resolvers.ORMResolverRegistry;
 import ru.leonidm.ormm.utils.ClassUtils;
 import ru.leonidm.ormm.utils.QueryUtils;
-import ru.leonidm.ormm.utils.TextCase;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;

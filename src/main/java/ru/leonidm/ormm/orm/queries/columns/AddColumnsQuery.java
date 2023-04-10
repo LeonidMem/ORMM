@@ -1,11 +1,11 @@
 package ru.leonidm.ormm.orm.queries.columns;
 
 import org.jetbrains.annotations.NotNull;
+import ru.leonidm.commons.collections.Pair;
 import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMDriver;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
-import ru.leonidm.ormm.utils.Pair;
 import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.List;

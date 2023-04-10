@@ -5,21 +5,27 @@ plugins {
 
 def ormmGroupId = 'ru.leonidm'
 def ormmArtifactId = 'ORMM'
-def ormmVersion = '1.0'
+def ormmVersion = '1.0.1'
 
 group ormmGroupId
 version ormmVersion
 
 repositories {
     mavenCentral()
+
+    maven { url 'https://mvn.smashup.ru/releases' }
 }
 
+sourceCompatibility = 17
+targetCompatibility = 17
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 tasks.withType(Javadoc).configureEach { options.encoding = 'UTF-8' }
 
 dependencies {
-    implementation 'org.jetbrains:annotations:23.1.0'
+    implementation 'org.jetbrains:annotations:24.0.1'
+
+    implementation 'ru.leonidm:CommonsM:1.0'
 
     runtimeOnly 'com.mysql:mysql-connector-j:8.0.32'
     testRuntimeOnly 'com.mysql:mysql-connector-j:8.0.32'

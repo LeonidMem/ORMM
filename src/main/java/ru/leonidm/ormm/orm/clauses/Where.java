@@ -3,12 +3,12 @@ package ru.leonidm.ormm.orm.clauses;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.leonidm.commons.functions.TriFunction;
 import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.queries.select.AbstractSelectQuery;
 import ru.leonidm.ormm.utils.ClassUtils;
 import ru.leonidm.ormm.utils.FormatUtils;
-import ru.leonidm.ormm.utils.TriFunction;
 
 import java.util.Arrays;
 import java.util.HashSet;

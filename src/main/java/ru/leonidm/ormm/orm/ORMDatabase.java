@@ -2,6 +2,7 @@ package ru.leonidm.ormm.orm;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.leonidm.commons.collections.Pair;
 import ru.leonidm.ormm.orm.general.ColumnData;
 import ru.leonidm.ormm.orm.general.SQLType;
 import ru.leonidm.ormm.orm.queries.CreateTableQuery;
@@ -15,7 +16,6 @@ import ru.leonidm.ormm.orm.queries.insert.InsertQuery;
 import ru.leonidm.ormm.orm.queries.select.SelectQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateObjectQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateQuery;
-import ru.leonidm.ormm.utils.Pair;
 import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.Connection;
