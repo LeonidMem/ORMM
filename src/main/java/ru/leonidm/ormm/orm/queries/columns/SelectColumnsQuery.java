@@ -22,13 +22,13 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
     @Override
     @NotNull
     public String getSQLQuery() {
-        return switch (this.table.getDatabase().getDriver()) {
+        return switch (table.getDatabase().getDriver()) {
             case MYSQL -> "SELECT column_name, data_type, character_maximum_length " +
                     "FROM information_schema.columns " +
                     "WHERE table_schema = DATABASE() " +
-                    "AND table_name = \"" + QueryUtils.getTableName(this.table) + "\" " +
+                    "AND table_name = \"" + QueryUtils.getTableName(table) + "\" " +
                     "ORDER BY ordinal_position";
-            case SQLITE -> "PRAGMA table_info(\"" + QueryUtils.getTableName(this.table) + "\")";
+            case SQLITE -> "PRAGMA table_info(\"" + QueryUtils.getTableName(table) + "\")";
         };
     }
 
@@ -38,41 +38,40 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
         return () -> {
             List<ColumnData> out = new ArrayList<>();
 
-            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
-                try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
-                    while (resultSet.next()) {
-                        String columnName, columnType;
-                        int length;
+            try (Statement statement = table.getDatabase().getConnection().createStatement();
+                 ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
+                while (resultSet.next()) {
+                    String columnName, columnType;
+                    int length;
 
-                        switch (this.table.getDatabase().getDriver()) {
-                            case MYSQL -> {
-                                columnName = resultSet.getString("column_name").toLowerCase();
-                                columnType = resultSet.getString("data_type").toUpperCase();
-                                if (columnType.equals("INT")) {
-                                    columnType = "INTEGER";
-                                }
-
-                                length = resultSet.getInt("character_maximum_length");
+                    switch (table.getDatabase().getDriver()) {
+                        case MYSQL -> {
+                            columnName = resultSet.getString("column_name").toLowerCase();
+                            columnType = resultSet.getString("data_type").toUpperCase();
+                            if (columnType.equals("INT")) {
+                                columnType = "INTEGER";
                             }
-                            case SQLITE -> {
-                                columnName = resultSet.getString("name").toLowerCase();
-                                columnType = resultSet.getString("type").toUpperCase();
 
-                                int index = columnType.indexOf('(');
-                                if (index != -1) {
-                                    length = Integer.parseInt(columnType.substring(index + 1, columnType.length() - 1));
-                                    columnType = columnType.substring(0, index);
-                                } else {
-                                    length = 0;
-                                }
-                            }
-                            default -> {
-                                throw new IllegalStateException("Unexpected driver: %s".formatted(this.table.getDatabase().getDriver()));
+                            length = resultSet.getInt("character_maximum_length");
+                        }
+                        case SQLITE -> {
+                            columnName = resultSet.getString("name").toLowerCase();
+                            columnType = resultSet.getString("type").toUpperCase();
+
+                            int index = columnType.indexOf('(');
+                            if (index != -1) {
+                                length = Integer.parseInt(columnType.substring(index + 1, columnType.length() - 1));
+                                columnType = columnType.substring(0, index);
+                            } else {
+                                length = 0;
                             }
                         }
-
-                        out.add(new ColumnData(QueryUtils.getTableName(this.table), columnName, columnType, length));
+                        default -> {
+                            throw new IllegalStateException("Unexpected driver: %s".formatted(table.getDatabase().getDriver()));
+                        }
                     }
+
+                    out.add(new ColumnData(QueryUtils.getTableName(table), columnName, columnType, length));
                 }
             } catch (SQLException e) {
                 throw new IllegalStateException(e);

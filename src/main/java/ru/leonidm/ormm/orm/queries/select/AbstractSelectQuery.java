@@ -1,6 +1,7 @@
 package ru.leonidm.ormm.orm.queries.select;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -25,7 +26,7 @@ import java.util.function.BiConsumer;
 public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O, T, R, J>, T, R, J> extends AbstractQuery<T, R>
         permits SelectQuery, SingleSelectQuery, RawSelectQuery, RawSingleSelectQuery {
 
-    protected final List<Join<O, T, R, J>> joins = new ArrayList<>();
+    protected final List<Join<J>> joins = new ArrayList<>();
     protected String[] columns;
     protected Where where = null;
     protected Order order = null;
@@ -72,28 +73,36 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         return (O) this;
     }
 
-    private void validateTable(@Nullable ORMTable<?> ormTable, @NotNull String tableKy) {
-        if (ormTable == null) {
+    private void validateTable(@Nullable ORMTable<?> joinedTable, @NotNull String tableKy) {
+        if (joinedTable == null) {
             throw new IllegalArgumentException("Cannot find table \"%s\"".formatted(tableKy));
         }
 
-        if (ormTable == this.table) {
+        if (joinedTable == table) {
             throw new IllegalArgumentException("Cannot join the same table");
         }
     }
 
     @NotNull
     public JoinBuilder<O, T, R, J> join(@NotNull JoinType joinType, @NotNull String tableName) {
-        ORMTable<?> ormTable = this.table.getDatabase().getTable(tableName);
-        validateTable(ormTable, tableName);
+        ORMTable<?> joinedTable = table.getDatabase().getTable(tableName);
+        validateTable(joinedTable, tableName);
 
-        return new JoinBuilder<>(joinType, ormTable, (O) this);
+        if (table.getKeyColumn() == null) {
+            throw new IllegalStateException("Cannot join to table without primary key column");
+        }
+
+        return new JoinBuilder<>(joinType, joinedTable, (O) this);
     }
 
     @NotNull
     public JoinBuilder<O, T, R, J> join(@NotNull JoinType joinType, @NotNull Class<?> tableClass) {
-        ORMTable<?> ormTable = this.table.getDatabase().getTable(tableClass);
+        ORMTable<?> ormTable = table.getDatabase().getTable(tableClass);
         validateTable(ormTable, tableClass.getName());
+
+        if (table.getKeyColumn() == null) {
+            throw new IllegalStateException("Cannot join to table without primary key column");
+        }
 
         return new JoinBuilder<>(joinType, ormTable, (O) this);
     }
@@ -145,27 +154,27 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
 
         queryBuilder.append("SELECT ");
 
-        String tableName = QueryUtils.getTableName(this.table);
+        String tableName = QueryUtils.getTableName(table);
 
-        switch (this.table.getDatabase().getDriver()) {
+        switch (table.getDatabase().getDriver()) {
             case MYSQL -> {
-                Arrays.stream(this.columns).forEach(column -> {
+                Arrays.stream(columns).forEach(column -> {
                     queryBuilder.append(tableName).append('.').append(column).append(", ");
                 });
 
-                this.joins.forEach(join -> {
+                joins.forEach(join -> {
                     for (ORMColumn<?, ?> column : join.columns.keySet()) {
                         queryBuilder.append(QueryUtils.getTableName(column)).append('.').append(column.getName()).append(", ");
                     }
                 });
             }
             case SQLITE -> {
-                Arrays.stream(this.columns).forEach(column -> {
+                Arrays.stream(columns).forEach(column -> {
                     queryBuilder.append(tableName).append('.').append(column).append(" AS \"")
                             .append(tableName).append('.').append(column).append("\"").append(", ");
                 });
 
-                this.joins.forEach(join -> {
+                joins.forEach(join -> {
                     for (ORMColumn<?, ?> column : join.columns.keySet()) {
                         String tableName1 = QueryUtils.getTableName(column);
                         queryBuilder.append(tableName1).append('.').append(column.getName()).append(" AS \"")
@@ -177,46 +186,46 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
 
         queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length());
 
-        queryBuilder.append(" FROM ").append(QueryUtils.getTableName(this.table));
+        queryBuilder.append(" FROM ").append(QueryUtils.getTableName(table));
 
-        this.joins.forEach(join -> {
+        joins.forEach(join -> {
             queryBuilder.append(' ').append(join.joinType).append(" JOIN ").append(QueryUtils.getTableName(join.table))
-                    .append(" ON ").append(join.where.build(this.table, join.table));
+                    .append(" ON ").append(join.where.build(table, join.table));
         });
 
-        if (this.where != null) {
-            queryBuilder.append(" WHERE ").append(this.where.build(this.table));
+        if (where != null) {
+            queryBuilder.append(" WHERE ").append(where.build(table));
         }
 
-        if (this.order != null) {
-            queryBuilder.append(" ORDER BY ").append(this.order);
+        if (order != null) {
+            queryBuilder.append(" ORDER BY ").append(order);
         }
 
-        if (this.group != null) {
-            queryBuilder.append(" GROUP BY ").append(this.group);
+        if (group != null) {
+            queryBuilder.append(" GROUP BY ").append(group);
         }
 
-        if (this.limit > 0) {
-            queryBuilder.append(" LIMIT ").append(this.limit);
+        if (limit > 0) {
+            queryBuilder.append(" LIMIT ").append(limit);
         }
 
         return queryBuilder.toString();
     }
 
     protected final void copy(@NotNull AbstractSelectQuery<?, T, ?, ?> to) {
-        if (!this.joins.isEmpty()) {
+        if (!joins.isEmpty()) {
             throw new IllegalStateException("Change state of select query (raw/single) before inner join");
         }
 
-        to.columns = this.columns;
-        to.where = this.where;
-        to.order = this.order;
-        to.group = this.group;
-        to.limit = this.limit;
+        to.columns = columns;
+        to.where = where;
+        to.order = order;
+        to.group = group;
+        to.limit = limit;
     }
 
     protected void checkIfColumnsExist(@NotNull String[] columns) {
-        Set<String> columnsNames = this.table.getColumnsNames();
+        Set<String> columnsNames = table.getColumnsNames();
         if (Arrays.stream(columns).anyMatch(columnName -> !columnsNames.contains(columnName))) {
             throw new IllegalArgumentException("Got columns that don't exist");
         }
@@ -228,7 +237,7 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         private final ORMTable<?> table;
         private final O o;
         private JoinWhere where;
-        private final Map<ORMColumn<?, ?>, BiConsumer<J, Object>> columns = new LinkedHashMap<>();
+        private final Map<ORMColumn<?, ?>, JoinMeta<J>> columns = new LinkedHashMap<>();
 
         private JoinBuilder(@NotNull JoinType joinType, @NotNull ORMTable<?> table, @NotNull O o) {
             this.joinType = joinType;
@@ -243,20 +252,32 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         }
 
         @NotNull
-        public JoinBuilder<O, T, R, J> select(@NotNull String columnName, @NotNull BiConsumer<J, Object> consumer) {
-            ORMColumn<?, ?> column = this.table.getColumn(columnName);
+        public JoinBuilder<O, T, R, J> selectOne(@NotNull String columnName, @NotNull BiConsumer<J, Object> consumer) {
+            ORMColumn<?, ?> column = table.getColumn(columnName);
             if (column == null) {
                 throw new IllegalArgumentException("Cannot find column \"%s\" in table \"%s\""
-                        .formatted(columnName, QueryUtils.getTableName(this.table)));
+                        .formatted(columnName, QueryUtils.getTableName(table)));
             }
 
-            this.columns.put(column, consumer);
+            columns.put(column, new JoinMeta<>(true, consumer));
+            return this;
+        }
+
+        @NotNull
+        public JoinBuilder<O, T, R, J> selectMany(@NotNull String columnName, @NotNull BiConsumer<J, List<Object>> consumer) {
+            ORMColumn<?, ?> column = table.getColumn(columnName);
+            if (column == null) {
+                throw new IllegalArgumentException("Cannot find column \"%s\" in table \"%s\""
+                        .formatted(columnName, QueryUtils.getTableName(table)));
+            }
+
+            columns.put(column, new JoinMeta<>(false, (BiConsumer) consumer));
             return this;
         }
 
         @NotNull
         public O finish() {
-            if (this.where == null || this.columns.isEmpty()) {
+            if (where == null || columns.isEmpty()) {
                 throw new NullPointerException("Not all parameters were given");
             }
 
@@ -266,16 +287,25 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
     }
 
     @AllArgsConstructor
-    static final class Join<O extends AbstractSelectQuery<O, T, R, J>, T, R, J> {
+    static final class Join<J> {
         private final JoinType joinType;
         private final ORMTable<?> table;
         private final JoinWhere where;
-        private final Map<ORMColumn<?, ?>, BiConsumer<J, Object>> columns;
+        private final Map<ORMColumn<?, ?>, JoinMeta<J>> columns;
 
         @NotNull
         @Unmodifiable
-        public Map<ORMColumn<?, ?>, BiConsumer<J, Object>> getColumns() {
+        public Map<ORMColumn<?, ?>, JoinMeta<J>> getColumns() {
             return columns;
         }
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public static class JoinMeta<J> {
+
+        private final boolean one;
+        private final BiConsumer<J, Object> consumer;
+
     }
 }

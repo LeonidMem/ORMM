@@ -37,16 +37,16 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
     @Override
     @NotNull
     public String getSQLQuery() {
-        ORMDriver driver = this.table.getDatabase().getDriver();
+        ORMDriver driver = table.getDatabase().getDriver();
 
         StringBuilder queryBuilder = new StringBuilder();
 
         return switch (driver) {
             case MYSQL -> {
 
-                queryBuilder.append("ALTER TABLE ").append(QueryUtils.getTableName(this.table)).append(' ');
+                queryBuilder.append("ALTER TABLE ").append(QueryUtils.getTableName(table)).append(' ');
 
-                this.columns.forEach(pair -> {
+                columns.forEach(pair -> {
                     queryBuilder.append("ADD ");
                     ORMColumn<T, ?> column = Objects.requireNonNull(pair.getLeft());
                     ORMColumn<T, ?> after = pair.getRight();
@@ -66,8 +66,8 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
                 yield queryBuilder.substring(0, queryBuilder.length() - 2);
             }
             case SQLITE -> {
-                this.columns.forEach(pair -> {
-                    queryBuilder.append("ALTER TABLE ").append(QueryUtils.getTableName(this.table)).append(" ADD COLUMN ");
+                columns.forEach(pair -> {
+                    queryBuilder.append("ALTER TABLE ").append(QueryUtils.getTableName(table)).append(" ADD COLUMN ");
 
                     ORMColumn<T, ?> column = Objects.requireNonNull(pair.getLeft());
 
@@ -84,6 +84,6 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
     @Override
     @NotNull
     protected Supplier<Void> prepareSupplier() {
-        return this.getUpdateSupplier();
+        return getUpdateSupplier();
     }
 }

@@ -19,27 +19,27 @@ public final class InsertQuery<T> extends AbstractInsertQuery<T> {
 
     @NotNull
     public InsertQuery<T> value(@NotNull String column, @Nullable Object value) {
-        if (this.table.getColumn(column) == null) {
+        if (table.getColumn(column) == null) {
             throw new IllegalArgumentException("Can't find column \"%s\"".formatted(column.toLowerCase()));
         }
 
-        this.values.put(column.toLowerCase(), value);
+        values.put(column.toLowerCase(), value);
         return this;
     }
 
     @Override
     @NotNull
     protected T getObjectToReturn(@NotNull Statement statement) throws SQLException {
-        T t = ReflectionUtils.getNewInstance(this.table.getOriginalClass());
+        T t = ReflectionUtils.getNewInstance(table.getOriginalClass());
 
-        this.table.getColumnsStream().forEach(column ->
-                column.setValue(t, column.toFieldObject(this.values.get(column.getName()))));
+        table.getColumnsStream().forEach(column ->
+                column.setValue(t, column.toFieldObject(values.get(column.getName()))));
 
         ResultSet generatedKeys = statement.getGeneratedKeys();
 
-        ORMColumn<T, ?> keyColumn = this.table.getKeyColumn();
-        if (keyColumn != null && !this.values.containsKey(keyColumn.getName()) && generatedKeys.next()) {
-            ORMColumn<T, ?> column = this.table.getKeyColumn();
+        ORMColumn<T, ?> keyColumn = table.getKeyColumn();
+        if (keyColumn != null && !values.containsKey(keyColumn.getName()) && generatedKeys.next()) {
+            ORMColumn<T, ?> column = table.getKeyColumn();
 
             if (ClassUtils.isInteger(column.getFieldClass())) {
                 column.setValue(t, generatedKeys.getInt(1));

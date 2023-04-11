@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<T>, T, List<List<Object>>, List<Object>> {
@@ -21,49 +22,39 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
     @NotNull
     protected Supplier<List<List<Object>>> prepareSupplier() {
         return () -> {
-            List<List<Object>> out = new ArrayList<>();
 
-            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = table.getDatabase().getConnection().createStatement();
+                 ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
 
-                try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
-                    while (resultSet.next()) {
-                        Object[] objects = new Object[this.columns.length];
+                List<List<Object>> out = new ArrayList<>();
+                JoinsHandler<T, List<Object>> joinsHandler = new JoinsHandler<>(table, joins);
 
-                        for (int i = 0; i < this.columns.length; i++) {
-                            ORMColumn<T, ?> column = this.table.getColumn(this.columns[i]);
-                            objects[i] = column.toFieldObject(resultSet.getObject(i + 1));
-                        }
+                while (resultSet.next()) {
+                    List<Object> objects = new ArrayList<>(columns.length);
 
-                        List<Object> objectList = List.of(objects);
-                        out.add(objectList);
-
-                        for (int i = 0; i < this.joins.size(); i++) {
-                            for (var entry : this.joins.get(i).getColumns().entrySet()) {
-                                ORMColumn<?, ?> ormColumn = entry.getKey();
-                                var consumer = entry.getValue();
-
-                                Object databaseObject = resultSet.getObject(this.columns.length + i + 1);
-                                Object object = ormColumn.toFieldObject(databaseObject);
-
-                                consumer.accept(objectList, object);
-                            }
-                        }
+                    for (int i = 0; i < columns.length; i++) {
+                        ORMColumn<T, ?> column = Objects.requireNonNull(table.getColumn(columns[i]));
+                        objects.add(column.toFieldObject(resultSet.getObject(i + 1)));
                     }
+
+                    out.add(objects);
+
+                    joinsHandler.save(resultSet, objects);
                 }
 
+                joinsHandler.apply();
+                return out;
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }
-
-            return out;
         };
     }
 
     @NotNull
     public RawSingleSelectQuery<T> single() {
-        RawSingleSelectQuery<T> rawSingleSelectQuery = new RawSingleSelectQuery<>(this.table);
+        RawSingleSelectQuery<T> rawSingleSelectQuery = new RawSingleSelectQuery<>(table);
 
-        this.copy(rawSingleSelectQuery);
+        copy(rawSingleSelectQuery);
         rawSingleSelectQuery.limit = 1;
 
         return rawSingleSelectQuery;

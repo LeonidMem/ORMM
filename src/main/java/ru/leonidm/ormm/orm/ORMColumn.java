@@ -158,22 +158,22 @@ public final class ORMColumn<T, F> {
 
     @NotNull
     public ORMTable<T> getTable() {
-        return this.table;
+        return table;
     }
 
     @NotNull
     public String getName() {
-        return this.name;
+        return name;
     }
 
     @NotNull
     public ORMColumnMeta getMeta() {
-        return this.meta;
+        return meta;
     }
 
     @NotNull
     public SQLType getSQLType() {
-        return this.sqlType;
+        return sqlType;
     }
 
     @NotNull
@@ -188,9 +188,9 @@ public final class ORMColumn<T, F> {
 
     @Nullable
     public F get(@NotNull ResultSet result) throws SQLException {
-        Object object = result.getObject(this.meta.name(), this.databaseClass);
+        Object object = result.getObject(meta.name(), databaseClass);
 
-        if (!this.fieldClass.isAssignableFrom(object.getClass())) {
+        if (!fieldClass.isAssignableFrom(object.getClass())) {
             try {
                 object = ORMResolverRegistry.resolveFromDatabase(this, object);
             } catch (CannotResolveException e) {
@@ -198,18 +198,18 @@ public final class ORMColumn<T, F> {
             }
         }
 
-        return this.fieldClass.cast(object);
+        return fieldClass.cast(object);
     }
 
     @Nullable
     public F getValue(@NotNull Object object) {
-        if (!object.getClass().equals(this.table.getOriginalClass())) {
+        if (!object.getClass().equals(table.getOriginalClass())) {
             throw new IllegalArgumentException("Wrong object \"%s\" provided! It's class must be \"%s\""
-                    .formatted(object, this.table.getOriginalClass()));
+                    .formatted(object, table.getOriginalClass()));
         }
 
         try {
-            return (F) this.field.get(object);
+            return (F) field.get(object);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
@@ -226,31 +226,31 @@ public final class ORMColumn<T, F> {
             Class<?> objectClass = object != null ? object.getClass() : null;
 
             // Подавление многочисленных варнингов на рефлексию
-            if (this.fieldClass == boolean.class && (objectClass == null || objectClass == Boolean.class)) {
-                this.field.setBoolean(t, (boolean) (object != null ? object : false));
-            } else if (this.fieldClass == byte.class && (objectClass == null || objectClass == Byte.class)) {
-                this.field.setByte(t, (byte) (object != null ? object : (byte) 0));
-            } else if (this.fieldClass == char.class && (objectClass == null || objectClass == Character.class)) {
-                this.field.setChar(t, (char) (object != null ? object : (char) 0));
-            } else if (this.fieldClass == short.class && (objectClass == null || objectClass == Short.class)) {
-                this.field.setShort(t, (short) (object != null ? object : (short) 0));
-            } else if (this.fieldClass == int.class && (objectClass == null || objectClass == Integer.class)) {
-                this.field.setInt(t, (int) (object != null ? object : 0));
-            } else if (this.fieldClass == long.class && (objectClass == null || objectClass == Long.class
+            if (fieldClass == boolean.class && (objectClass == null || objectClass == Boolean.class)) {
+                field.setBoolean(t, (boolean) (object != null ? object : false));
+            } else if (fieldClass == byte.class && (objectClass == null || objectClass == Byte.class)) {
+                field.setByte(t, (byte) (object != null ? object : (byte) 0));
+            } else if (fieldClass == char.class && (objectClass == null || objectClass == Character.class)) {
+                field.setChar(t, (char) (object != null ? object : (char) 0));
+            } else if (fieldClass == short.class && (objectClass == null || objectClass == Short.class)) {
+                field.setShort(t, (short) (object != null ? object : (short) 0));
+            } else if (fieldClass == int.class && (objectClass == null || objectClass == Integer.class)) {
+                field.setInt(t, (int) (object != null ? object : 0));
+            } else if (fieldClass == long.class && (objectClass == null || objectClass == Long.class
                     || objectClass == Integer.class)) {
-                this.field.setLong(t, (long) (object != null ? object : 0L));
-            } else if (this.fieldClass == float.class && (objectClass == null || objectClass == Float.class)) {
-                this.field.setFloat(t, (float) (object != null ? object : 0F));
-            } else if (this.fieldClass == double.class && (objectClass == null || objectClass == Double.class
+                field.setLong(t, (long) (object != null ? object : 0L));
+            } else if (fieldClass == float.class && (objectClass == null || objectClass == Float.class)) {
+                field.setFloat(t, (float) (object != null ? object : 0F));
+            } else if (fieldClass == double.class && (objectClass == null || objectClass == Double.class
                     || objectClass == Float.class)) {
-                this.field.setDouble(t, (double) (object != null ? object : 0D));
+                field.setDouble(t, (double) (object != null ? object : 0D));
             } else {
-                if (objectClass != null && !this.fieldClass.isAssignableFrom(objectClass)) {
+                if (objectClass != null && !fieldClass.isAssignableFrom(objectClass)) {
                     throw new IllegalArgumentException("Given object \"%s\" has wrong class \"%s\" (must be %s)"
-                            .formatted(object, objectClass, this.fieldClass));
+                            .formatted(object, objectClass, fieldClass));
                 }
 
-                this.field.set(t, object);
+                field.set(t, object);
             }
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
@@ -263,20 +263,20 @@ public final class ORMColumn<T, F> {
             return null;
         }
 
-        if (this.meta.foreignKey()) {
-            return this.joinColumn.getValue(object);
+        if (meta.foreignKey()) {
+            return joinColumn.getValue(object);
         }
 
         Class<?> objectClass = object.getClass();
 
-        if (ClassUtils.areTheSame(this.databaseClass, objectClass)) {
+        if (ClassUtils.areTheSame(databaseClass, objectClass)) {
             return object;
         }
 
-        if (object instanceof Integer obj && ClassUtils.isLong(this.databaseClass)) {
+        if (object instanceof Integer obj && ClassUtils.isLong(databaseClass)) {
             return (long) (obj);
         }
-        if (object instanceof Float obj && ClassUtils.isDouble(this.databaseClass)) {
+        if (object instanceof Float obj && ClassUtils.isDouble(databaseClass)) {
             return (double) (obj);
         }
 
@@ -294,14 +294,14 @@ public final class ORMColumn<T, F> {
             return null;
         }
 
-        if (this.meta.foreignKey()) {
-            if (ClassUtils.areTheSame(this.fieldClass, object.getClass()) || this.fieldClass.isAssignableFrom(object.getClass())) {
+        if (meta.foreignKey()) {
+            if (ClassUtils.areTheSame(fieldClass, object.getClass()) || fieldClass.isAssignableFrom(object.getClass())) {
                 return object;
             }
 
-            if (ClassUtils.areTheSame(this.joinColumn.databaseClass, object.getClass())) {
-                return this.joinColumn.table.selectQuery()
-                        .where(Where.compare(this.joinColumn.name, "=", object))
+            if (ClassUtils.areTheSame(joinColumn.databaseClass, object.getClass())) {
+                return joinColumn.table.selectQuery()
+                        .where(Where.compare(joinColumn.name, "=", object))
                         .single()
                         .complete();
             }
@@ -312,27 +312,27 @@ public final class ORMColumn<T, F> {
 
         Class<?> objectClass = object.getClass();
 
-        if (ClassUtils.areTheSame(this.fieldClass, objectClass) || this.fieldClass.isAssignableFrom(objectClass)) {
+        if (ClassUtils.areTheSame(fieldClass, objectClass) || fieldClass.isAssignableFrom(objectClass)) {
             return object;
         }
 
         if (object instanceof Integer obj) {
-            if (ClassUtils.isByte(this.databaseClass)) {
+            if (ClassUtils.isByte(databaseClass)) {
                 return (byte) (int) (obj);
-            } else if (ClassUtils.isChar(this.databaseClass)) {
+            } else if (ClassUtils.isChar(databaseClass)) {
                 return (char) (int) (obj);
-            } else if (ClassUtils.isShort(this.databaseClass)) {
+            } else if (ClassUtils.isShort(databaseClass)) {
                 return (short) (int) (obj);
-            } else if (ClassUtils.isLong(this.databaseClass)) {
+            } else if (ClassUtils.isLong(databaseClass)) {
                 return (long) (int) (obj);
             }
         }
 
-        if (object instanceof Float obj && ClassUtils.isDouble(this.databaseClass)) {
+        if (object instanceof Float obj && ClassUtils.isDouble(databaseClass)) {
             return (double) (float) (obj);
         }
 
-        if (object instanceof Double obj && ClassUtils.isFloat(this.databaseClass)) {
+        if (object instanceof Double obj && ClassUtils.isFloat(databaseClass)) {
             return (float) (double) (obj);
         }
 
@@ -363,11 +363,11 @@ public final class ORMColumn<T, F> {
             return false;
         }
         ORMColumn<?, ?> ormColumn = (ORMColumn<?, ?>) o;
-        return this.table.equals(ormColumn.table) && this.name.equals(ormColumn.name);
+        return table.equals(ormColumn.table) && name.equals(ormColumn.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.table, this.name);
+        return Objects.hash(table, name);
     }
 }

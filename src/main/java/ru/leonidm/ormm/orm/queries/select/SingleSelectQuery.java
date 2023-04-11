@@ -1,9 +1,7 @@
 package ru.leonidm.ormm.orm.queries.select;
 
 import org.jetbrains.annotations.NotNull;
-import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
-import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,33 +24,25 @@ public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelect
     @NotNull
     protected Supplier<T> prepareSupplier() {
         return () -> {
-            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = table.getDatabase().getConnection().createStatement();
+                 ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
 
-                try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
-                    if (resultSet.next()) {
-                        T t = this.table.objectFrom(resultSet);
+                T t = null;
+                JoinsHandler<T, T> joinsHandler = new JoinsHandler<>(table, joins);
 
-                        for (int i = 0; i < this.joins.size(); i++) {
-                            for (var entry : this.joins.get(i).getColumns().entrySet()) {
-                                ORMColumn<?, ?> column = entry.getKey();
-                                var consumer = entry.getValue();
-
-                                Object databaseObject = resultSet.getObject(QueryUtils.getTableName(column) + '.' + column.getName());
-                                Object object = column.toFieldObject(databaseObject);
-
-                                consumer.accept(t, object);
-                            }
-                        }
-
-                        return t;
+                while (resultSet.next()) {
+                    if (t == null) {
+                        t = table.objectFrom(resultSet);
                     }
+
+                    joinsHandler.save(resultSet, t);
                 }
 
+                joinsHandler.apply();
+                return t;
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }
-
-            return null;
         };
     }
 
@@ -60,9 +50,9 @@ public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelect
     public RawSingleSelectQuery<T> columns(String @NotNull ... columns) {
         checkIfColumnsExist(columns);
 
-        RawSingleSelectQuery<T> rawSelectQuery = new RawSingleSelectQuery<>(this.table);
+        RawSingleSelectQuery<T> rawSelectQuery = new RawSingleSelectQuery<>(table);
 
-        this.copy(rawSelectQuery);
+        copy(rawSelectQuery);
         rawSelectQuery.columns = columns;
 
         return rawSelectQuery;

@@ -26,7 +26,7 @@ public sealed abstract class AbstractUpdateQuery<O, T, R> extends AbstractQuery<
                 throw new IllegalArgumentException("Object of table without key column can't be updated");
             }
 
-            this.where = Where.compare(keyColumn.getName(), "=", keyColumn.getValue(object));
+            where = Where.compare(keyColumn.getName(), "=", keyColumn.getValue(object));
         }
     }
 }

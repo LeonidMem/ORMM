@@ -7,7 +7,9 @@ import ru.leonidm.ormm.orm.ORMTable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class RawSingleSelectQuery<T> extends AbstractSelectQuery<RawSingleSelectQuery<T>, T, List<Object>, List<Object>> {
@@ -26,40 +28,30 @@ public final class RawSingleSelectQuery<T> extends AbstractSelectQuery<RawSingle
     @NotNull
     protected Supplier<List<Object>> prepareSupplier() {
         return () -> {
-            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = table.getDatabase().getConnection().createStatement();
+                 ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
 
-                try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
-                    if (resultSet.next()) {
-                        Object[] objects = new Object[this.columns.length];
+                List<Object> objects = null;
+                JoinsHandler<T, List<Object>> joinsHandler = new JoinsHandler<>(table, joins);
 
-                        for (int i = 0; i < this.columns.length; i++) {
-                            ORMColumn<T, ?> column = this.table.getColumn(this.columns[i]);
-                            objects[i] = column.toFieldObject(resultSet.getObject(i + 1));
+                while (resultSet.next()) {
+                    if (objects == null) {
+                        objects = new ArrayList<>();
+
+                        for (int i = 0; i < columns.length; i++) {
+                            ORMColumn<T, ?> column = Objects.requireNonNull(table.getColumn(columns[i]));
+                            objects.add(column.toFieldObject(resultSet.getObject(i + 1)));
                         }
-
-                        List<Object> objectList = List.of(objects);
-
-                        for (int i = 0; i < this.joins.size(); i++) {
-                            for (var entry : this.joins.get(i).getColumns().entrySet()) {
-                                ORMColumn<?, ?> ormColumn = entry.getKey();
-                                var consumer = entry.getValue();
-
-                                Object databaseObject = resultSet.getObject(this.columns.length + i + 1);
-                                Object object = ormColumn.toFieldObject(databaseObject);
-
-                                consumer.accept(objectList, object);
-                            }
-                        }
-
-                        return objectList;
                     }
+
+                    joinsHandler.save(resultSet, objects);
                 }
 
+                joinsHandler.apply();
+                return objects;
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }
-
-            return null;
         };
     }
 }

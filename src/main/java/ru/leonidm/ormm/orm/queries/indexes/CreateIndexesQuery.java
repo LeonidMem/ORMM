@@ -34,10 +34,10 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
 
     @Nullable
     public String getSQLCheck(@NotNull ORMColumn<T, ?> column) {
-        return switch (this.table.getDatabase().getDriver()) {
+        return switch (table.getDatabase().getDriver()) {
             case MYSQL -> "SELECT COUNT(1) FROM information_schema.statistics " +
                     "WHERE table_schema = DATABASE() AND table_name = \"" +
-                    QueryUtils.getTableName(this.table) + "\" " +
+                    QueryUtils.getTableName(table) + "\" " +
                     "AND index_name = " +
                     '"' + column.getName() + "_ormm_idx\"";
             case SQLITE -> null;
@@ -46,12 +46,12 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
 
     @NotNull
     public String getSQLQuery(@NotNull ORMColumn<T, ?> column) {
-        return switch (this.table.getDatabase().getDriver()) {
+        return switch (table.getDatabase().getDriver()) {
             case MYSQL -> {
                 StringBuilder queryBuilder = new StringBuilder();
 
                 queryBuilder.append("CREATE INDEX ").append(column.getName()).append("_ormm_idx ON ")
-                        .append(QueryUtils.getTableName(this.table)).append('(').append(column.getName());
+                        .append(QueryUtils.getTableName(table)).append('(').append(column.getName());
 
                 SQLType sqlType = column.getSQLType();
                 if (sqlType == SQLType.TEXT) {
@@ -71,11 +71,11 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        switch (this.table.getDatabase().getDriver()) {
+        switch (table.getDatabase().getDriver()) {
             case MYSQL -> {
-                this.columns.forEach(column -> {
+                columns.forEach(column -> {
                     queryBuilder.append("CREATE INDEX ").append(column.getName()).append("_ormm_idx ON ")
-                            .append(QueryUtils.getTableName(this.table)).append('(').append(column.getName());
+                            .append(QueryUtils.getTableName(table)).append('(').append(column.getName());
 
                     SQLType sqlType = column.getSQLType();
                     if (sqlType == SQLType.TEXT) {
@@ -88,9 +88,9 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
                 });
             }
             case SQLITE -> {
-                this.columns.forEach(column -> {
+                columns.forEach(column -> {
                     queryBuilder.append("CREATE INDEX IF NOT EXISTS ").append(column.getName()).append("_ormm_idx ON ")
-                            .append(QueryUtils.getTableName(this.table)).append('(').append(column.getName()).append(");");
+                            .append(QueryUtils.getTableName(table)).append('(').append(column.getName()).append(");");
                 });
             }
         }
@@ -102,13 +102,13 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
     @NotNull
     protected Supplier<Void> prepareSupplier() {
         return () -> {
-            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (Statement statement = table.getDatabase().getConnection().createStatement()) {
 
-                switch (this.table.getDatabase().getDriver()) {
+                switch (table.getDatabase().getDriver()) {
                     case MYSQL -> {
-                        this.columns.forEach((column) -> {
+                        columns.forEach((column) -> {
                             try {
-                                try (ResultSet resultSet = statement.executeQuery(this.getSQLCheck(column))) {
+                                try (ResultSet resultSet = statement.executeQuery(getSQLCheck(column))) {
                                     resultSet.next();
 
                                     int count = resultSet.getInt(1);
@@ -117,14 +117,14 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
                                     }
                                 }
 
-                                statement.executeUpdate(this.getSQLQuery(column));
+                                statement.executeUpdate(getSQLQuery(column));
                             } catch (SQLException e) {
                                 throw new IllegalStateException(e);
                             }
                         });
                     }
                     case SQLITE -> {
-                        statement.executeUpdate(this.getSQLQuery());
+                        statement.executeUpdate(getSQLQuery());
                     }
                 }
             } catch (SQLException e) {

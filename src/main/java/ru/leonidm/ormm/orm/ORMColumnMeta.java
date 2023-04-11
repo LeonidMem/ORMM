@@ -24,72 +24,72 @@ public final class ORMColumnMeta implements Column, PrimaryKey, ForeignKey {
 
     @Override
     public String name() {
-        return this.column.name();
+        return column.name();
     }
 
     @Override
     public boolean unique() {
-        return this.column.unique();
+        return column.unique();
     }
 
     @Override
     public boolean notNull() {
-        return this.column.notNull();
+        return column.notNull();
     }
 
     @Override
     public int length() {
-        return this.column.length();
+        return column.length();
     }
 
     @Override
     public boolean index() {
-        return this.column.index();
+        return column.index();
     }
 
     @Override
     public Class<?> databaseClass() {
-        return this.column.databaseClass();
+        return column.databaseClass();
     }
 
     public boolean primaryKey() {
-        return this.primaryKey != null;
+        return primaryKey != null;
     }
 
     @Override
     public boolean autoIncrement() {
-        return this.primaryKey != null && this.primaryKey.autoIncrement();
+        return primaryKey != null && primaryKey.autoIncrement();
     }
 
     public boolean foreignKey() {
-        return this.foreignKey != null;
+        return foreignKey != null;
     }
 
     @Override
     public String table() {
-        if (this.foreignKey == null) {
+        if (foreignKey == null) {
             throw new IllegalArgumentException("Can't get table() value because @ForeignKey is null");
         }
 
-        return this.foreignKey.table();
+        return foreignKey.table();
     }
 
     @Override
     public String key() {
-        if (this.foreignKey == null) {
+        if (foreignKey == null) {
             throw new IllegalArgumentException("Can't get key() value because @ForeignKey is null");
         }
 
-        return this.foreignKey.key();
+        return foreignKey.key();
     }
 
     @Override
     public boolean makeReference() {
-        if (this.foreignKey == null) {
+        if (foreignKey == null) {
             throw new IllegalArgumentException("Can't get makeReference() value because @ForeignKey is null");
         }
 
-        return this.foreignKey.makeReference();
+        return foreignKey.makeReference();
     }
 
     @Override

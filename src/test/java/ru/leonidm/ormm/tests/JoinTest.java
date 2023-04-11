@@ -7,15 +7,19 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import ru.leonidm.ormm.annotations.Column;
+import ru.leonidm.ormm.annotations.PrimaryKey;
 import ru.leonidm.ormm.annotations.Table;
 import ru.leonidm.ormm.orm.ORMDatabase;
 import ru.leonidm.ormm.orm.clauses.JoinWhere;
+
+import java.util.List;
 
 
 @Table(value = "join_test", allowUnsafeOperations = true)
 public class JoinTest {
 
     @Column
+    @PrimaryKey
     private int id;
 
     @Column
@@ -34,9 +38,11 @@ public class JoinTest {
     private void innerTest(@NotNull ORMDatabase database) {
         database.addTable(JoinTest.class);
         database.addTable(AnotherTable.class);
+        database.addTable(AnotherTable2.class);
 
         database.deleteQuery(JoinTest.class).complete();
         database.deleteQuery(AnotherTable.class).complete();
+        database.deleteQuery(AnotherTable2.class).complete();
 
         database.insertQuery(AnotherTable.class)
                 .value("id", 1)
@@ -60,10 +66,10 @@ public class JoinTest {
         var list = database.selectQuery(JoinTest.class)
                 .innerJoin(AnotherTable.class)
                 .on(JoinWhere.compare("another_id", "=", "id"))
-                .select("id", (joinTest, rawId) -> {
+                .selectOne("id", (joinTest, rawId) -> {
                     assertEquals(joinTest.anotherId, rawId);
                 })
-                .select("name", (joinTest, name) -> {
+                .selectOne("name", (joinTest, name) -> {
                     String toEqual = switch (joinTest.anotherId) {
                         case 1 -> "LeonidM";
                         case 2 -> "MdinoeL";
@@ -82,10 +88,10 @@ public class JoinTest {
                 .single()
                 .innerJoin(AnotherTable.class)
                 .on(JoinWhere.compare("another_id", "=", "id"))
-                .select("id", (joinTest, rawId) -> {
+                .selectOne("id", (joinTest, rawId) -> {
                     assertEquals(joinTest.anotherId, rawId);
                 })
-                .select("name", (joinTest, name) -> {
+                .selectOne("name", (joinTest, name) -> {
                     String toEqual = switch (joinTest.anotherId) {
                         case 1 -> "LeonidM";
                         case 2 -> "MdinoeL";
@@ -96,10 +102,44 @@ public class JoinTest {
                 })
                 .finish()
                 .complete();
+
+        for (int i = 0; i < 5; i++) {
+            database.insertQuery(AnotherTable2.class)
+                    .value("id", i + 1)
+                    .value("name", "LeonidM")
+                    .complete();
+        }
+
+        database.selectQuery(AnotherTable.class)
+                .innerJoin(AnotherTable2.class)
+                .on(JoinWhere.compare("name", "=", "name"))
+                .selectMany("id", (anotherTable, objects) -> {
+                    if (anotherTable.id == 1) {
+                        assertEquals(5, objects.size());
+                        assertEquals(List.of(1, 2, 3, 4, 5), objects);
+                    } else if (anotherTable.id == 2) {
+                        assertEquals(0, objects.size());
+                    } else {
+                        fail();
+                    }
+                })
+                .finish()
+                .complete();
     }
 
     @Table(value = "join_test_2", allowUnsafeOperations = true)
     public static class AnotherTable {
+
+        @Column
+        @PrimaryKey
+        private int id;
+
+        @Column
+        private String name;
+    }
+
+    @Table(value = "join_test_3", allowUnsafeOperations = true)
+    public static class AnotherTable2 {
 
         @Column
         private int id;

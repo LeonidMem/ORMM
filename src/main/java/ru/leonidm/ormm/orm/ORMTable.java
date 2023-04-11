@@ -123,37 +123,37 @@ public final class ORMTable<T> {
 
     @NotNull
     public ORMDatabase getDatabase() {
-        return this.database;
+        return database;
     }
 
     @NotNull
     public Class<T> getOriginalClass() {
-        return this.originalClass;
+        return originalClass;
     }
 
     @NotNull
     public String getName() {
-        return this.name;
+        return name;
     }
 
     @NotNull
     public Table getMeta() {
-        return this.meta;
+        return meta;
     }
 
     @Nullable
     public ORMColumn<T, ?> getColumn(@NotNull String name) {
-        return this.columns.get(name.toLowerCase());
+        return columns.get(name.toLowerCase());
     }
 
     @NotNull
     public Stream<ORMColumn<T, ?>> getColumnsStream() {
-        return this.columns.values().stream();
+        return columns.values().stream();
     }
 
     @NotNull
     public Set<String> getColumnsNames() {
-        return Collections.unmodifiableSet(this.columns.keySet());
+        return Collections.unmodifiableSet(columns.keySet());
     }
 
     @NotNull
@@ -162,10 +162,10 @@ public final class ORMTable<T> {
             throw new IllegalStateException("ResultSet is already closed");
         }
 
-        T t = ReflectionUtils.getNewInstance(this.originalClass);
+        T t = ReflectionUtils.getNewInstance(originalClass);
 
-        for (ORMColumn<T, ?> column : this.columns.values()) {
-            column.setValue(t, column.toFieldObject(resultSet.getObject(QueryUtils.getTableName(column) + '.' + column.getName())));
+        for (ORMColumn<T, ?> column : columns.values()) {
+            column.setValue(t, column.toFieldObject(resultSet.getObject(QueryUtils.getColumnName(column))));
         }
 
         return t;
@@ -173,12 +173,12 @@ public final class ORMTable<T> {
 
     @Nullable
     public ORMColumn<T, ?> getKeyColumn() {
-        return this.keyColumn;
+        return keyColumn;
     }
 
     @NotNull
     public String getIdentifier() {
-        return "[Table \"" + this.name + "\"]";
+        return "[Table \"" + name + "\"]";
     }
 
     @NotNull
@@ -220,11 +220,11 @@ public final class ORMTable<T> {
             return false;
         }
         ORMTable<?> ormTable = (ORMTable<?>) o;
-        return this.database.equals(ormTable.database) && this.name.equals(ormTable.name);
+        return database.equals(ormTable.database) && name.equals(ormTable.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.database, this.name);
+        return Objects.hash(database, name);
     }
 }

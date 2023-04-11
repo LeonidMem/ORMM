@@ -33,6 +33,8 @@ public class UUIDTest {
     private void test(@NotNull ORMDatabase database) {
         database.addTable(UUIDTest.class);
 
+        database.deleteQuery(UUIDTest.class).complete();
+
         uuid1 = UUID.randomUUID();
         uuid2 = UUID.randomUUID();
 
@@ -43,8 +45,6 @@ public class UUIDTest {
 
         UUIDTest u = database.selectQuery(UUIDTest.class).single().complete();
         assertNotNull(u);
-
-        database.deleteQuery(UUIDTest.class).queue();
 
         assertEquals(u.uuid1, uuid1);
         assertEquals(u.uuid2, uuid2);

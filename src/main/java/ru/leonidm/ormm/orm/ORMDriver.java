@@ -39,14 +39,14 @@ public enum ORMDriver {
     private final EnumMap<Key, String> keys = new EnumMap<>(Key.class);
 
     ORMDriver(@NotNull String linkPrefix, @NotNull String autoincrement, @NotNull String insertIgnore) {
-        this.keys.put(Key.LINK_PREFIX, linkPrefix);
-        this.keys.put(Key.AUTOINCREMENT, autoincrement);
-        this.keys.put(Key.INSERT_IGNORE, insertIgnore);
+        keys.put(Key.LINK_PREFIX, linkPrefix);
+        keys.put(Key.AUTOINCREMENT, autoincrement);
+        keys.put(Key.INSERT_IGNORE, insertIgnore);
     }
 
     @NotNull
     public String get(@NotNull Key key) {
-        return this.keys.get(key);
+        return keys.get(key);
     }
 
     @NotNull

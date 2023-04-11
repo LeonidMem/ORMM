@@ -57,7 +57,7 @@ public final class ORMDatabase {
 
     @NotNull
     public ORMDriver getDriver() {
-        return this.driver;
+        return driver;
     }
 
     @NotNull
@@ -76,13 +76,13 @@ public final class ORMDatabase {
     }
 
     public <T> void addTable(@NotNull ORMTable<T> table) {
-        ORMTable<?> checkTable = this.getTable(table.getOriginalClass());
+        ORMTable<?> checkTable = getTable(table.getOriginalClass());
         if (checkTable != null) {
             throw new IllegalArgumentException("Table with class \"%s\" was already registered"
                     .formatted(table.getOriginalClass()));
         }
 
-        checkTable = this.getTable(QueryUtils.getTableName(table));
+        checkTable = getTable(QueryUtils.getTableName(table));
         if (checkTable != null) {
             throw new IllegalArgumentException("Table with name \"%s\" was already registered"
                     .formatted(QueryUtils.getTableName(table)));
@@ -147,32 +147,32 @@ public final class ORMDatabase {
             createIndexesQuery.complete();
         }
 
-        this.tablesByName.put(QueryUtils.getTableName(table), table);
-        this.tablesByClass.put(table.getOriginalClass(), table);
+        tablesByName.put(QueryUtils.getTableName(table), table);
+        tablesByClass.put(table.getOriginalClass(), table);
     }
 
     @NotNull
     public <T> ORMTable<T> addTable(@NotNull Class<T> clazz) {
         ORMTable<T> table = ORMTable.of(this, clazz);
 
-        this.addTable(table);
+        addTable(table);
 
         return table;
     }
 
     @Nullable
     public ORMTable<?> getTable(@NotNull String name) {
-        return this.tablesByName.get(name);
+        return tablesByName.get(name);
     }
 
     @Nullable
     public <T> ORMTable<T> getTable(@NotNull Class<T> clazz) {
-        return (ORMTable<T>) this.tablesByClass.get(clazz);
+        return (ORMTable<T>) tablesByClass.get(clazz);
     }
 
     @NotNull
     public <T> SelectQuery<T> selectQuery(@NotNull Class<T> clazz) {
-        ORMTable<T> table = this.getTable(clazz);
+        ORMTable<T> table = getTable(clazz);
         if (table == null) {
             throw new IllegalArgumentException("Given class \"%s\" wasn't registered as table".formatted(clazz));
         }
@@ -182,7 +182,7 @@ public final class ORMDatabase {
 
     @NotNull
     public <T> InsertQuery<T> insertQuery(@NotNull Class<T> clazz) {
-        ORMTable<T> table = this.getTable(clazz);
+        ORMTable<T> table = getTable(clazz);
         if (table == null) {
             throw new IllegalArgumentException("Given class \"%s\" wasn't registered as table".formatted(clazz));
         }
@@ -192,7 +192,7 @@ public final class ORMDatabase {
 
     @NotNull
     public <T> InsertObjectQuery<T> insertQuery(@NotNull Class<T> clazz, @NotNull T object) {
-        ORMTable<T> table = this.getTable(clazz);
+        ORMTable<T> table = getTable(clazz);
         if (table == null) {
             throw new IllegalArgumentException("Given class \"%s\" wasn't registered as table".formatted(clazz));
         }
@@ -202,7 +202,7 @@ public final class ORMDatabase {
 
     @NotNull
     public <T> UpdateQuery<T> updateQuery(@NotNull Class<T> clazz) {
-        ORMTable<T> table = this.getTable(clazz);
+        ORMTable<T> table = getTable(clazz);
         if (table == null) {
             throw new IllegalArgumentException("Given class \"%s\" wasn't registered as table".formatted(clazz));
         }
@@ -212,7 +212,7 @@ public final class ORMDatabase {
 
     @NotNull
     public <T> UpdateObjectQuery<T> updateQuery(@NotNull Class<T> clazz, @NotNull T object) {
-        ORMTable<T> table = this.getTable(clazz);
+        ORMTable<T> table = getTable(clazz);
         if (table == null) {
             throw new IllegalArgumentException("Given class \"%s\" wasn't registered as table".formatted(clazz));
         }
@@ -222,7 +222,7 @@ public final class ORMDatabase {
 
     @NotNull
     public <T> DeleteQuery<T> deleteQuery(@NotNull Class<T> clazz) {
-        ORMTable<T> table = this.getTable(clazz);
+        ORMTable<T> table = getTable(clazz);
         if (table == null) {
             throw new IllegalArgumentException("Given class \"%s\" wasn't registered as table".formatted(clazz));
         }
@@ -241,7 +241,7 @@ public final class ORMDatabase {
         }
 
         ORMDatabase database = (ORMDatabase) o;
-        return this.ormSettings.equals(database.ormSettings) && this.driver == database.driver;
+        return ormSettings.equals(database.ormSettings) && driver == database.driver;
     }
 
     @Override

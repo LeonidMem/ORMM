@@ -42,24 +42,24 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        if (this.ignore && this.onDuplicateUpdate) {
+        if (ignore && onDuplicateUpdate) {
             throw new IllegalArgumentException("Cannot ignore and perform on duplicate at the same time");
         }
 
-        ORMDriver driver = this.table.getDatabase().getDriver();
+        ORMDriver driver = table.getDatabase().getDriver();
 
         queryBuilder.append("INSERT ");
 
-        if (this.ignore) {
+        if (ignore) {
             queryBuilder.append(driver.get(ORMDriver.Key.INSERT_IGNORE)).append(' ');
-        } else if (this.onDuplicateUpdate && driver == ORMDriver.SQLITE) {
+        } else if (onDuplicateUpdate && driver == ORMDriver.SQLITE) {
             queryBuilder.append("OR REPLACE ");
         }
 
-        queryBuilder.append("INTO ").append(QueryUtils.getTableName(this.table)).append(" (");
+        queryBuilder.append("INTO ").append(QueryUtils.getTableName(table)).append(" (");
 
-        List<ORMColumn<T, ?>> columns = this.table.getColumnsStream()
-                .filter(column -> !(column.getMeta().autoIncrement()) || this.values.containsKey(column.getName()))
+        List<ORMColumn<T, ?>> columns = table.getColumnsStream()
+                .filter(column -> !(column.getMeta().autoIncrement()) || values.containsKey(column.getName()))
                 .toList();
 
         if (columns.isEmpty()) {
@@ -75,13 +75,13 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
         queryBuilder.append(") VALUES (");
 
         columns.forEach(column -> {
-            Object value = this.values.get(column.getName());
+            Object value = values.get(column.getName());
             Object finalValue = column.toDatabaseObject(value);
             queryBuilder.append(FormatUtils.toStringSQLValue(finalValue)).append(", ");
         });
         queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length()).append(")");
 
-        if (this.onDuplicateUpdate) {
+        if (onDuplicateUpdate) {
             List<ORMColumn<T, ?>> conflictColumns = new ArrayList<>();
             List<ORMColumn<T, ?>> updateColumns = new ArrayList<>();
 
@@ -101,7 +101,7 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
                 throw new IllegalArgumentException("Cannot resolve conflict on table without unique columns");
             }
 
-            switch (this.table.getDatabase().getDriver()) {
+            switch (table.getDatabase().getDriver()) {
                 case MYSQL -> {
                     queryBuilder.append(" ON DUPLICATE KEY UPDATE ");
 

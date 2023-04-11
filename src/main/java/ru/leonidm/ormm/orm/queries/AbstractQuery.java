@@ -28,8 +28,8 @@ public abstract class AbstractQuery<T, R> {
     @NotNull
     protected final Supplier<R> getUpdateSupplier() {
         return () -> {
-            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
-                statement.executeUpdate(this.getSQLQuery());
+            try (Statement statement = table.getDatabase().getConnection().createStatement()) {
+                statement.executeUpdate(getSQLQuery());
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }
@@ -40,40 +40,38 @@ public abstract class AbstractQuery<T, R> {
 
     @NotNull
     public final ORMTask<R> queue(@NotNull Consumer<R> consumer, @Nullable Lock lock) {
-        ORMTask<R> task = new ORMTask<>(this.table.getDatabase(), this.prepareSupplier(), consumer,
-                lock, this.getSQLQuery());
+        ORMTask<R> task = new ORMTask<>(table.getDatabase(), prepareSupplier(), consumer, lock, getSQLQuery());
         task.start();
         return task;
     }
 
     @NotNull
     public final ORMTask<R> queue(@NotNull Consumer<R> consumer) {
-        return this.queue(consumer, null);
+        return queue(consumer, null);
     }
 
     @NotNull
     public final ORMTask<R> queue(@NotNull Lock lock) {
-        return this.queue(r -> {
+        return queue(r -> {
 
         }, lock);
     }
 
     @NotNull
     public final ORMTask<R> queue() {
-        return this.queue(r -> {
+        return queue(r -> {
 
         });
     }
 
     @Nullable
     public final R complete() {
-        return this.complete(null);
+        return complete(null);
     }
 
     @Nullable
     public final R complete(@Nullable Lock lock) {
-        ORMTask<R> task = new ORMTask<>(this.table.getDatabase(), this.prepareSupplier(), o -> {},
-                lock, this.getSQLQuery());
+        ORMTask<R> task = new ORMTask<>(table.getDatabase(), prepareSupplier(), o -> {}, lock, getSQLQuery());
         task.run();
         return task.getResult();
     }

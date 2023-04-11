@@ -55,7 +55,7 @@ public final class Order {
 
     @NotNull
     public String build(@NotNull ORMTable<?> table) {
-        return this.type.build(table, this.column, this.args);
+        return type.build(table, column, args);
     }
 
     private enum Type {
@@ -98,7 +98,7 @@ public final class Order {
 
         @NotNull
         private String build(@NotNull ORMTable<?> table, @Nullable String columnName, @NotNull Object @NotNull ... args) {
-            if (this.argsAmount >= 0 && this.argsAmount != args.length) {
+            if (argsAmount >= 0 && argsAmount != args.length) {
                 throw new IllegalArgumentException("Provided arguments has wrong amount");
             }
 
@@ -112,7 +112,7 @@ public final class Order {
                 column = null;
             }
 
-            return this.function.apply(table, column, args);
+            return function.apply(table, column, args);
         }
     }
 }

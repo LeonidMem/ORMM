@@ -21,7 +21,7 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
             throw new IllegalArgumentException("SingleUpdateQuery can be used only in the tables with the primary key");
         }
 
-        this.where = Where.compare(keyColumn.getName(), "=", keyColumn.getValue(object));
+        where = Where.compare(keyColumn.getName(), "=", keyColumn.getValue(object));
     }
 
     @Override
@@ -29,19 +29,19 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        queryBuilder.append("UPDATE ").append(QueryUtils.getTableName(this.table)).append(" SET");
+        queryBuilder.append("UPDATE ").append(QueryUtils.getTableName(table)).append(" SET");
 
-        this.table.getColumnsStream().forEachOrdered(column -> {
+        table.getColumnsStream().forEachOrdered(column -> {
             if (column.getMeta().primaryKey()) {
                 return;
             }
 
-            Object value = column.getValue(this.object);
+            Object value = column.getValue(object);
 
             queryBuilder.append(' ');
 
-            switch (this.table.getDatabase().getDriver()) {
-                case MYSQL -> queryBuilder.append(QueryUtils.getTableName(this.table)).append('.');
+            switch (table.getDatabase().getDriver()) {
+                case MYSQL -> queryBuilder.append(QueryUtils.getTableName(table)).append('.');
                 case SQLITE -> {
                 }
             }
@@ -52,9 +52,9 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
 
         queryBuilder.delete(queryBuilder.length() - 1, queryBuilder.length());
 
-        queryBuilder.append(" WHERE ").append(this.where.build(this.table));
+        queryBuilder.append(" WHERE ").append(where.build(table));
 
-        switch (this.table.getDatabase().getDriver()) {
+        switch (table.getDatabase().getDriver()) {
             case MYSQL -> {
                 queryBuilder.append(" LIMIT ").append(1);
             }
@@ -70,13 +70,13 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
     @NotNull
     protected Supplier<T> prepareSupplier() {
         return () -> {
-            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
-                statement.executeUpdate(this.getSQLQuery());
+            try (Statement statement = table.getDatabase().getConnection().createStatement()) {
+                statement.executeUpdate(getSQLQuery());
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }
 
-            return this.object;
+            return object;
         };
     }
 }

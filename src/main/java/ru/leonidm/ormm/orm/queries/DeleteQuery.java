@@ -34,18 +34,18 @@ public final class DeleteQuery<T> extends AbstractQuery<T, Void> {
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        queryBuilder.append("DELETE FROM ").append(QueryUtils.getTableName(this.table));
+        queryBuilder.append("DELETE FROM ").append(QueryUtils.getTableName(table));
 
-        if (this.where != null) {
-            queryBuilder.append(" WHERE ").append(this.where.build(this.table));
+        if (where != null) {
+            queryBuilder.append(" WHERE ").append(where.build(table));
         } else {
-            if (!this.table.getMeta().allowUnsafeOperations()) {
+            if (!table.getMeta().allowUnsafeOperations()) {
                 throw new UnsafeQueryException("\"WHERE\" is not specified, so the query is unsafe");
             }
         }
 
-        if (this.limit != 0) {
-            queryBuilder.append(" LIMIT ").append(this.limit);
+        if (limit != 0) {
+            queryBuilder.append(" LIMIT ").append(limit);
         }
 
         return queryBuilder.toString();
@@ -54,6 +54,6 @@ public final class DeleteQuery<T> extends AbstractQuery<T, Void> {
     @Override
     @NotNull
     protected Supplier<Void> prepareSupplier() {
-        return this.getUpdateSupplier();
+        return getUpdateSupplier();
     }
 }

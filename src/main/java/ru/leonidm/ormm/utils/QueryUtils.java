@@ -82,4 +82,9 @@ public final class QueryUtils {
     public static String getTableName(@NotNull ORMTable<?> table) {
         return table.getDatabase().getSettings().getTableNamePrefix() + table.getName();
     }
+
+    @NotNull
+    public static String getColumnName(@NotNull ORMColumn<?, ?> column) {
+        return getTableName(column.getTable()) + '.' + column.getName();
+    }
 }

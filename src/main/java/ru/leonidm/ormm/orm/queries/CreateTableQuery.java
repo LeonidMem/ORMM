@@ -19,16 +19,16 @@ public final class CreateTableQuery<T> extends AbstractQuery<T, Void> {
     public String getSQLQuery() {
         StringBuilder queryBuilder = new StringBuilder();
 
-        queryBuilder.append("CREATE TABLE IF NOT EXISTS ").append(QueryUtils.getTableName(this.table)).append(" (");
+        queryBuilder.append("CREATE TABLE IF NOT EXISTS ").append(QueryUtils.getTableName(table)).append(" (");
 
-        ORMDriver driver = this.table.getDatabase().getDriver();
+        ORMDriver driver = table.getDatabase().getDriver();
 
-        this.table.getColumnsStream().forEachOrdered(column -> {
+        table.getColumnsStream().forEachOrdered(column -> {
             QueryUtils.writeColumnDefinition(queryBuilder, driver, column);
             queryBuilder.append(", ");
         });
 
-        this.table.getColumnsStream().filter(column -> column.getMeta().foreignKey() && column.getMeta().makeReference())
+        table.getColumnsStream().filter(column -> column.getMeta().foreignKey() && column.getMeta().makeReference())
                 .forEachOrdered(column -> {
                     ORMColumnMeta meta = column.getMeta();
                     queryBuilder.append("FOREIGN KEY(").append(column.getName()).append(") REFERENCES ")
@@ -41,6 +41,6 @@ public final class CreateTableQuery<T> extends AbstractQuery<T, Void> {
     @Override
     @NotNull
     protected Supplier<Void> prepareSupplier() {
-        return this.getUpdateSupplier();
+        return getUpdateSupplier();
     }
 }

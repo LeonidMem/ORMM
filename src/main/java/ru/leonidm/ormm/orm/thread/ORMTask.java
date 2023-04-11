@@ -44,86 +44,86 @@ public final class ORMTask<R> implements Runnable {
 
     @NotNull
     public ORMTask<R> complete() {
-        while (!this.done) {
+        while (!done) {
             Thread.onSpinWait();
         }
 
-        if (this.exception != null) {
-            throw this.exception;
+        if (exception != null) {
+            throw exception;
         }
 
         return this;
     }
 
     public void start() {
-        if (this.initialized) {
+        if (initialized) {
             throw new IllegalStateException("Already started");
         }
 
-        this.initialized = true;
-        this.database.getTaskExecutor().execute(this);
+        initialized = true;
+        database.getTaskExecutor().execute(this);
     }
 
     @Override
     public void run() {
         try {
-            if (this.lock != null) {
-                this.lock.lock();
+            if (lock != null) {
+                lock.lock();
             }
 
-            if (this.database.getSettings().isLogQueries()) {
+            if (database.getSettings().isLogQueries()) {
                 // TODO: normal logger
                 System.out.println("[ORMM] " + query);
             }
 
-            this.result = this.supplier.get();
+            result = supplier.get();
 
-            this.consumer.accept(this.result);
-            this.done = true;
+            consumer.accept(result);
+            done = true;
         } catch (Exception e) {
             Throwable tempE = e;
             while (tempE.getCause() != null) {
                 tempE = tempE.getCause();
             }
 
-            tempE.initCause(this.cause);
-            this.done = true;
+            tempE.initCause(cause);
+            done = true;
 
-            this.exception = new IllegalStateException(e);
+            exception = new IllegalStateException(e);
             // TODO: normal logger
             System.err.printf("Got exception at: %s%n", query);
-            throw this.exception;
+            throw exception;
         } finally {
-            if (this.lock != null) {
-                this.lock.unlock();
+            if (lock != null) {
+                lock.unlock();
             }
 
-            this.onFinally.forEach(Runnable::run);
+            onFinally.forEach(Runnable::run);
         }
     }
 
     public boolean isDone() {
-        return this.done;
+        return done;
     }
 
     @Nullable
     public R getResult() {
-        if (!this.done) {
+        if (!done) {
             throw new IllegalStateException("Can't get result before task is done");
         }
 
-        if (this.exception != null) {
+        if (exception != null) {
             throw new IllegalStateException("Can't get result because task threw an exception");
         }
 
-        return this.result;
+        return result;
     }
 
-    public void onFinally(@NotNull Runnable onFinally) {
-        this.onFinally.add(onFinally);
+    public void onFinally(@NotNull Runnable runnable) {
+        onFinally.add(runnable);
 
-        if (this.result != null || this.exception != null) {
-            onFinally.run();
+        if (result != null || exception != null) {
+            runnable.run();
         }
     }
 }

@@ -126,15 +126,15 @@ public enum SQLType {
     }
 
     public boolean hasLength() {
-        return this.meta.length;
+        return meta.length;
     }
 
     public int getDefaultLength() {
-        return this.meta.defaultLength;
+        return meta.defaultLength;
     }
 
     public boolean isIndexable(@NotNull ORMDriver driver) {
-        return this.meta.indexablePredicate.test(driver);
+        return meta.indexablePredicate.test(driver);
     }
 
     @Nullable

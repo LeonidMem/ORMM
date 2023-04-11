@@ -19,8 +19,8 @@ public final class InsertObjectQuery<T> extends AbstractInsertQuery<T> {
     @Override
     @NotNull
     public String getSQLQuery() {
-        this.table.getColumnsStream().forEach(column -> {
-            this.values.computeIfAbsent(column.getName(), k -> column.getValue(object));
+        table.getColumnsStream().forEach(column -> {
+            values.computeIfAbsent(column.getName(), k -> column.getValue(object));
         });
 
         return super.getSQLQuery();

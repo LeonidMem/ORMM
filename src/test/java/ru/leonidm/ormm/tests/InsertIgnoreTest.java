@@ -15,6 +15,7 @@ public class InsertIgnoreTest {
     @Column(unique = true)
     private int id;
 
+    @Column
     private String a;
 
     @Test
