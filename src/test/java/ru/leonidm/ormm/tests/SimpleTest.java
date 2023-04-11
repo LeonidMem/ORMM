@@ -42,6 +42,8 @@ public class SimpleTest {
     private void test(@NotNull ORMDatabase database) {
         database.addTable(SimpleTest.class);
 
+        database.deleteQuery(SimpleTest.class).complete();
+
         a = 10;
         b = Long.MAX_VALUE - Integer.MAX_VALUE - 1;
         c = 1.11111f;
@@ -79,8 +81,5 @@ public class SimpleTest {
         assertEquals(d, s.d);
         assertEquals(e, s.e);
         assertEquals(f, s.f);
-
-        database.deleteQuery(SimpleTest.class).queue();
-
     }
 }

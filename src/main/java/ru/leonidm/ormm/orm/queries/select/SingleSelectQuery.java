@@ -43,6 +43,8 @@ public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelect
                                 consumer.accept(t, object);
                             }
                         }
+
+                        return t;
                     }
                 }
 
