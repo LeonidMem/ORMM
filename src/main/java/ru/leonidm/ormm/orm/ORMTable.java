@@ -10,6 +10,7 @@ import ru.leonidm.ormm.orm.queries.insert.InsertQuery;
 import ru.leonidm.ormm.orm.queries.select.SelectQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateObjectQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateQuery;
+import ru.leonidm.ormm.utils.QueryUtils;
 import ru.leonidm.ormm.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -164,7 +165,7 @@ public final class ORMTable<T> {
         T t = ReflectionUtils.getNewInstance(this.originalClass);
 
         for (ORMColumn<T, ?> column : this.columns.values()) {
-            column.setValue(t, column.toFieldObject(resultSet.getObject(column.getName())));
+            column.setValue(t, column.toFieldObject(resultSet.getObject(QueryUtils.getTableName(column) + '.' + column.getName())));
         }
 
         return t;

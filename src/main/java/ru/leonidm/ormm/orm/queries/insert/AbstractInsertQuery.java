@@ -43,7 +43,7 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
         StringBuilder queryBuilder = new StringBuilder();
 
         if (this.ignore && this.onDuplicateUpdate) {
-            throw new IllegalArgumentException("Cannot ignore and perform on duplicate at the same time!");
+            throw new IllegalArgumentException("Cannot ignore and perform on duplicate at the same time");
         }
 
         ORMDriver driver = this.table.getDatabase().getDriver();

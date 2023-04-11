@@ -28,7 +28,7 @@ public final class ReflectionUtils {
             constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException("Class %s must have empty public constructor!".formatted(clazz.getName()), e);
+            throw new IllegalStateException("Class %s must have empty public constructor".formatted(clazz.getName()), e);
         }
     }
 }

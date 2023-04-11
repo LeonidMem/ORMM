@@ -46,7 +46,7 @@ public final class InsertQuery<T> extends AbstractInsertQuery<T> {
             } else if (ClassUtils.isLong(column.getFieldClass())) {
                 column.setValue(t, generatedKeys.getLong(1));
             } else {
-                throw new IllegalStateException("Got wrong @PrimaryKey with wrong field class!");
+                throw new IllegalStateException("Got wrong @PrimaryKey with wrong field class");
             }
         }
 

@@ -1,7 +1,9 @@
 package ru.leonidm.ormm.orm.queries.select;
 
 import org.jetbrains.annotations.NotNull;
+import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T, List<T>> {
+public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T, List<T>, T> {
 
     public SelectQuery(@NotNull ORMTable<T> table) {
         super(table);
@@ -26,7 +28,20 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
 
                 try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
                     while (resultSet.next()) {
-                        out.add(this.table.objectFrom(resultSet));
+                        T t = this.table.objectFrom(resultSet);
+                        out.add(t);
+
+                        for (int i = 0; i < this.joins.size(); i++) {
+                            for (var entry : this.joins.get(i).getColumns().entrySet()) {
+                                ORMColumn<?, ?> column = entry.getKey();
+                                var consumer = entry.getValue();
+
+                                Object databaseObject = resultSet.getObject(QueryUtils.getTableName(column) + '.' + column.getName());
+                                Object object = column.toFieldObject(databaseObject);
+
+                                consumer.accept(t, object);
+                            }
+                        }
                     }
                 }
 

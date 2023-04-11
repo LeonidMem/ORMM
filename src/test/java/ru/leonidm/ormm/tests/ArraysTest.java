@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import ru.leonidm.ormm.annotations.Column;
 import ru.leonidm.ormm.annotations.Table;
 import ru.leonidm.ormm.orm.ORMDatabase;
-import ru.leonidm.ormm.orm.ORMDriver;
-import ru.leonidm.ormm.orm.ORMSettings;
 
 @Table(value = "array_test", allowUnsafeOperations = true)
 public class ArraysTest {
@@ -40,22 +38,12 @@ public class ArraysTest {
 
     @Test
     public void mysqlArrays() {
-        ORMDatabase database = new ORMDatabase(ORMDriver.MYSQL, ORMSettings.builder()
-                .setHost("localhost")
-                .setPort(3306)
-                .setDatabaseName("ormm")
-                .setUser("ormm")
-                .setPassword("ormm")
-                .build());
-        test(database);
+        test(Databases.MYSQL);
     }
 
     @Test
     public void sqliteArrays() {
-        ORMDatabase database = new ORMDatabase(ORMDriver.SQLITE, ORMSettings.builder()
-                .setHost("test.db")
-                .build());
-        test(database);
+        test(Databases.SQLITE);
     }
 
     private void test(@NotNull ORMDatabase database) {

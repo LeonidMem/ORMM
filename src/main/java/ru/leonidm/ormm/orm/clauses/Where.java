@@ -166,7 +166,7 @@ public final class Where {
                 return FormatUtils.toStringSQLValue(null);
             }
 
-            if (ClassUtils.isBuiltIn(arg.getClass()) || arg instanceof AbstractSelectQuery<?, ?, ?>) {
+            if (ClassUtils.isBuiltIn(arg.getClass()) || arg instanceof AbstractSelectQuery<?, ?, ?, ?>) {
                 return FormatUtils.toStringSQLValue(arg);
             }
 

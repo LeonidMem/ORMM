@@ -107,7 +107,7 @@ public final class FormatUtils {
             return toString(ArrayConverter.toBytes(chars));
         }
 
-        if (object instanceof AbstractSelectQuery<?, ?, ?> selectQuery) {
+        if (object instanceof AbstractSelectQuery<?, ?, ?, ?> selectQuery) {
             return '(' + selectQuery.getSQLQuery() + ')';
         }
 

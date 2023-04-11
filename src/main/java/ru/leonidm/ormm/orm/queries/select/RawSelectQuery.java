@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<T>, T, List<List<Object>>> {
+public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<T>, T, List<List<Object>>, List<Object>> {
 
     public RawSelectQuery(@NotNull ORMTable<T> table) {
         super(table);
@@ -34,7 +34,20 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
                             objects[i] = column.toFieldObject(resultSet.getObject(i + 1));
                         }
 
-                        out.add(List.of(objects));
+                        List<Object> objectList = List.of(objects);
+                        out.add(objectList);
+
+                        for (int i = 0; i < this.joins.size(); i++) {
+                            for (var entry : this.joins.get(i).getColumns().entrySet()) {
+                                ORMColumn<?, ?> ormColumn = entry.getKey();
+                                var consumer = entry.getValue();
+
+                                Object databaseObject = resultSet.getObject(this.columns.length + i + 1);
+                                Object object = ormColumn.toFieldObject(databaseObject);
+
+                                consumer.accept(objectList, object);
+                            }
+                        }
                     }
                 }
 

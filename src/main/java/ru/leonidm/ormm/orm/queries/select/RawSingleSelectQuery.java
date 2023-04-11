@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.function.Supplier;
 
-public final class RawSingleSelectQuery<T> extends AbstractSelectQuery<RawSingleSelectQuery<T>, T, List<Object>> {
+public final class RawSingleSelectQuery<T> extends AbstractSelectQuery<RawSingleSelectQuery<T>, T, List<Object>, List<Object>> {
 
     public RawSingleSelectQuery(@NotNull ORMTable<T> table) {
         super(table);
@@ -37,7 +37,21 @@ public final class RawSingleSelectQuery<T> extends AbstractSelectQuery<RawSingle
                             objects[i] = column.toFieldObject(resultSet.getObject(i + 1));
                         }
 
-                        return List.of(objects);
+                        List<Object> objectList = List.of(objects);
+
+                        for (int i = 0; i < this.joins.size(); i++) {
+                            for (var entry : this.joins.get(i).getColumns().entrySet()) {
+                                ORMColumn<?, ?> ormColumn = entry.getKey();
+                                var consumer = entry.getValue();
+
+                                Object databaseObject = resultSet.getObject(this.columns.length + i + 1);
+                                Object object = ormColumn.toFieldObject(databaseObject);
+
+                                consumer.accept(objectList, object);
+                            }
+                        }
+
+                        return objectList;
                     }
                 }
 

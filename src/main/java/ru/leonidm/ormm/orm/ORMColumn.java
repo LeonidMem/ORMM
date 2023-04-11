@@ -318,7 +318,7 @@ public final class ORMColumn<T, F> {
 
         if (object instanceof Integer obj) {
             if (ClassUtils.isByte(this.databaseClass)) {
-                return (byte) (int) obj;
+                return (byte) (int) (obj);
             } else if (ClassUtils.isChar(this.databaseClass)) {
                 return (char) (int) (obj);
             } else if (ClassUtils.isShort(this.databaseClass)) {

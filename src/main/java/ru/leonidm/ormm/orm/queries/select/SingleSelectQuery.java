@@ -1,14 +1,16 @@
 package ru.leonidm.ormm.orm.queries.select;
 
 import org.jetbrains.annotations.NotNull;
+import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.function.Supplier;
 
-public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelectQuery<T>, T, T> {
+public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelectQuery<T>, T, T, T> {
 
     public SingleSelectQuery(@NotNull ORMTable<T> table) {
         super(table);
@@ -28,7 +30,19 @@ public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelect
 
                 try (ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
                     if (resultSet.next()) {
-                        return this.table.objectFrom(resultSet);
+                        T t = this.table.objectFrom(resultSet);
+
+                        for (int i = 0; i < this.joins.size(); i++) {
+                            for (var entry : this.joins.get(i).getColumns().entrySet()) {
+                                ORMColumn<?, ?> column = entry.getKey();
+                                var consumer = entry.getValue();
+
+                                Object databaseObject = resultSet.getObject(QueryUtils.getTableName(column) + '.' + column.getName());
+                                Object object = column.toFieldObject(databaseObject);
+
+                                consumer.accept(t, object);
+                            }
+                        }
                     }
                 }
 
