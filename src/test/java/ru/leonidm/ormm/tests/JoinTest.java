@@ -110,21 +110,49 @@ public class JoinTest {
                     .complete();
         }
 
-        database.selectQuery(AnotherTable.class)
+        for (int i = 0; i < 2; i++) {
+            database.insertQuery(AnotherTable2.class)
+                    .value("id", i + 6)
+                    .value("name", "MdinoeL")
+                    .complete();
+        }
+
+        var a = database.selectQuery(AnotherTable.class)
                 .innerJoin(AnotherTable2.class)
                 .on(JoinWhere.compare("name", "=", "name"))
                 .selectMany("id", (anotherTable, objects) -> {
                     if (anotherTable.id == 1) {
-                        assertEquals(5, objects.size());
                         assertEquals(List.of(1, 2, 3, 4, 5), objects);
                     } else if (anotherTable.id == 2) {
-                        assertEquals(0, objects.size());
+                        assertEquals(List.of(6, 7), objects);
                     } else {
                         fail();
                     }
                 })
                 .finish()
                 .complete();
+        assertNotNull(a);
+        assertEquals(2, a.size());
+
+        var b = database.selectQuery(JoinTest.class)
+                .innerJoin(AnotherTable.class)
+                .on(JoinWhere.compare("another_id", "=", "id"))
+                .finish()
+                .innerJoin(AnotherTable.class, AnotherTable2.class)
+                .on(JoinWhere.compare("name", "=", "name"))
+                .selectMany("id", (joinTest, objects) -> {
+                    if (joinTest.anotherId == 1) {
+                        assertEquals(List.of(1, 2, 3, 4, 5), objects);
+                    } else if (joinTest.anotherId == 2) {
+                        assertEquals(List.of(6, 7), objects);
+                    } else {
+                        fail();
+                    }
+                })
+                .finish()
+                .complete();
+        assertNotNull(b);
+        assertEquals(2, b.size());
     }
 
     @Table(value = "join_test_2", allowUnsafeOperations = true)

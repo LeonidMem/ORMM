@@ -73,78 +73,77 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         return (O) this;
     }
 
-    private void validateTable(@Nullable ORMTable<?> joinedTable, @NotNull String tableKy) {
-        if (joinedTable == null) {
-            throw new IllegalArgumentException("Cannot find table \"%s\"".formatted(tableKy));
+    private void validateTable(@Nullable ORMTable<?> ormTable, @Nullable ORMTable<?> joinedTable, @NotNull String tableKey,
+                               @NotNull String joinedTableKey) {
+        if (ormTable == null) {
+            throw new IllegalArgumentException("Cannot find table \"%s\"".formatted(tableKey));
         }
 
-        if (joinedTable == table) {
+        if (joinedTable == null) {
+            throw new IllegalArgumentException("Cannot find table \"%s\"".formatted(joinedTableKey));
+        }
+
+        if (joinedTable == ormTable) {
             throw new IllegalArgumentException("Cannot join the same table");
         }
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> join(@NotNull JoinType joinType, @NotNull String tableName) {
-        ORMTable<?> joinedTable = table.getDatabase().getTable(tableName);
-        validateTable(joinedTable, tableName);
-
-        if (table.getKeyColumn() == null) {
-            throw new IllegalStateException("Cannot join to table without primary key column");
-        }
-
-        return new JoinBuilder<>(joinType, joinedTable, (O) this);
+    public JoinBuilder<O, T, R, J> join(@NotNull JoinType joinType, @NotNull Class<?> joinedTableClass) {
+        return join(joinType, table.getOriginalClass(), joinedTableClass);
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> join(@NotNull JoinType joinType, @NotNull Class<?> tableClass) {
+    public JoinBuilder<O, T, R, J> join(@NotNull JoinType joinType, @NotNull Class<?> tableClass, @NotNull Class<?> joinedTableClass) {
         ORMTable<?> ormTable = table.getDatabase().getTable(tableClass);
-        validateTable(ormTable, tableClass.getName());
+        ORMTable<?> joinedTable = table.getDatabase().getTable(joinedTableClass);
+        validateTable(ormTable, joinedTable, tableClass.getName(), joinedTableClass.getName());
 
-        if (table.getKeyColumn() == null) {
+        if (ormTable.getKeyColumn() == null) {
             throw new IllegalStateException("Cannot join to table without primary key column");
         }
 
-        return new JoinBuilder<>(joinType, ormTable, (O) this);
+        return new JoinBuilder<>(joinType, ormTable, joinedTable, (O) this);
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> leftJoin(@NotNull String tableName) {
-        return join(JoinType.LEFT, tableName);
+    public JoinBuilder<O, T, R, J> leftJoin(@NotNull Class<?> joinedTableClass) {
+        return join(JoinType.LEFT, joinedTableClass);
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> leftJoin(@NotNull Class<?> tableClass) {
-        return join(JoinType.LEFT, tableClass);
+    public JoinBuilder<O, T, R, J> leftJoin(@NotNull Class<?> tableClass, @NotNull Class<?> joinedTableClass) {
+        return join(JoinType.LEFT, tableClass, joinedTableClass);
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> rightJoin(@NotNull String tableName) {
-        return join(JoinType.RIGHT, tableName);
+    public JoinBuilder<O, T, R, J> rightJoin(@NotNull Class<?> joinedTableClass) {
+        return join(JoinType.RIGHT, joinedTableClass);
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> rightJoin(@NotNull Class<?> tableClass) {
-        return join(JoinType.RIGHT, tableClass);
+    public JoinBuilder<O, T, R, J> rightJoin(@NotNull Class<?> tableClass, @NotNull Class<?> joinedTableClass) {
+        return join(JoinType.RIGHT, tableClass, joinedTableClass);
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> innerJoin(@NotNull String tableName) {
-        return join(JoinType.INNER, tableName);
+    public JoinBuilder<O, T, R, J> innerJoin(@NotNull Class<?> joinedTableClass) {
+        return join(JoinType.INNER, joinedTableClass);
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> innerJoin(@NotNull Class<?> tableClass) {
-        return join(JoinType.INNER, tableClass);
+    public JoinBuilder<O, T, R, J> innerJoin(@NotNull Class<?> tableClass, @NotNull Class<?> joinedTableClass) {
+        return join(JoinType.INNER, tableClass, joinedTableClass);
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> outerJoin(@NotNull String tableName) {
-        return join(JoinType.OUTER, tableName);
+    public JoinBuilder<O, T, R, J> outerJoin(@NotNull Class<?> joinedTableClass) {
+        return join(JoinType.OUTER, joinedTableClass);
     }
 
     @NotNull
-    public JoinBuilder<O, T, R, J> outerJoin(@NotNull Class<?> tableClass) {
-        return join(JoinType.OUTER, tableClass);
+    public JoinBuilder<O, T, R, J> outerJoin(@NotNull Class<?> tableClass, @NotNull Class<?> joinedTableClass) {
+        return join(JoinType.OUTER, tableClass, joinedTableClass);
     }
 
     @Override
@@ -189,8 +188,8 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         queryBuilder.append(" FROM ").append(QueryUtils.getTableName(table));
 
         joins.forEach(join -> {
-            queryBuilder.append(' ').append(join.joinType).append(" JOIN ").append(QueryUtils.getTableName(join.table))
-                    .append(" ON ").append(join.where.build(table, join.table));
+            queryBuilder.append(' ').append(join.joinType).append(" JOIN ").append(QueryUtils.getTableName(join.joinedTable))
+                    .append(" ON ").append(join.where.build(join.table, join.joinedTable));
         });
 
         if (where != null) {
@@ -235,13 +234,15 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
 
         private final JoinType joinType;
         private final ORMTable<?> table;
+        private final ORMTable<?> joinedTable;
         private final O o;
         private JoinWhere where;
         private final Map<ORMColumn<?, ?>, JoinMeta<J>> columns = new LinkedHashMap<>();
 
-        private JoinBuilder(@NotNull JoinType joinType, @NotNull ORMTable<?> table, @NotNull O o) {
+        private JoinBuilder(@NotNull JoinType joinType, @NotNull ORMTable<?> table, @NotNull ORMTable<?> joinedTable, @NotNull O o) {
             this.joinType = joinType;
             this.table = table;
+            this.joinedTable = joinedTable;
             this.o = o;
         }
 
@@ -253,10 +254,10 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
 
         @NotNull
         public JoinBuilder<O, T, R, J> selectOne(@NotNull String columnName, @NotNull BiConsumer<J, Object> consumer) {
-            ORMColumn<?, ?> column = table.getColumn(columnName);
+            ORMColumn<?, ?> column = joinedTable.getColumn(columnName);
             if (column == null) {
                 throw new IllegalArgumentException("Cannot find column \"%s\" in table \"%s\""
-                        .formatted(columnName, QueryUtils.getTableName(table)));
+                        .formatted(columnName, QueryUtils.getTableName(joinedTable)));
             }
 
             columns.put(column, new JoinMeta<>(true, consumer));
@@ -265,10 +266,10 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
 
         @NotNull
         public JoinBuilder<O, T, R, J> selectMany(@NotNull String columnName, @NotNull BiConsumer<J, List<Object>> consumer) {
-            ORMColumn<?, ?> column = table.getColumn(columnName);
+            ORMColumn<?, ?> column = joinedTable.getColumn(columnName);
             if (column == null) {
                 throw new IllegalArgumentException("Cannot find column \"%s\" in table \"%s\""
-                        .formatted(columnName, QueryUtils.getTableName(table)));
+                        .formatted(columnName, QueryUtils.getTableName(joinedTable)));
             }
 
             columns.put(column, new JoinMeta<>(false, (BiConsumer) consumer));
@@ -277,11 +278,11 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
 
         @NotNull
         public O finish() {
-            if (where == null || columns.isEmpty()) {
-                throw new NullPointerException("Not all parameters were given");
+            if (where == null) {
+                throw new NullPointerException("Where parameter is null");
             }
 
-            o.joins.add(new Join<>(joinType, table, where, Collections.unmodifiableMap(columns)));
+            o.joins.add(new Join<>(joinType, table, joinedTable, where, Collections.unmodifiableMap(columns)));
             return o;
         }
     }
@@ -290,6 +291,7 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
     static final class Join<J> {
         private final JoinType joinType;
         private final ORMTable<?> table;
+        private final ORMTable<?> joinedTable;
         private final JoinWhere where;
         private final Map<ORMColumn<?, ?>, JoinMeta<J>> columns;
 

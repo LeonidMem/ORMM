@@ -26,7 +26,6 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
             try (Statement statement = table.getDatabase().getConnection().createStatement();
                  ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
 
-                List<List<Object>> out = new ArrayList<>();
                 JoinsHandler<T, List<Object>> joinsHandler = new JoinsHandler<>(table, joins);
 
                 while (resultSet.next()) {
@@ -37,13 +36,11 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
                         objects.add(column.toFieldObject(resultSet.getObject(i + 1)));
                     }
 
-                    out.add(objects);
-
                     joinsHandler.save(resultSet, objects);
                 }
 
                 joinsHandler.apply();
-                return out;
+                return List.copyOf(joinsHandler.getObjects());
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }

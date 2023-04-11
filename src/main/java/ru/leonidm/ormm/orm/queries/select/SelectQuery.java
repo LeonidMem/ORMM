@@ -6,7 +6,6 @@ import ru.leonidm.ormm.orm.ORMTable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -20,22 +19,19 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
     @NotNull
     protected Supplier<List<T>> prepareSupplier() {
         return () -> {
-
             try (Statement statement = table.getDatabase().getConnection().createStatement();
                  ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
 
-                List<T> out = new ArrayList<>();
                 JoinsHandler<T, T> joinsHandler = new JoinsHandler<>(table, joins);
 
                 while (resultSet.next()) {
                     T t = table.objectFrom(resultSet);
-                    out.add(t);
 
                     joinsHandler.save(resultSet, t);
                 }
 
                 joinsHandler.apply();
-                return out;
+                return List.copyOf(joinsHandler.getObjects());
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }

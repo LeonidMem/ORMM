@@ -2,6 +2,7 @@ package ru.leonidm.ormm.orm.queries.select;
 
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.utils.QueryUtils;
@@ -9,6 +10,8 @@ import ru.leonidm.ormm.utils.QueryUtils;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,5 +67,11 @@ class JoinsHandler<T, J> {
                 }
             });
         });
+    }
+
+    @NotNull
+    @UnmodifiableView
+    public Collection<J> getObjects() {
+        return Collections.unmodifiableCollection(keyToJ.values());
     }
 }
