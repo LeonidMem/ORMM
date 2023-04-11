@@ -31,24 +31,27 @@ public final class RawSingleSelectQuery<T> extends AbstractSelectQuery<RawSingle
             try (Statement statement = table.getDatabase().getConnection().createStatement();
                  ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
 
-                List<Object> objects = null;
+                List<Object> objectsList = null;
                 JoinsHandler<T, List<Object>> joinsHandler = new JoinsHandler<>(table, joins);
 
                 while (resultSet.next()) {
-                    if (objects == null) {
-                        objects = new ArrayList<>();
-
+                    if (objectsList == null) {
+                        objectsList = new ArrayList<>();
                         for (int i = 0; i < columns.length; i++) {
                             ORMColumn<T, ?> column = Objects.requireNonNull(table.getColumn(columns[i]));
-                            objects.add(column.toFieldObject(resultSet.getObject(i + 1)));
+                            objectsList.add(column.toFieldObject(resultSet.getObject(i + 1)));
                         }
                     }
 
-                    joinsHandler.save(resultSet, objects);
+                    if (!joinsHandler.contains(resultSet) && joinsHandler.getObjects().size() > 0) {
+                        break;
+                    }
+
+                    joinsHandler.save(resultSet, objectsList);
                 }
 
                 joinsHandler.apply();
-                return objects;
+                return objectsList;
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }

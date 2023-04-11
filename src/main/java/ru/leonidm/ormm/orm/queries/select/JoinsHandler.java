@@ -46,6 +46,13 @@ class JoinsHandler<T, J> {
         }
     }
 
+    public boolean contains(@NotNull ResultSet resultSet) throws SQLException {
+        ORMColumn<T, ?> keyColumn = table.getKeyColumn();
+        Object key = keyColumn != null ? resultSet.getObject(QueryUtils.getColumnName(keyColumn)) : null;
+
+        return keyToJ.containsKey(key);
+    }
+
     public void apply() {
         keyToObjects.forEach((object, map) -> {
             map.forEach((joinMeta, list) -> {

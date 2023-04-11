@@ -153,6 +153,47 @@ public class JoinTest {
                 .complete();
         assertNotNull(b);
         assertEquals(2, b.size());
+
+        var c = database.selectQuery(JoinTest.class)
+                .single()
+                .innerJoin(AnotherTable.class)
+                .on(JoinWhere.compare("another_id", "=", "id"))
+                .finish()
+                .innerJoin(AnotherTable.class, AnotherTable2.class)
+                .on(JoinWhere.compare("name", "=", "name"))
+                .selectMany("id", (joinTest, objects) -> {
+                    if (joinTest.anotherId == 1) {
+                        assertEquals(List.of(1, 2, 3, 4, 5), objects);
+                    } else if (joinTest.anotherId == 2) {
+                        assertEquals(List.of(6, 7), objects);
+                    } else {
+                        fail();
+                    }
+                })
+                .finish()
+                .complete();
+        assertNotNull(c);
+
+        var d = database.selectQuery(JoinTest.class)
+                .innerJoin(AnotherTable.class)
+                .on(JoinWhere.compare("another_id", "=", "id"))
+                .finish()
+                .innerJoin(AnotherTable.class, AnotherTable2.class)
+                .on(JoinWhere.compare("name", "=", "name"))
+                .selectMany("id", (joinTest, objects) -> {
+                    if (joinTest.anotherId == 1) {
+                        assertEquals(List.of(1, 2, 3, 4, 5), objects);
+                    } else if (joinTest.anotherId == 2) {
+                        assertEquals(List.of(6, 7), objects);
+                    } else {
+                        fail();
+                    }
+                })
+                .finish()
+                .limit(2)
+                .complete();
+        assertNotNull(d);
+        assertEquals(2, d.size());
     }
 
     @Table(value = "join_test_2", allowUnsafeOperations = true)

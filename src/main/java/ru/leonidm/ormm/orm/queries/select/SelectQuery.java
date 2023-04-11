@@ -27,6 +27,10 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
                 while (resultSet.next()) {
                     T t = table.objectFrom(resultSet);
 
+                    if (limit > 0 && !joinsHandler.contains(resultSet) && joinsHandler.getObjects().size() >= limit) {
+                        break;
+                    }
+
                     joinsHandler.save(resultSet, t);
                 }
 

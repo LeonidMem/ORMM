@@ -16,6 +16,7 @@ import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -204,7 +205,11 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
             queryBuilder.append(" GROUP BY ").append(group);
         }
 
-        if (limit > 0) {
+        if (limit > 0 && joins.stream()
+                .map(Join::getColumns)
+                .map(Map::values)
+                .flatMap(Collection::stream)
+                .allMatch(joinMeta -> joinMeta.one)) {
             queryBuilder.append(" LIMIT ").append(limit);
         }
 

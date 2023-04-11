@@ -56,18 +56,26 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
             queryBuilder.append("OR REPLACE ");
         }
 
-        queryBuilder.append("INTO ").append(QueryUtils.getTableName(table)).append(" (");
+        queryBuilder.append("INTO ").append(QueryUtils.getTableName(table));
 
         List<ORMColumn<T, ?>> columns = table.getColumnsStream()
                 .filter(column -> !(column.getMeta().autoIncrement()) || values.containsKey(column.getName()))
                 .toList();
 
         if (columns.isEmpty()) {
-            queryBuilder.append(") VALUES ()");
+            switch (table.getDatabase().getDriver()) {
+                case MYSQL -> {
+                    queryBuilder.append(" () VALUES ()");
+                }
+                case SQLITE -> {
+                    queryBuilder.append(" DEFAULT VALUES");
+                }
+            }
+
             return queryBuilder.toString();
         }
 
-        queryBuilder.append(columns.get(0).getName());
+        queryBuilder.append(" (").append(columns.get(0).getName());
         for (int i = 1; i < columns.size(); i++) {
             queryBuilder.append(", ").append(columns.get(i).getName());
         }

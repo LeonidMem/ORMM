@@ -29,14 +29,18 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
                 JoinsHandler<T, List<Object>> joinsHandler = new JoinsHandler<>(table, joins);
 
                 while (resultSet.next()) {
-                    List<Object> objects = new ArrayList<>(columns.length);
+                    List<Object> objectsList = new ArrayList<>(columns.length);
 
                     for (int i = 0; i < columns.length; i++) {
                         ORMColumn<T, ?> column = Objects.requireNonNull(table.getColumn(columns[i]));
-                        objects.add(column.toFieldObject(resultSet.getObject(i + 1)));
+                        objectsList.add(column.toFieldObject(resultSet.getObject(i + 1)));
                     }
 
-                    joinsHandler.save(resultSet, objects);
+                    if (limit > 0 && !joinsHandler.contains(resultSet) && joinsHandler.getObjects().size() >= limit) {
+                        break;
+                    }
+
+                    joinsHandler.save(resultSet, objectsList);
                 }
 
                 joinsHandler.apply();

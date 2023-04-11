@@ -35,6 +35,10 @@ public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelect
                         t = table.objectFrom(resultSet);
                     }
 
+                    if (!joinsHandler.contains(resultSet) && joinsHandler.getObjects().size() > 0) {
+                        break;
+                    }
+
                     joinsHandler.save(resultSet, t);
                 }
 
