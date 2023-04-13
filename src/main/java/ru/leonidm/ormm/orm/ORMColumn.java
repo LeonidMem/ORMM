@@ -317,7 +317,9 @@ public final class ORMColumn<T, F> {
         }
 
         if (object instanceof Integer obj) {
-            if (ClassUtils.isByte(databaseClass)) {
+            if (ClassUtils.isBoolean(databaseClass)) {
+                return obj > 0;
+            } else if (ClassUtils.isByte(databaseClass)) {
                 return (byte) (int) (obj);
             } else if (ClassUtils.isChar(databaseClass)) {
                 return (char) (int) (obj);

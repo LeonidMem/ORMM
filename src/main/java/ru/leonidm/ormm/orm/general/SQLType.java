@@ -38,6 +38,8 @@ public enum SQLType {
 
     private static final EnumMap<ORMDriver, Map<Class<?>, SQLType>> TYPES_BY_CLASS = new EnumMap<>(ORMDriver.class) {{
         put(ORMDriver.MYSQL, new HashMap<>() {{
+            put(boolean.class, INTEGER);
+            put(Boolean.class, INTEGER);
             put(byte.class, INTEGER);
             put(Byte.class, INTEGER);
             put(char.class, INTEGER);
@@ -77,6 +79,8 @@ public enum SQLType {
         }});
 
         put(ORMDriver.SQLITE, new HashMap<>() {{
+            put(boolean.class, INTEGER);
+            put(Boolean.class, INTEGER);
             put(byte.class, INTEGER);
             put(Byte.class, INTEGER);
             put(char.class, INTEGER);

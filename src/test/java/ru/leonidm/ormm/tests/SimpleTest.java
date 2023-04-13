@@ -28,6 +28,10 @@ public class SimpleTest {
     private byte e;
     @Column
     private char f;
+    @Column
+    private boolean g;
+    @Column
+    private boolean h;
 
     @Test
     public void mysqlSimple() {
@@ -50,9 +54,11 @@ public class SimpleTest {
         d = 1.346d;
         e = 12;
         f = 127;
+        g = true;
+        h = false;
 
         SimpleTest s = database.insertQuery(SimpleTest.class, this).complete();
-        assertSame(s, this);
+        assertSame(this, s);
 
         s = database.selectQuery(SimpleTest.class).single().complete();
         assertNotSame(s, this);
@@ -71,9 +77,11 @@ public class SimpleTest {
         d = 1d;
         e = 78;
         f = 13;
+        g = false;
+        h = true;
 
         s = database.updateQuery(SimpleTest.class, this).complete();
-        assertSame(s, this);
+        assertSame(this, s);
 
         assertEquals(a, s.a);
         assertEquals(b, s.b);
