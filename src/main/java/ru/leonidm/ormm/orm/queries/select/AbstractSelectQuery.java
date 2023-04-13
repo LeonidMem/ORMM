@@ -100,7 +100,7 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         ORMTable<?> joinedTable = table.getDatabase().getTable(joinedTableClass);
         validateTable(ormTable, joinedTable, tableClass.getName(), joinedTableClass.getName());
 
-        if (ormTable.getKeyColumn() == null) {
+        if (table.getKeyColumn() == null) {
             throw new IllegalStateException("Cannot join to table without primary key column");
         }
 

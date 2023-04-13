@@ -17,9 +17,9 @@ import java.util.function.Supplier;
 
 public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> permits InsertQuery, InsertObjectQuery {
 
+    protected final LinkedHashMap<String, Object> values = new LinkedHashMap<>();
     protected boolean ignore = false;
     protected boolean onDuplicateUpdate = false;
-    protected final LinkedHashMap<String, Object> values = new LinkedHashMap<>();
 
     protected AbstractInsertQuery(@NotNull ORMTable<T> table) {
         super(table);
