@@ -198,7 +198,7 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         }
 
         if (order != null) {
-            queryBuilder.append(" ORDER BY ").append(order);
+            queryBuilder.append(" ORDER BY ").append(order.build(table));
         }
 
         if (group != null) {
