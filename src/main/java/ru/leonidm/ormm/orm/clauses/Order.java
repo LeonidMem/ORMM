@@ -65,7 +65,7 @@ public final class Order {
         }),
 
         DESC(0, (table, column, args) -> {
-            return FormatUtils.writeColumnFullName(column).append(" ASC").toString();
+            return FormatUtils.writeColumnFullName(column).append(" DESC").toString();
         }),
 
         RAND(0, (table, column, args) -> "RAND()"),
