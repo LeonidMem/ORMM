@@ -56,9 +56,7 @@ public class User {
     @Column
     private String description;
 
-    @Column(name = "image", databaseClass = byte[].class,
-            loadFunction = "ru.leonidm.ormm.tests.ImageUtils.decode",
-            saveFunction = "ru.leonidm.ormm.tests.ImageUtils.encode")
+    @Column(name = "image", databaseClass = byte[].class)
     private BufferedImage profileImage;
 
     @Column(index = true, notNull = true)
@@ -74,43 +72,6 @@ public class User {
 }
 ```
 
-**ImageUtils** class:
-
-```java
-package ru.leonidm.ormm.tests;
-
-import ...;
-
-public class ImageUtils {
-
-    private ImageUtils() {
-    }
-
-    @Nullable
-    public static BufferedImage decode(byte[] bytes) {
-        try {
-            return ImageIO.read(new ByteArrayInputStream(bytes));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Nullable
-    public static byte[] encode(BufferedImage image) {
-        if (image == null) return null;
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            ImageIO.write(image, "png", outputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return outputStream.toByteArray();
-    }
-}
 
 ```
 
