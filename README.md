@@ -72,9 +72,6 @@ public class User {
 }
 ```
 
-
-```
-
 **Comment** class as ORMM object with **@ForeignKey**:
 
 ```java
