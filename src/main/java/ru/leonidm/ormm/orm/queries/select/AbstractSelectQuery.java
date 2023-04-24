@@ -91,7 +91,7 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
 
     @NotNull
     public JoinBuilder<O, T, R, J> join(@NotNull JoinType joinType, @NotNull Class<?> joinedTableClass) {
-        return join(joinType, table.getOriginalClass(), joinedTableClass);
+        return join(joinType, table.getEntityClass(), joinedTableClass);
     }
 
     @NotNull

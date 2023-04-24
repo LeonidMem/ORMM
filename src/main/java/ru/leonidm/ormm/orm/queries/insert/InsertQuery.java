@@ -30,7 +30,7 @@ public final class InsertQuery<T> extends AbstractInsertQuery<T> {
     @Override
     @NotNull
     protected T getObjectToReturn(@NotNull Statement statement) throws SQLException {
-        T t = ReflectionUtils.getNewInstance(table.getOriginalClass());
+        T t = ReflectionUtils.getNewInstance(table.getEntityClass());
 
         table.getColumnsStream().forEach(column ->
                 column.setValue(t, column.toFieldObject(values.get(column.getName()))));

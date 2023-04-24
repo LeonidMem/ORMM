@@ -3,6 +3,7 @@ package ru.leonidm.ormm.orm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.leonidm.commons.collections.Pair;
+import ru.leonidm.ormm.annotations.CompositeIndex;
 import ru.leonidm.ormm.orm.general.ColumnData;
 import ru.leonidm.ormm.orm.general.SQLType;
 import ru.leonidm.ormm.orm.queries.CreateTableQuery;
@@ -76,10 +77,10 @@ public final class ORMDatabase {
     }
 
     public <T> void addTable(@NotNull ORMTable<T> table) {
-        ORMTable<?> checkTable = getTable(table.getOriginalClass());
+        ORMTable<?> checkTable = getTable(table.getEntityClass());
         if (checkTable != null) {
             throw new IllegalArgumentException("Table with class \"%s\" was already registered"
-                    .formatted(table.getOriginalClass()));
+                    .formatted(table.getEntityClass()));
         }
 
         checkTable = getTable(QueryUtils.getTableName(table));
@@ -137,18 +138,41 @@ public final class ORMDatabase {
         }
 
         // TODO: DeleteIndexQuery
-        List<ORMColumn<T, ?>> columnsIndexesToAdd = Collections.unmodifiableList(table.getColumnsStream()
+        List<Pair<List<ORMColumn<T, ?>>, Boolean>> columnsIndexesToAdd = table.getColumnsStream()
                 .filter(column -> column.getMeta().index() && !column.getMeta().unique()
                         && !column.getMeta().primaryKey())
-                .collect(Collectors.toList()));
+                .map(column -> {
+                    List<ORMColumn<T, ?>> list = new ArrayList<>();
+                    list.add(column);
+                    return Pair.of(list, column.getMeta().unique() || column.getMeta().primaryKey());
+                })
+                .collect(Collectors.toList());
+
+        Class<T> entityClass = table.getEntityClass();
+        CompositeIndex[] indexes = entityClass.getAnnotationsByType(CompositeIndex.class);
+        for (CompositeIndex compositeIndex : indexes) {
+            List<ORMColumn<T, ?>> list = new ArrayList<>();
+
+            for (String columnName : compositeIndex.value()) {
+                ORMColumn<T, ?> column = table.getColumn(columnName);
+                if (column == null) {
+                    throw new IllegalArgumentException("%s Found unknown column \"%s\" in one of the composite indexes"
+                            .formatted(table.getIdentifier(), columnName));
+                }
+
+                list.add(column);
+            }
+
+            columnsIndexesToAdd.add(Pair.of(list, compositeIndex.unique()));
+        }
 
         if (!columnsIndexesToAdd.isEmpty()) {
-            CreateIndexesQuery<T> createIndexesQuery = new CreateIndexesQuery<>(table, columnsIndexesToAdd);
+            CreateIndexesQuery<T> createIndexesQuery = new CreateIndexesQuery<>(table, Collections.unmodifiableList(columnsIndexesToAdd));
             createIndexesQuery.complete();
         }
 
         tablesByName.put(QueryUtils.getTableName(table), table);
-        tablesByClass.put(table.getOriginalClass(), table);
+        tablesByClass.put(table.getEntityClass(), table);
     }
 
     @NotNull

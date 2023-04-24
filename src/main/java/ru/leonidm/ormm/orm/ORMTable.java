@@ -32,42 +32,42 @@ public final class ORMTable<T> {
     private static final Map<ORMDatabase, Map<Class<?>, ORMTable<?>>> TABLES_CACHE = new HashMap<>();
 
     @NotNull
-    public static <T> ORMTable<T> of(@NotNull ORMDatabase database, @NotNull Class<T> originalClass) {
+    public static <T> ORMTable<T> of(@NotNull ORMDatabase database, @NotNull Class<T> entityClass) {
         Map<Class<?>, ORMTable<?>> databaseCache = TABLES_CACHE.get(database);
         if (databaseCache != null) {
-            ORMTable<T> table = (ORMTable<T>) databaseCache.get(originalClass);
+            ORMTable<T> table = (ORMTable<T>) databaseCache.get(entityClass);
             if (table != null) {
                 return table;
             }
         }
 
-        if (Modifier.isAbstract(originalClass.getModifiers())) {
+        if (Modifier.isAbstract(entityClass.getModifiers())) {
             throw new IllegalArgumentException("Can't register abstract class as the table");
         }
 
-        if (Modifier.isInterface(originalClass.getModifiers())) {
+        if (Modifier.isInterface(entityClass.getModifiers())) {
             throw new IllegalArgumentException("Can't register interface as the table");
         }
 
-        Table table = originalClass.getAnnotation(Table.class);
+        Table table = entityClass.getAnnotation(Table.class);
         if (table == null) {
             throw new IllegalArgumentException("Can't register class without @Table annotation as the table");
         }
 
         String name;
         if (table.value().isBlank()) {
-            name = originalClass.getSimpleName().toLowerCase();
+            name = entityClass.getSimpleName().toLowerCase();
         } else {
             name = table.value().toLowerCase();
         }
 
         LinkedHashMap<String, ORMColumn<T, ?>> columns = new LinkedHashMap<>();
 
-        ORMTable<T> ormTable = new ORMTable<>(database, originalClass, name, table, columns);
+        ORMTable<T> ormTable = new ORMTable<>(database, entityClass, name, table, columns);
 
         List<Class<?>> classes = new ArrayList<>();
 
-        Class<?> superClass = originalClass;
+        Class<?> superClass = entityClass;
         while (superClass != Object.class) {
             classes.add(superClass);
             superClass = superClass.getSuperclass();
@@ -103,18 +103,18 @@ public final class ORMTable<T> {
     }
 
     private final ORMDatabase database;
-    private final Class<T> originalClass;
+    private final Class<T> entityClass;
     private final String name;
     private final Table meta;
     private final LinkedHashMap<String, ORMColumn<T, ?>> columns;
     private ORMColumn<T, ?> keyColumn;
     private final Map<?, T> cache;
 
-    public ORMTable(@NotNull ORMDatabase database, @NotNull Class<T> originalClass,
+    public ORMTable(@NotNull ORMDatabase database, @NotNull Class<T> entityClass,
                     @NotNull String name, @NotNull Table meta,
                     @NotNull LinkedHashMap<String, ORMColumn<T, ?>> columns) {
         this.database = database;
-        this.originalClass = originalClass;
+        this.entityClass = entityClass;
         this.name = name;
         this.meta = meta;
         this.columns = columns;
@@ -126,9 +126,18 @@ public final class ORMTable<T> {
         return database;
     }
 
+    /**
+     * @deprecated Use {@link ORMTable#getEntityClass()} instead
+     */
     @NotNull
+    @Deprecated(since = "1.3.0", forRemoval = true)
     public Class<T> getOriginalClass() {
-        return originalClass;
+        return entityClass;
+    }
+
+    @NotNull
+    public Class<T> getEntityClass() {
+        return entityClass;
     }
 
     @NotNull
@@ -162,7 +171,7 @@ public final class ORMTable<T> {
             throw new IllegalStateException("ResultSet is already closed");
         }
 
-        T t = ReflectionUtils.getNewInstance(originalClass);
+        T t = ReflectionUtils.getNewInstance(entityClass);
 
         for (ORMColumn<T, ?> column : columns.values()) {
             column.setValue(t, column.toFieldObject(resultSet.getObject(QueryUtils.getColumnName(column))));

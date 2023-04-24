@@ -203,9 +203,9 @@ public final class ORMColumn<T, F> {
 
     @Nullable
     public F getValue(@NotNull Object object) {
-        if (!object.getClass().equals(table.getOriginalClass())) {
+        if (!object.getClass().equals(table.getEntityClass())) {
             throw new IllegalArgumentException("Wrong object \"%s\" provided! It's class must be \"%s\""
-                    .formatted(object, table.getOriginalClass()));
+                    .formatted(object, table.getEntityClass()));
         }
 
         try {

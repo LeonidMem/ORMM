@@ -11,6 +11,12 @@ import ru.leonidm.ormm.annotations.Column;
 import ru.leonidm.ormm.annotations.PrimaryKey;
 import ru.leonidm.ormm.annotations.Table;
 import ru.leonidm.ormm.orm.ORMDatabase;
+import ru.leonidm.ormm.orm.clauses.Where;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Table(value = "simple_test", allowUnsafeOperations = true)
 public class SimpleTest {
@@ -89,5 +95,75 @@ public class SimpleTest {
         assertEquals(d, s.d);
         assertEquals(e, s.e);
         assertEquals(f, s.f);
+
+        database.addTable(Entity.class);
+        database.deleteQuery(Entity.class).complete();
+
+        List<Entity> entities = new ArrayList<>();
+        List<List<Entity>> entitiesByMod = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            entitiesByMod.add(new ArrayList<>());
+        }
+
+        for (int i = 0; i < 100; i++) {
+            Entity entity = database.insertQuery(Entity.class)
+                    .value("string", String.valueOf(i % 10))
+                    .complete();
+
+            entities.add(entity);
+            entitiesByMod.get(i % 10).add(entity);
+        }
+
+        var queriedEntities = database.selectQuery(Entity.class).complete();
+        assertNotNull(queriedEntities);
+        assertEquals(entities, queriedEntities);
+
+        for (int i = 0; i < 10; i++) {
+            var queriedEntitiesByMod = database.selectQuery(Entity.class)
+                    .where(Where.compare("string", "=", String.valueOf(i)))
+                    .complete();
+
+            assertNotNull(queriedEntitiesByMod);
+            assertEquals(Set.copyOf(entitiesByMod.get(i)), Set.copyOf(queriedEntitiesByMod));
+        }
+    }
+
+    @Table(value = "simple_entities_test", allowUnsafeOperations = true)
+    public static class Entity {
+
+        @Column
+        @PrimaryKey(autoIncrement = true)
+        private int id;
+
+        @Column
+        private String string;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Entity entity = (Entity) o;
+            return id == entity.id
+                    && string.equals(entity.string);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(id, string);
+        }
+
+        @Override
+        public String toString() {
+            return "Entity{" +
+                    "id=" + id +
+                    ", string='" + string + '\'' +
+                    '}';
+        }
     }
 }

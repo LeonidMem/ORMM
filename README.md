@@ -18,7 +18,7 @@
   <dependency>
     <groupId>ru.leonidm</groupId>
     <artifactId>ORMM</artifactId>
-    <version>1.2.6</version>
+    <version>1.3.0</version>
   </dependency>
 </dependencies>
 ```
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'ru.leonidm:ORMM:1.2.6'
+  implementation 'ru.leonidm:ORMM:1.3.0'
 }
 ```
 
@@ -300,10 +300,11 @@ Built-in argument resolvers:
 * Enum
 
 # TODO:
-* Make all queries as abstract classes or interfaces \[1\]
+* Make all queries as abstract classes or interfaces *(dialects)* \[1\]
 * Cache for all tables
 * Disable column names like `index`, `integer`, etc.
 * Default values of the columns
+* Use setters, not `Field#set()` when it is possible
 * Queries:
     * DeleteIndexQuery
     * ModifyColumnQuery
