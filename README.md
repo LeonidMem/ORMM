@@ -80,6 +80,7 @@ package ru.leonidm.ormm.tests;
 import ...;
 
 @Table("comments")
+@CompositeIndex(value = {"id", "text"}, unique = false)
 public class Comment {
 
     @Column
@@ -90,7 +91,7 @@ public class Comment {
     @ForeignKey(table = "users", key = "id")
     private User user;
 
-    @Column(notNull = true)
+    @Column(notNull = true, length = 512)
     private String text;
 
     @Override
@@ -305,6 +306,7 @@ Built-in argument resolvers:
 * Disable column names like `index`, `integer`, etc.
 * Default values of the columns
 * Use setters, not `Field#set()` when it is possible
+* Use joins while working with `@ForeignKey`
 * Queries:
     * DeleteIndexQuery
     * ModifyColumnQuery

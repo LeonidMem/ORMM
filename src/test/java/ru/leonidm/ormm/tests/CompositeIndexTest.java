@@ -1,5 +1,7 @@
 package ru.leonidm.ormm.tests;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import ru.leonidm.ormm.annotations.Column;
@@ -33,5 +35,21 @@ public class CompositeIndexTest {
 
     public void test(@NotNull ORMDatabase database) {
         database.addTable(CompositeIndexTest.class);
+
+        a = 1;
+        b = 1;
+        c = 1;
+
+        database.insertQuery(CompositeIndexTest.class, this)
+                .complete();
+
+        assertThrows(IllegalStateException.class, () -> {
+            database.insertQuery(CompositeIndexTest.class, this)
+                    .complete();
+        });
+
+        database.insertQuery(CompositeIndexTest.class, this)
+                .ignore(true)
+                .complete();
     }
 }
