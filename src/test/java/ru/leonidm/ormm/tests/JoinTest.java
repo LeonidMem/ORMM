@@ -78,7 +78,7 @@ public class JoinTest {
 
                     assertEquals(toEqual, name);
                 })
-                .finish()
+                .closeJoin()
                 .complete();
 
         assertNotNull(list);
@@ -100,7 +100,7 @@ public class JoinTest {
 
                     assertEquals(toEqual, name);
                 })
-                .finish()
+                .closeJoin()
                 .complete();
 
         for (int i = 0; i < 5; i++) {
@@ -129,7 +129,7 @@ public class JoinTest {
                         fail();
                     }
                 })
-                .finish()
+                .closeJoin()
                 .complete();
         assertNotNull(a);
         assertEquals(2, a.size());
@@ -137,7 +137,7 @@ public class JoinTest {
         var b = database.selectQuery(JoinTest.class)
                 .innerJoin(AnotherTable.class)
                 .on(JoinWhere.compare("another_id", "=", "id"))
-                .finish()
+                .closeJoin()
                 .innerJoin(AnotherTable.class, AnotherTable2.class)
                 .on(JoinWhere.compare("name", "=", "name"))
                 .selectMany("id", (joinTest, objects) -> {
@@ -149,7 +149,7 @@ public class JoinTest {
                         fail();
                     }
                 })
-                .finish()
+                .closeJoin()
                 .complete();
         assertNotNull(b);
         assertEquals(2, b.size());
@@ -158,7 +158,7 @@ public class JoinTest {
                 .single()
                 .innerJoin(AnotherTable.class)
                 .on(JoinWhere.compare("another_id", "=", "id"))
-                .finish()
+                .closeJoin()
                 .innerJoin(AnotherTable.class, AnotherTable2.class)
                 .on(JoinWhere.compare("name", "=", "name"))
                 .selectMany("id", (joinTest, objects) -> {
@@ -170,14 +170,14 @@ public class JoinTest {
                         fail();
                     }
                 })
-                .finish()
+                .closeJoin()
                 .complete();
         assertNotNull(c);
 
         var d = database.selectQuery(JoinTest.class)
                 .innerJoin(AnotherTable.class)
                 .on(JoinWhere.compare("another_id", "=", "id"))
-                .finish()
+                .closeJoin()
                 .innerJoin(AnotherTable.class, AnotherTable2.class)
                 .on(JoinWhere.compare("name", "=", "name"))
                 .selectMany("id", (joinTest, objects) -> {
@@ -189,7 +189,7 @@ public class JoinTest {
                         fail();
                     }
                 })
-                .finish()
+                .closeJoin()
                 .limit(2)
                 .complete();
         assertNotNull(d);

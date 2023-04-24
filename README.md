@@ -18,7 +18,7 @@
   <dependency>
     <groupId>ru.leonidm</groupId>
     <artifactId>ORMM</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
   </dependency>
 </dependencies>
 ```
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'ru.leonidm:ORMM:1.3.0'
+  implementation 'ru.leonidm:ORMM:1.3.1'
 }
 ```
 
@@ -307,6 +307,7 @@ Built-in argument resolvers:
 * Default values of the columns
 * Use setters, not `Field#set()` when it is possible
 * Use joins while working with `@ForeignKey`
+* Calculate on duplicate
 * Queries:
     * DeleteIndexQuery
     * ModifyColumnQuery

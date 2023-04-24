@@ -281,8 +281,14 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
             return this;
         }
 
+        @Deprecated(since = "1.3.1", forRemoval = true)
         @NotNull
         public O finish() {
+            return closeJoin();
+        }
+
+        @NotNull
+        public O closeJoin() {
             if (where == null) {
                 throw new NullPointerException("Where parameter is null");
             }
