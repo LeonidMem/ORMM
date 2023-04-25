@@ -1,11 +1,13 @@
 package ru.leonidm.ormm.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 public final class ClassUtils {
 
     private ClassUtils() {
     }
 
-    public static boolean areTheSame(Class<?> clazz1, Class<?> clazz2) {
+    public static boolean areTheSame(@NotNull Class<?> clazz1, @NotNull Class<?> clazz2) {
         if (isBoolean(clazz1) && isBoolean(clazz2)) {
             return true;
         }
@@ -34,40 +36,40 @@ public final class ClassUtils {
         return clazz1 == clazz2;
     }
 
-    public static boolean isBuiltIn(Class<?> clazz) {
+    public static boolean isBuiltIn(@NotNull Class<?> clazz) {
         return isBoolean(clazz) || isByte(clazz) || isShort(clazz) || isInteger(clazz) || isLong(clazz)
                 || isFloat(clazz) || isDouble(clazz) || isChar(clazz) || clazz == String.class;
     }
 
-    public static boolean isBoolean(Class<?> clazz) {
+    public static boolean isBoolean(@NotNull Class<?> clazz) {
         return clazz == boolean.class || clazz == Boolean.class;
     }
 
-    public static boolean isByte(Class<?> clazz) {
+    public static boolean isByte(@NotNull Class<?> clazz) {
         return clazz == byte.class || clazz == Byte.class;
     }
 
-    public static boolean isShort(Class<?> clazz) {
+    public static boolean isShort(@NotNull Class<?> clazz) {
         return clazz == short.class || clazz == Short.class;
     }
 
-    public static boolean isInteger(Class<?> clazz) {
+    public static boolean isInteger(@NotNull Class<?> clazz) {
         return clazz == int.class || clazz == Integer.class;
     }
 
-    public static boolean isLong(Class<?> clazz) {
+    public static boolean isLong(@NotNull Class<?> clazz) {
         return clazz == long.class || clazz == Long.class;
     }
 
-    public static boolean isFloat(Class<?> clazz) {
+    public static boolean isFloat(@NotNull Class<?> clazz) {
         return clazz == float.class || clazz == Float.class;
     }
 
-    public static boolean isDouble(Class<?> clazz) {
+    public static boolean isDouble(@NotNull Class<?> clazz) {
         return clazz == double.class || clazz == Double.class;
     }
 
-    public static boolean isChar(Class<?> clazz) {
+    public static boolean isChar(@NotNull Class<?> clazz) {
         return clazz == char.class || clazz == Character.class;
     }
 }

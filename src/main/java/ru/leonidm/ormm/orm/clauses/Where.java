@@ -38,7 +38,7 @@ public final class Where {
             throw new IllegalArgumentException("Wrong amounts of the objects! Must be two or more");
         }
 
-        return new Where(Type.LIKE, column, objects);
+        return new Where(Type.IN, column, objects);
     }
 
     @NotNull

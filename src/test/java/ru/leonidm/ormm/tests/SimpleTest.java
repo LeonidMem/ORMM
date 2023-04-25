@@ -137,11 +137,26 @@ public class SimpleTest {
 
         assertEquals(99, maxId - minId);
 
-        Long count = database.selectQuery(Entity.class)
+        Long count1 = database.selectQuery(Entity.class)
                 .count("id")
                 .complete();
+        assertEquals(100, count1);
 
-        assertEquals(100, count);
+        for (int i = 0; i < 10; i++) {
+            Long count2 = database.selectQuery(Entity.class)
+                    .count("id")
+                    .where(Where.compare("string", "=", String.valueOf(i)))
+                    .complete();
+            assertEquals(10, count2);
+        }
+
+        for (int i = 0; i < 9; i++) {
+            Long count2 = database.selectQuery(Entity.class)
+                    .count("id")
+                    .where(Where.in("string", String.valueOf(i), String.valueOf(i + 1)))
+                    .complete();
+            assertEquals(20, count2);
+        }
     }
 
     @Table(value = "simple_entities_test", allowUnsafeOperations = true)
