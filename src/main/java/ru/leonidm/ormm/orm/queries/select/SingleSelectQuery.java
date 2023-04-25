@@ -51,12 +51,12 @@ public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelect
     }
 
     @NotNull
-    public RawSingleSelectQuery<T> columns(String @NotNull ... columns) {
+    public RawSingleSelectQuery<T> columns(@NotNull String @NotNull ... columns) {
         checkIfColumnsExist(columns);
 
         RawSingleSelectQuery<T> rawSelectQuery = new RawSingleSelectQuery<>(table);
 
-        copy(rawSelectQuery);
+        copyTo(rawSelectQuery);
         rawSelectQuery.columns = columns;
 
         return rawSelectQuery;

@@ -55,7 +55,7 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
     public RawSingleSelectQuery<T> single() {
         RawSingleSelectQuery<T> rawSingleSelectQuery = new RawSingleSelectQuery<>(table);
 
-        copy(rawSingleSelectQuery);
+        copyTo(rawSingleSelectQuery);
         rawSingleSelectQuery.limit = 1;
 
         return rawSingleSelectQuery;

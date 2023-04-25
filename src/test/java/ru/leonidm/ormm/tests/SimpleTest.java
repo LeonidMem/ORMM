@@ -126,6 +126,22 @@ public class SimpleTest {
             assertNotNull(queriedEntitiesByMod);
             assertEquals(Set.copyOf(entitiesByMod.get(i)), Set.copyOf(queriedEntitiesByMod));
         }
+
+        int minId = (int) database.selectQuery(Entity.class)
+                .min("id")
+                .complete();
+
+        int maxId = (int) database.selectQuery(Entity.class)
+                .max("id")
+                .complete();
+
+        assertEquals(99, maxId - minId);
+
+        Long count = database.selectQuery(Entity.class)
+                .count("id")
+                .complete();
+
+        assertEquals(100, count);
     }
 
     @Table(value = "simple_entities_test", allowUnsafeOperations = true)

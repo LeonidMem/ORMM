@@ -2,6 +2,7 @@ package ru.leonidm.ormm.orm;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 import ru.leonidm.ormm.annotations.Table;
 import ru.leonidm.ormm.orm.queries.DeleteQuery;
 import ru.leonidm.ormm.annotations.Column;
@@ -161,6 +162,7 @@ public final class ORMTable<T> {
     }
 
     @NotNull
+    @Unmodifiable
     public Set<String> getColumnsNames() {
         return Collections.unmodifiableSet(columns.keySet());
     }

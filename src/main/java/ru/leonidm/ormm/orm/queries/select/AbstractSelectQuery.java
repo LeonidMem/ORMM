@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O, T, R, J>, T, R, J> extends AbstractQuery<T, R>
-        permits SelectQuery, SingleSelectQuery, RawSelectQuery, RawSingleSelectQuery {
+        permits SelectQuery, SingleSelectQuery, RawSelectQuery, RawSingleSelectQuery, AggregateSelectQuery {
 
     protected final List<Join<J>> joins = new ArrayList<>();
     protected String[] columns;
@@ -154,12 +154,10 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
 
         queryBuilder.append("SELECT ");
 
-        String tableName = QueryUtils.getTableName(table);
-
         switch (table.getDatabase().getDriver()) {
             case MYSQL -> {
                 Arrays.stream(columns).forEach(column -> {
-                    queryBuilder.append(tableName).append('.').append(column).append(", ");
+                    writeColumn(queryBuilder, column).append(", ");
                 });
 
                 joins.forEach(join -> {
@@ -170,8 +168,8 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
             }
             case SQLITE -> {
                 Arrays.stream(columns).forEach(column -> {
-                    queryBuilder.append(tableName).append('.').append(column).append(" AS \"")
-                            .append(tableName).append('.').append(column).append("\"").append(", ");
+                    writeColumn(queryBuilder, column).append(" AS \"");
+                    writeColumn(queryBuilder, column).append("\"").append(", ");
                 });
 
                 joins.forEach(join -> {
@@ -216,9 +214,14 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         return queryBuilder.toString();
     }
 
-    protected final void copy(@NotNull AbstractSelectQuery<?, T, ?, ?> to) {
+    @NotNull
+    protected StringBuilder writeColumn(@NotNull StringBuilder queryBuilder, @NotNull String column) {
+        return queryBuilder.append(QueryUtils.getTableName(table)).append('.').append(column);
+    }
+
+    protected final void copyTo(@NotNull AbstractSelectQuery<?, T, ?, ?> to) {
         if (!joins.isEmpty()) {
-            throw new IllegalStateException("Change state of select query (raw/single) before inner join");
+            throw new IllegalStateException("Change state of select query (raw/single/aggregate) before inner join");
         }
 
         to.columns = columns;

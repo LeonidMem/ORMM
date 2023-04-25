@@ -1,6 +1,7 @@
 package ru.leonidm.ormm.orm.queries.select;
 
 import org.jetbrains.annotations.NotNull;
+import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
 
 import java.sql.ResultSet;
@@ -46,21 +47,61 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
     public SingleSelectQuery<T> single() {
         SingleSelectQuery<T> singleSelectQuery = new SingleSelectQuery<>(table);
 
-        copy(singleSelectQuery);
+        copyTo(singleSelectQuery);
         singleSelectQuery.limit = 1;
 
         return singleSelectQuery;
     }
 
     @NotNull
-    public RawSelectQuery<T> columns(String @NotNull ... columns) {
+    public RawSelectQuery<T> columns(@NotNull String @NotNull ... columns) {
         checkIfColumnsExist(columns);
 
         RawSelectQuery<T> rawSelectQuery = new RawSelectQuery<>(table);
 
-        copy(rawSelectQuery);
-        rawSelectQuery.columns = columns;
+        copyTo(rawSelectQuery);
 
         return rawSelectQuery;
+    }
+
+    @NotNull
+    public AggregateSelectQuery<T, ? extends Number> min(@NotNull String column) {
+        return aggregateSelectQuery(column, "MIN", true);
+    }
+
+    @NotNull
+    public AggregateSelectQuery<T, ? extends Number> max(@NotNull String column) {
+        return aggregateSelectQuery(column, "MAX", true);
+    }
+
+    @NotNull
+    public AggregateSelectQuery<T, Long> count(@NotNull String column) {
+        return aggregateSelectQuery(column, "COUNT", false);
+    }
+
+    @NotNull
+    private <R extends Number> AggregateSelectQuery<T, R> aggregateSelectQuery(@NotNull String column, @NotNull String function,
+                                                                               boolean dynamicResult) {
+        if (columns.length != table.getColumnsNames().size()) {
+            throw new IllegalStateException("Columns must not be changed in aggregate queries");
+        }
+
+        AggregateSelectQuery<T, R> aggregateSelectQuery;
+
+        if (dynamicResult) {
+            ORMColumn<T, ? extends Number> ormColumn = (ORMColumn<T, ? extends Number>) table.getColumn(column);
+            if (ormColumn == null) {
+                throw new IllegalArgumentException(table.getIdentifier() + " Cannot find column " + column);
+            }
+
+            aggregateSelectQuery = new AggregateSelectQuery<>(table, function, (Class<R>) ormColumn.getFieldClass());
+        } else {
+            aggregateSelectQuery = new AggregateSelectQuery<>(table, function, (Class<R>) Long.class);
+        }
+
+        copyTo(aggregateSelectQuery);
+        aggregateSelectQuery.columns = new String[]{column};
+
+        return aggregateSelectQuery;
     }
 }
