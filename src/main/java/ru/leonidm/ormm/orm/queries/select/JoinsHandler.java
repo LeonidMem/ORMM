@@ -1,6 +1,6 @@
 package ru.leonidm.ormm.orm.queries.select;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 import ru.leonidm.ormm.orm.ORMColumn;
@@ -16,17 +16,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 class JoinsHandler<T, J> {
 
     private final ORMTable<T> table;
     private final List<AbstractSelectQuery.Join<J>> joins;
     private final Map<Object, J> keyToJ = new HashMap<>();
     private final Map<Object, Map<AbstractSelectQuery.JoinMeta<J>, List<Object>>> keyToObjects = new HashMap<>();
+    private int nextId = 0;
 
     public void save(@NotNull ResultSet resultSet, @NotNull J j) throws SQLException {
         ORMColumn<T, ?> keyColumn = table.getKeyColumn();
-        Object key = keyColumn != null ? resultSet.getObject(QueryUtils.getColumnName(keyColumn)) : null;
+        Object key = keyColumn != null ? resultSet.getObject(QueryUtils.getColumnName(keyColumn)) : nextId++;
 
         keyToJ.putIfAbsent(key, j);
         var map = keyToObjects.computeIfAbsent(key, k -> new HashMap<>());
@@ -48,8 +49,11 @@ class JoinsHandler<T, J> {
 
     public boolean contains(@NotNull ResultSet resultSet) throws SQLException {
         ORMColumn<T, ?> keyColumn = table.getKeyColumn();
-        Object key = keyColumn != null ? resultSet.getObject(QueryUtils.getColumnName(keyColumn)) : null;
+        if (keyColumn == null) {
+            return false;
+        }
 
+        Object key = resultSet.getObject(QueryUtils.getColumnName(keyColumn));
         return keyToJ.containsKey(key);
     }
 

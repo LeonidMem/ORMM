@@ -157,6 +157,28 @@ public class SimpleTest {
                     .complete();
             assertEquals(20, count2);
         }
+
+        database.addTable(EntityWithoutPrimaryKey.class);
+        database.deleteQuery(EntityWithoutPrimaryKey.class).complete();
+
+        for (int i = 0; i < 100; i++) {
+            database.insertQuery(EntityWithoutPrimaryKey.class)
+                    .value("string", String.valueOf(i % 10))
+                    .complete();
+        }
+
+        var queriedEntitiesWithoutPrimaryKey = database.selectQuery(EntityWithoutPrimaryKey.class)
+                .complete();
+        assertNotNull(queriedEntitiesWithoutPrimaryKey);
+        assertEquals(100, queriedEntitiesWithoutPrimaryKey.size());
+
+        for (int i = 0; i < 10; i++) {
+            var queriedEntitiesWithoutPrimaryKeyByMod = database.selectQuery(EntityWithoutPrimaryKey.class)
+                    .where(Where.compare("string", "=", String.valueOf(i % 10)))
+                    .complete();
+            assertNotNull(queriedEntitiesWithoutPrimaryKeyByMod);
+            assertEquals(10, queriedEntitiesWithoutPrimaryKeyByMod.size());
+        }
     }
 
     @Table(value = "simple_entities_test", allowUnsafeOperations = true)
@@ -196,5 +218,13 @@ public class SimpleTest {
                     ", string='" + string + '\'' +
                     '}';
         }
+    }
+
+    @Table(value = "simple_entities_without_primary_key_test", allowUnsafeOperations = true)
+    public static class EntityWithoutPrimaryKey {
+
+        @Column
+        private String string;
+
     }
 }
