@@ -60,6 +60,7 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
         RawSelectQuery<T> rawSelectQuery = new RawSelectQuery<>(table);
 
         copyTo(rawSelectQuery);
+        rawSelectQuery.columns = columns;
 
         return rawSelectQuery;
     }

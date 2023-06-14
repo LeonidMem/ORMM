@@ -77,6 +77,12 @@ public class SimpleTest {
         assertEquals(e, s.e);
         assertEquals(f, s.f);
 
+        List<List<Object>> llObjects = database.selectQuery(SimpleTest.class).columns("a").complete();
+        assertEquals(List.of(List.of(a)), llObjects);
+
+        List<Object> lObject = database.selectQuery(SimpleTest.class).columns("a").single().complete();
+        assertEquals(List.of(a), lObject);
+
         a = 15;
         b = 23892L;
         c = 0f;
