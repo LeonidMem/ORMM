@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -22,7 +21,6 @@ public final class RawSelectQuery<T> extends AbstractSelectQuery<RawSelectQuery<
     @Override
     @NotNull
     protected Supplier<List<List<Object>>> prepareSupplier() {
-        System.out.println("[RawSingleSelectQuery:30] " + Arrays.toString(columns));
         return () -> {
 
             try (Statement statement = table.getDatabase().getConnection().createStatement();
