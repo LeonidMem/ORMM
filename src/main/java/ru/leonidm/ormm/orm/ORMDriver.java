@@ -17,6 +17,10 @@ public enum ORMDriver {
             if (jdbcLink != null) {
                 return DriverManager.getConnection(jdbcLink);
             } else {
+                if (ormSettings.getHost().equals(":memory:")) {
+                    return DriverManager.getConnection("jdbc:sqlite::memory:");
+                }
+
                 return DriverManager.getConnection("jdbc:sqlite:" + ormSettings.getHost() + "/?" + ormSettings.getConnectionParameters());
             }
         }
