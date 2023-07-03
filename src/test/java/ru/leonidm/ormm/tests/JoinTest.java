@@ -39,10 +39,12 @@ public class JoinTest {
         database.addTable(JoinTest.class);
         database.addTable(AnotherTable.class);
         database.addTable(AnotherTable2.class);
+        database.addTable(TableWithoutPrimaryKey.class);
 
         database.deleteQuery(JoinTest.class).complete();
         database.deleteQuery(AnotherTable.class).complete();
         database.deleteQuery(AnotherTable2.class).complete();
+        database.deleteQuery(TableWithoutPrimaryKey.class).complete();
 
         database.insertQuery(AnotherTable.class)
                 .value("id", 1)
@@ -116,6 +118,14 @@ public class JoinTest {
                     .value("name", "MdinoeL")
                     .complete();
         }
+
+        database.insertQuery(TableWithoutPrimaryKey.class)
+                .value("name", "LeonidM")
+                .complete();
+
+        database.insertQuery(TableWithoutPrimaryKey.class)
+                .value("name", "MdinoeL")
+                .complete();
 
         var a = database.selectQuery(AnotherTable.class)
                 .innerJoin(AnotherTable2.class)
@@ -194,6 +204,25 @@ public class JoinTest {
                 .complete();
         assertNotNull(d);
         assertEquals(2, d.size());
+
+        var e = database.selectQuery(TableWithoutPrimaryKey.class)
+                .innerJoin(AnotherTable2.class)
+                .on(JoinWhere.compare("name", "=", "name"))
+                .selectOne("id", (tableWithoutPrimaryKey, object) -> {
+                    tableWithoutPrimaryKey.id = (Integer) object;
+                })
+                .closeJoin()
+                .complete();
+        assertNotNull(e);
+        assertEquals(7, e.size());
+
+        for (TableWithoutPrimaryKey tableWithoutPrimaryKey : e) {
+            if (tableWithoutPrimaryKey.id <= 5) {
+                assertEquals("LeonidM", tableWithoutPrimaryKey.name);
+            } else {
+                assertEquals("MdinoeL", tableWithoutPrimaryKey.name);
+            }
+        }
     }
 
     @Table(value = "join_test_2", allowUnsafeOperations = true)
@@ -211,6 +240,15 @@ public class JoinTest {
     public static class AnotherTable2 {
 
         @Column
+        private int id;
+
+        @Column
+        private String name;
+    }
+
+    @Table(value = "join_test_4", allowUnsafeOperations = true)
+    public static class TableWithoutPrimaryKey {
+
         private int id;
 
         @Column

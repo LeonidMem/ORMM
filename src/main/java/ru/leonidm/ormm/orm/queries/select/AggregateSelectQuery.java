@@ -24,7 +24,11 @@ public final class AggregateSelectQuery<T, R> extends AbstractSelectQuery<Aggreg
     @Override
     @NotNull
     protected StringBuilder writeColumn(@NotNull StringBuilder queryBuilder, @NotNull String column) {
-        return queryBuilder.append(function).append('(').append(QueryUtils.getTableName(table)).append('.').append(column).append(')');
+        if (column.equals("*")) {
+            return queryBuilder.append(function).append("(*)");
+        } else {
+            return queryBuilder.append(function).append('(').append(QueryUtils.getTableName(table)).append('.').append(column).append(')');
+        }
     }
 
     @Override

@@ -100,10 +100,6 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         ORMTable<?> joinedTable = table.getDatabase().getTable(joinedTableClass);
         validateTable(ormTable, joinedTable, tableClass.getName(), joinedTableClass.getName());
 
-        if (table.getKeyColumn() == null) {
-            throw new IllegalStateException("Cannot join to table without primary key column");
-        }
-
         return new JoinBuilder<>(joinType, ormTable, joinedTable, (O) this);
     }
 
@@ -282,12 +278,6 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
 
             columns.put(column, new JoinMeta<>(false, (BiConsumer) consumer));
             return this;
-        }
-
-        @Deprecated(since = "1.3.1", forRemoval = true)
-        @NotNull
-        public O finish() {
-            return closeJoin();
         }
 
         @NotNull
