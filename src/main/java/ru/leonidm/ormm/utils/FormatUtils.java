@@ -111,7 +111,7 @@ public final class FormatUtils {
             return '(' + selectQuery.getSQLQuery() + ')';
         }
 
-        return "\"" + object.toString().replace("\"", "\"\"") + "\"";
+        return "\"" + object.toString().replace("\"", "\"\"").replace("(?<!\\\\)\\\\[^n\\\\]", "\\\\") + "\"";
     }
 
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
