@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +21,8 @@ class JoinsHandler<T, J> {
 
     private final ORMTable<T> table;
     private final List<AbstractSelectQuery.Join<J>> joins;
-    private final Map<Object, J> keyToJ = new HashMap<>();
-    private final Map<Object, Map<AbstractSelectQuery.JoinMeta<J>, List<Object>>> keyToObjects = new HashMap<>();
+    private final Map<Object, J> keyToJ = new LinkedHashMap<>();
+    private final Map<Object, Map<AbstractSelectQuery.JoinMeta<J>, List<Object>>> keyToObjects = new LinkedHashMap<>();
     private int nextId = 0;
 
     public void save(@NotNull ResultSet resultSet, @NotNull J j) throws SQLException {
@@ -30,7 +30,7 @@ class JoinsHandler<T, J> {
         Object key = keyColumn != null ? resultSet.getObject(QueryUtils.getColumnName(keyColumn)) : nextId++;
 
         keyToJ.putIfAbsent(key, j);
-        var map = keyToObjects.computeIfAbsent(key, k -> new HashMap<>());
+        var map = keyToObjects.computeIfAbsent(key, k -> new LinkedHashMap<>());
 
         for (AbstractSelectQuery.Join<J> join : joins) {
             for (var entry : join.getColumns().entrySet()) {
