@@ -162,9 +162,9 @@ public class QueryExample {
                 .value("user", database.selectQuery(User.class)
                         .where(compare("username", "=", "LeonidM"))
                         .single()
-                        .waitQueue())
+                        .complete())
                 .value("text", "Aboba")
-                .waitQueue();
+                .complete();
 
 
         // Select query
@@ -183,15 +183,15 @@ public class QueryExample {
                 .where(and(compare("username", "=", "LeonidM"), isNotNull("rating")))
                 // .single() will return not List<User>, but only User
                 .single()
-                // .waitQueue() will start ORMTask in another thread and wait for it's end
-                .waitQueue();
+                // .complete() will start ORMTask in another thread and wait for it's end
+                .complete();
 
         List<Object> rawValues = database.selectQuery(User.class)
                 .where(compare("username", "=", "LeonidM"))
                 // You can also select only one column, or two, or more
                 .columns("id")
                 .single()
-                .waitQueue();
+                .complete();
 
         // You can get SQL's query string as well
         String selectQueryString = database.selectQuery(User.class)
@@ -208,7 +208,7 @@ public class QueryExample {
                         .columns("id")
                         .single()))
                 .single()
-                .waitQueue();
+                .complete();
 
 
         // Update query
