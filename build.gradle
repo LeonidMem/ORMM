@@ -25,12 +25,12 @@ tasks.withType(Javadoc).configureEach { options.encoding = 'UTF-8' }
 dependencies {
     implementation 'org.jetbrains:annotations:24.0.1'
 
-    implementation 'ru.leonidm:CommonsM:1.0'
+    implementation 'ru.leonidm:CommonsM:1.0.2'
 
     runtimeOnly 'com.mysql:mysql-connector-j:8.0.32'
     testRuntimeOnly 'com.mysql:mysql-connector-j:8.0.32'
-    runtimeOnly 'org.xerial:sqlite-jdbc:3.40.0.0'
-    testRuntimeOnly 'org.xerial:sqlite-jdbc:3.40.0.0'
+    runtimeOnly 'org.xerial:sqlite-jdbc:3.44.1.0'
+    testRuntimeOnly 'org.xerial:sqlite-jdbc:3.44.1.0'
 
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
