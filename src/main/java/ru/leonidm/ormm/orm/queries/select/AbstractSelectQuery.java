@@ -33,6 +33,7 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
     protected Order order = null;
     protected String group = null;
     protected int limit = 0;
+    protected int offset = 0;
 
     public AbstractSelectQuery(@NotNull ORMTable<T> table) {
         super(table);
@@ -71,6 +72,12 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
     @NotNull
     public O limit(int limit) {
         this.limit = limit;
+        return (O) this;
+    }
+
+    @NotNull
+    public O offset(int offset) {
+        this.offset = offset;
         return (O) this;
     }
 
@@ -207,6 +214,10 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
             queryBuilder.append(" LIMIT ").append(limit);
         }
 
+        if (offset > 0) {
+            queryBuilder.append(" OFFSET ").append(offset);
+        }
+
         return queryBuilder.toString();
     }
 
@@ -225,6 +236,7 @@ public sealed abstract class AbstractSelectQuery<O extends AbstractSelectQuery<O
         to.order = order;
         to.group = group;
         to.limit = limit;
+        to.offset = offset;
     }
 
     protected void checkIfColumnsExist(@NotNull String[] columns) {

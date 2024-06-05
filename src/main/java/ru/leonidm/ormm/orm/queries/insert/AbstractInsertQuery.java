@@ -90,12 +90,12 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
         queryBuilder.delete(queryBuilder.length() - 2, queryBuilder.length()).append(")");
 
         if (onDuplicateUpdate) {
-            List<ORMColumn<T, ?>> conflictColumns = new ArrayList<>();
+            List<ORMColumn<T, ?>> uniqueColumns = new ArrayList<>();
             List<ORMColumn<T, ?>> updateColumns = new ArrayList<>();
 
-            columns.forEach(column -> {
+            table.getColumnsStream().forEach(column -> {
                 if (column.getMeta().primaryKey() || column.getMeta().unique()) {
-                    conflictColumns.add(column);
+                    uniqueColumns.add(column);
                 } else {
                     updateColumns.add(column);
                 }
@@ -105,7 +105,7 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
                 throw new IllegalArgumentException("Cannot resolve conflict on update with only unique columns");
             }
 
-            if (conflictColumns.isEmpty()) {
+            if (uniqueColumns.isEmpty()) {
                 throw new IllegalArgumentException("Cannot resolve conflict on table without unique columns");
             }
 
