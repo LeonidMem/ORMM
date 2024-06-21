@@ -5,7 +5,7 @@ plugins {
 
 def ormmGroupId = 'ru.leonidm'
 def ormmArtifactId = 'ORMM'
-def ormmVersion = '1.5.5'
+def ormmVersion = '1.5.6'
 
 group ormmGroupId
 version ormmVersion
