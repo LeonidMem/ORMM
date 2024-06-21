@@ -33,6 +33,11 @@ public class EnumTest {
     }
 
     @Test
+    public void mysqlHikariEnums() {
+        test(Databases.MYSQL_HIKARI);
+    }
+
+    @Test
     public void sqliteEnums() {
         test(Databases.SQLITE);
     }

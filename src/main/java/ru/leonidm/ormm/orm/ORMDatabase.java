@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.leonidm.commons.collections.Pair;
 import ru.leonidm.ormm.annotations.CompositeIndex;
-import ru.leonidm.ormm.orm.connection.ConnectionFactories;
 import ru.leonidm.ormm.orm.connection.ConnectionFactory;
 import ru.leonidm.ormm.orm.connection.OrmConnection;
 import ru.leonidm.ormm.orm.general.ColumnData;
@@ -46,7 +45,7 @@ public final class ORMDatabase {
     public ORMDatabase(@NotNull ORMDriver driver, @NotNull ORMSettings ormSettings) {
         this.driver = driver;
 
-        this.connectionFactory = ConnectionFactories.create(driver, ormSettings);
+        this.connectionFactory = ormSettings.getConnectionFactoryInitializer().apply(driver, ormSettings);
 
         this.ormSettings = ormSettings;
         this.ormSettingsHash = Objects.hash(ormSettings.getHost(), ormSettings.getPort(), ormSettings.getDatabaseName(),

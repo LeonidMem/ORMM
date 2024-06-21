@@ -34,6 +34,11 @@ public class CompositeIndexTest {
     }
 
     @Test
+    public void mysqlHikariCompositeIndexes() {
+        test(Databases.MYSQL_HIKARI);
+    }
+
+    @Test
     public void sqliteCompositeIndexes() {
         test(Databases.SQLITE);
     }

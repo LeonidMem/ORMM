@@ -18,8 +18,23 @@ import java.util.Set;
 public class PoolTest {
 
     @Test
+    public void mysql() throws InterruptedException {
+        test(Databases.MYSQL);
+    }
+
+    @Test
     public void mysqlPool() throws InterruptedException {
         test(Databases.MYSQL_POOL);
+    }
+
+    @Test
+    public void mysqlHikari() throws InterruptedException {
+        test(Databases.MYSQL_HIKARI);
+    }
+
+    @Test
+    public void sqlite() throws InterruptedException {
+        test(Databases.SQLITE);
     }
 
     private void test(@NotNull ORMDatabase database) throws InterruptedException {

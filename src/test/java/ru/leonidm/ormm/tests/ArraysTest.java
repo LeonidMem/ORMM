@@ -47,6 +47,11 @@ public class ArraysTest {
     }
 
     @Test
+    public void mysqlHikariArrays() {
+        test(Databases.MYSQL_HIKARI);
+    }
+
+    @Test
     public void sqliteArrays() {
         test(Databases.SQLITE);
     }

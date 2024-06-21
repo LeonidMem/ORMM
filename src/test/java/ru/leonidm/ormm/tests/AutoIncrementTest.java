@@ -28,6 +28,11 @@ public class AutoIncrementTest {
     }
 
     @Test
+    public void mysqlHikariAutoIncrement() {
+        test(Databases.MYSQL_HIKARI);
+    }
+
+    @Test
     public void sqliteAutoIncrement() {
         test(Databases.SQLITE);
     }

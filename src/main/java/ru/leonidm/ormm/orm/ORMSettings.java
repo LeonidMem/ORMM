@@ -3,8 +3,11 @@ package ru.leonidm.ormm.orm;
 import lombok.Builder;
 import lombok.Data;
 import ru.leonidm.ormm.Constant;
+import ru.leonidm.ormm.orm.connection.ConnectionFactories;
+import ru.leonidm.ormm.orm.connection.ConnectionFactory;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 @Builder(builderClassName = "Builder", setterPrefix = "set")
 @Data
@@ -24,7 +27,10 @@ public final class ORMSettings {
     private final int threadPoolSize = Constant.ORMM_THREAD_POOL;
     @lombok.Builder.Default
     private final int connectionPoolSize = Constant.ORMM_CONNECTION_POOL;
+    @lombok.Builder.Default
     private final int connectionPoolTimeout = Constant.ORMM_CONNECTION_POOL_TIMEOUT;
+    @lombok.Builder.Default
+    private final BiFunction<ORMDriver, ORMSettings, ConnectionFactory> connectionFactoryInitializer = ConnectionFactories::create;
     @lombok.Builder.Default
     private final boolean logQueries = false;
 

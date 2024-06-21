@@ -48,6 +48,12 @@ public class SimpleTest {
     public void mysqlPoolSimple() {
         test(Databases.MYSQL_POOL);
     }
+
+    @Test
+    public void mysqlHikariSimple() {
+        test(Databases.MYSQL_HIKARI);
+    }
+
     @Test
     public void sqliteSimple() {
         test(Databases.SQLITE);

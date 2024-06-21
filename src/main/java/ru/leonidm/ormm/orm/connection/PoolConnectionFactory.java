@@ -75,16 +75,20 @@ public class PoolConnectionFactory implements ConnectionFactory {
         }
 
         Connection connection = ormConnection.getConnection();
+        try {
+            if (connection.isClosed()) {
+                // TODO: normal logger
+                System.err.println("[ORMM] Got closed connection");
 
-        if (connection.isClosed()) {
-            // TODO: normal logger
-            System.err.println("[ORMM] Got closed connection");
-
-            connection = driver.getConnection(settings);
-        }
-
-        synchronized (this) {
-            freeConnections.add(connection);
+                connection = driver.getConnection(settings);
+            } else if (!connection.getAutoCommit()) {
+                connection.commit();
+                connection.setAutoCommit(true);
+            }
+        } finally {
+            synchronized (this) {
+                freeConnections.add(connection);
+            }
         }
     }
 }

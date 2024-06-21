@@ -36,6 +36,11 @@ public class JoinTest {
     }
 
     @Test
+    public void mysqlHikariInner() {
+        innerTest(Databases.MYSQL_HIKARI);
+    }
+
+    @Test
     public void sqliteInner() {
         innerTest(Databases.SQLITE);
     }

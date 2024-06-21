@@ -29,6 +29,11 @@ public class InsertIgnoreTest {
     }
 
     @Test
+    public void mysqlHikariInsertIgnore() {
+        test(Databases.MYSQL_HIKARI);
+    }
+
+    @Test
     public void sqliteInsertIgnore() {
         test(Databases.SQLITE);
     }

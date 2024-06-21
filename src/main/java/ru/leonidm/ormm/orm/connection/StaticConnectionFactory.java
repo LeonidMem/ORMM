@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.leonidm.ormm.orm.ORMDriver;
 import ru.leonidm.ormm.orm.ORMSettings;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -22,7 +23,14 @@ public class StaticConnectionFactory implements ConnectionFactory {
     @Override
     @NotNull
     public OrmConnection getConnection() throws SQLException {
+        boolean p = lock.isLocked();
+        if (p) {
+            System.out.println("[StaticConnectionFactory:26] LOCKED");
+        }
         lock.lock();
+        if (p) {
+            System.out.println("[StaticConnectionFactory:26] UNLOCKED");
+        }
 
         if (ormConnection == null || ormConnection.isClosed()) {
             if (ormConnection != null) {
@@ -37,11 +45,19 @@ public class StaticConnectionFactory implements ConnectionFactory {
     }
 
     @Override
-    public void releaseConnection(@NotNull OrmConnection ormConnection) {
+    public void releaseConnection(@NotNull OrmConnection ormConnection) throws SQLException {
         if (this.ormConnection != ormConnection) {
             return;
         }
 
-        lock.unlock();
+        try {
+            Connection connection = ormConnection.getConnection();
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+                connection.setAutoCommit(true);
+            }
+        } finally {
+            lock.unlock();
+        }
     }
 }

@@ -3,6 +3,7 @@ package ru.leonidm.ormm.orm.connection;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -28,6 +29,23 @@ public final class OrmConnection implements AutoCloseable {
     @NotNull
     public Statement createStatement() throws SQLException {
         return connection.createStatement();
+    }
+
+    @NotNull
+    public PreparedStatement prepareStatement(@NotNull String sql) throws SQLException {
+        return connection.prepareStatement(sql);
+    }
+
+    public void setAutoCommit(boolean autoCommit) throws SQLException {
+        connection.setAutoCommit(autoCommit);
+    }
+
+    public void commit() throws SQLException {
+        connection.commit();
+    }
+
+    public void rollback() throws SQLException {
+        connection.rollback();
     }
 
     @Override

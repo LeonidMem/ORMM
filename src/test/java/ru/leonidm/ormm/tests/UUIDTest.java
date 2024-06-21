@@ -31,6 +31,11 @@ public class UUIDTest {
     }
 
     @Test
+    public void mysqlHikariUuid() {
+        test(Databases.MYSQL_HIKARI);
+    }
+
+    @Test
     public void sqliteUuid() {
         test(Databases.SQLITE);
     }
