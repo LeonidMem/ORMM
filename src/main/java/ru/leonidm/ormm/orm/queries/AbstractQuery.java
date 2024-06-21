@@ -3,6 +3,7 @@ package ru.leonidm.ormm.orm.queries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.orm.connection.OrmConnection;
 import ru.leonidm.ormm.orm.thread.ORMTask;
 
 import java.sql.SQLException;
@@ -28,7 +29,8 @@ public abstract class AbstractQuery<T, R> {
     @NotNull
     protected final Supplier<R> getUpdateSupplier() {
         return () -> {
-            try (Statement statement = table.getDatabase().getConnection().createStatement()) {
+            try (OrmConnection connection = table.getDatabase().getConnection();
+                 Statement statement = connection.createStatement()) {
                 statement.executeUpdate(getSQLQuery());
             } catch (SQLException e) {
                 throw new IllegalStateException(e);

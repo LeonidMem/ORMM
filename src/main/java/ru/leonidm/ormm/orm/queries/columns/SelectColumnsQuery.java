@@ -2,6 +2,7 @@ package ru.leonidm.ormm.orm.queries.columns;
 
 import org.jetbrains.annotations.NotNull;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.orm.connection.OrmConnection;
 import ru.leonidm.ormm.orm.general.ColumnData;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
 import ru.leonidm.ormm.utils.QueryUtils;
@@ -38,7 +39,8 @@ public final class SelectColumnsQuery<T> extends AbstractQuery<T, List<ColumnDat
         return () -> {
             List<ColumnData> out = new ArrayList<>();
 
-            try (Statement statement = table.getDatabase().getConnection().createStatement();
+            try (OrmConnection connection = table.getDatabase().getConnection();
+                 Statement statement = connection.createStatement();
                  ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
                 while (resultSet.next()) {
                     String columnName, columnType;

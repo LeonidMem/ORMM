@@ -3,6 +3,7 @@ package ru.leonidm.ormm.orm.queries.select;
 import org.jetbrains.annotations.NotNull;
 import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.orm.connection.OrmConnection;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,10 +21,15 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
     @NotNull
     protected Supplier<List<T>> prepareSupplier() {
         return () -> {
-            try (Statement statement = table.getDatabase().getConnection().createStatement();
+            try (OrmConnection connection = table.getDatabase().getConnection();
+                 Statement statement = connection.createStatement();
                  ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
 
                 JoinsHandler<T, T> joinsHandler = new JoinsHandler<>(table, joins);
+
+                if (joins.isEmpty()) {
+                    
+                }
 
                 while (resultSet.next()) {
                     T t = table.objectFrom(resultSet);

@@ -23,6 +23,11 @@ public class AutoIncrementTest {
     }
 
     @Test
+    public void mysqlPoolAutoIncrement() {
+        test(Databases.MYSQL_POOL);
+    }
+
+    @Test
     public void sqliteAutoIncrement() {
         test(Databases.SQLITE);
     }

@@ -12,6 +12,7 @@ import java.util.Objects;
 public final class Databases {
 
     public static final ORMDatabase MYSQL;
+    public static final ORMDatabase MYSQL_POOL;
     public static final ORMDatabase SQLITE;
 
     static {
@@ -33,6 +34,19 @@ public final class Databases {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+
+        // TODO: finish tests with hikari
+        MYSQL_POOL = new ORMDatabase(ORMDriver.MYSQL, ORMSettings.builder()
+                .setHost(Objects.requireNonNullElse(System.getenv("mysql.host"), "localhost"))
+                .setPort(Integer.parseInt(Objects.requireNonNullElse(System.getenv("mysql.port"), "3306")))
+                .setDatabaseName(Objects.requireNonNullElse(System.getenv("mysql.databaseName"), "ormm"))
+                .setUser(Objects.requireNonNullElse(System.getenv("mysql.user"), "ormm"))
+                .setPassword(Objects.requireNonNullElse(System.getenv("mysql.host"), "ormm"))
+                .setConnectionParameters("createDatabaseIfNotExist=true&autoReconnect=true&useUnicode=yes&characterEncoding=UTF-8")
+                .setTableNamePrefix("hikari_")
+                .setLogQueries(true)
+                .setConnectionPoolSize(4)
+                .build());
 
         new File("test.db").delete();
 

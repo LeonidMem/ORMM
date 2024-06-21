@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.clauses.Where;
+import ru.leonidm.ormm.orm.connection.OrmConnection;
 import ru.leonidm.ormm.utils.FormatUtils;
 import ru.leonidm.ormm.utils.QueryUtils;
 
@@ -70,7 +71,8 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
     @NotNull
     protected Supplier<T> prepareSupplier() {
         return () -> {
-            try (Statement statement = table.getDatabase().getConnection().createStatement()) {
+            try (OrmConnection connection = table.getDatabase().getConnection();
+                 Statement statement = connection.createStatement()) {
                 statement.executeUpdate(getSQLQuery());
             } catch (SQLException e) {
                 throw new IllegalStateException(e);

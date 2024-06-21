@@ -27,7 +27,17 @@ class JoinsHandler<T, J> {
 
     public void save(@NotNull ResultSet resultSet, @NotNull J j) throws SQLException {
         ORMColumn<T, ?> keyColumn = table.getKeyColumn();
-        Object key = keyColumn != null ? resultSet.getObject(QueryUtils.getColumnName(keyColumn)) : nextId++;
+        Object key;
+        if (keyColumn != null) {
+            String columnName = QueryUtils.getColumnName(keyColumn);
+            try {
+                key = resultSet.getObject(columnName);
+            } catch (SQLException e) {
+                key = nextId++;
+            }
+        } else {
+            key = nextId++;
+        }
 
         keyToJ.putIfAbsent(key, j);
         var map = keyToObjects.computeIfAbsent(key, k -> new LinkedHashMap<>());

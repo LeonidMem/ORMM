@@ -23,6 +23,9 @@ public final class ORMSettings {
     @lombok.Builder.Default
     private final int threadPoolSize = Constant.ORMM_THREAD_POOL;
     @lombok.Builder.Default
+    private final int connectionPoolSize = Constant.ORMM_CONNECTION_POOL;
+    private final int connectionPoolTimeout = Constant.ORMM_CONNECTION_POOL_TIMEOUT;
+    @lombok.Builder.Default
     private final boolean logQueries = false;
 
     @Override

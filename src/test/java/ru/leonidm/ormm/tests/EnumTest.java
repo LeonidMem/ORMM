@@ -28,6 +28,11 @@ public class EnumTest {
     }
 
     @Test
+    public void mysqlPoolEnums() {
+        test(Databases.MYSQL_POOL);
+    }
+
+    @Test
     public void sqliteEnums() {
         test(Databases.SQLITE);
     }

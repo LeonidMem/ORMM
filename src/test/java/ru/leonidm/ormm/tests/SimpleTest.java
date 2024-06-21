@@ -45,6 +45,10 @@ public class SimpleTest {
     }
 
     @Test
+    public void mysqlPoolSimple() {
+        test(Databases.MYSQL_POOL);
+    }
+    @Test
     public void sqliteSimple() {
         test(Databases.SQLITE);
     }

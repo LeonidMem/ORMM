@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.leonidm.commons.collections.Pair;
 import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.orm.connection.OrmConnection;
 import ru.leonidm.ormm.orm.general.SQLType;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
 import ru.leonidm.ormm.utils.QueryUtils;
@@ -152,7 +153,8 @@ public final class CreateIndexesQuery<T> extends AbstractQuery<T, Void> {
     @NotNull
     protected Supplier<Void> prepareSupplier() {
         return () -> {
-            try (Statement statement = table.getDatabase().getConnection().createStatement()) {
+            try (OrmConnection connection = table.getDatabase().getConnection();
+                 Statement statement = connection.createStatement()) {
 
                 switch (table.getDatabase().getDriver()) {
                     case MYSQL -> {

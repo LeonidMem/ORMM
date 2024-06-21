@@ -2,6 +2,7 @@ package ru.leonidm.ormm.orm.queries.select;
 
 import org.jetbrains.annotations.NotNull;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.orm.connection.OrmConnection;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,7 +25,8 @@ public final class SingleSelectQuery<T> extends AbstractSelectQuery<SingleSelect
     @NotNull
     protected Supplier<T> prepareSupplier() {
         return () -> {
-            try (Statement statement = table.getDatabase().getConnection().createStatement();
+            try (OrmConnection connection = table.getDatabase().getConnection();
+                 Statement statement = connection.createStatement();
                  ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
 
                 T t = null;

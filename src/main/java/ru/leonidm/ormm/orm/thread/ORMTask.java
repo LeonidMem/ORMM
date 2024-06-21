@@ -91,7 +91,7 @@ public final class ORMTask<R> implements Runnable {
 
             exception = new IllegalStateException(e);
             // TODO: normal logger
-            System.err.printf("Got exception at: %s%n", query);
+            System.err.printf("[ORMM] Got exception at: %s%n", query);
             throw exception;
         } finally {
             if (lock != null) {

@@ -42,6 +42,11 @@ public class ArraysTest {
     }
 
     @Test
+    public void mysqlPoolArrays() {
+        test(Databases.MYSQL_POOL);
+    }
+
+    @Test
     public void sqliteArrays() {
         test(Databases.SQLITE);
     }

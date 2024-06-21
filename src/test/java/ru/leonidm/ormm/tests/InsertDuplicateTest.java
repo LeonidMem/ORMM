@@ -34,6 +34,11 @@ public class InsertDuplicateTest {
     }
 
     @Test
+    public void mysqlInsertHikariDuplicateUpdate() {
+        test(Databases.MYSQL_POOL);
+    }
+
+    @Test
     public void sqliteInsertDuplicateUpdate() {
         test(Databases.SQLITE);
     }

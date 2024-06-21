@@ -24,6 +24,11 @@ public class InsertIgnoreTest {
     }
 
     @Test
+    public void mysqlPoolInsertIgnore() {
+        test(Databases.MYSQL_POOL);
+    }
+
+    @Test
     public void sqliteInsertIgnore() {
         test(Databases.SQLITE);
     }

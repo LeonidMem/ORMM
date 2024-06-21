@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.leonidm.ormm.orm.ORMColumn;
 import ru.leonidm.ormm.orm.ORMDriver;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.orm.connection.OrmConnection;
 import ru.leonidm.ormm.orm.queries.AbstractQuery;
 import ru.leonidm.ormm.utils.FormatUtils;
 import ru.leonidm.ormm.utils.QueryUtils;
@@ -132,7 +133,8 @@ public sealed abstract class AbstractInsertQuery<T> extends AbstractQuery<T, T> 
     @NotNull
     protected Supplier<T> prepareSupplier() {
         return () -> {
-            try (Statement statement = this.table.getDatabase().getConnection().createStatement()) {
+            try (OrmConnection connection = table.getDatabase().getConnection();
+                 Statement statement = connection.createStatement()) {
                 int affected = switch (this.table.getDatabase().getDriver()) {
                     case MYSQL -> statement.executeUpdate(this.getSQLQuery(), Statement.RETURN_GENERATED_KEYS);
                     case SQLITE -> statement.executeUpdate(this.getSQLQuery());

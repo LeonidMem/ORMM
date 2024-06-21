@@ -29,6 +29,11 @@ public class CompositeIndexTest {
     }
 
     @Test
+    public void mysqlPoolCompositeIndexes() {
+        test(Databases.MYSQL_POOL);
+    }
+
+    @Test
     public void sqliteCompositeIndexes() {
         test(Databases.SQLITE);
     }

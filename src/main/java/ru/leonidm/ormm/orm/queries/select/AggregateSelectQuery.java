@@ -2,6 +2,7 @@ package ru.leonidm.ormm.orm.queries.select;
 
 import org.jetbrains.annotations.NotNull;
 import ru.leonidm.ormm.orm.ORMTable;
+import ru.leonidm.ormm.orm.connection.OrmConnection;
 import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.sql.ResultSet;
@@ -39,7 +40,8 @@ public final class AggregateSelectQuery<T, R> extends AbstractSelectQuery<Aggreg
         }
 
         return () -> {
-            try (Statement statement = table.getDatabase().getConnection().createStatement();
+            try (OrmConnection connection = table.getDatabase().getConnection();
+                 Statement statement = connection.createStatement();
                  ResultSet resultSet = statement.executeQuery(getSQLQuery())) {
 
                 if (resultSet.next()) {

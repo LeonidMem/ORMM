@@ -26,6 +26,11 @@ public class UUIDTest {
     }
 
     @Test
+    public void mysqlPoolUuid() {
+        test(Databases.MYSQL_POOL);
+    }
+
+    @Test
     public void sqliteUuid() {
         test(Databases.SQLITE);
     }

@@ -31,6 +31,11 @@ public class JoinTest {
     }
 
     @Test
+    public void mysqlPoolInner() {
+        innerTest(Databases.MYSQL_POOL);
+    }
+
+    @Test
     public void sqliteInner() {
         innerTest(Databases.SQLITE);
     }

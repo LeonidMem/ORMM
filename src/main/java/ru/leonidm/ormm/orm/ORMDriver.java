@@ -13,15 +13,21 @@ public enum ORMDriver {
         @Override
         @NotNull
         public Connection getConnection(@NotNull ORMSettings ormSettings) throws SQLException {
+            return DriverManager.getConnection(getJdbcLink(ormSettings));
+        }
+
+        @Override
+        @NotNull
+        public String getJdbcLink(@NotNull ORMSettings ormSettings) {
             String jdbcLink = ormSettings.getJdbcLink();
             if (jdbcLink != null) {
-                return DriverManager.getConnection(jdbcLink);
+                return jdbcLink;
             } else {
                 if (ormSettings.getHost().equals(":memory:")) {
-                    return DriverManager.getConnection("jdbc:sqlite::memory:");
+                    return "jdbc:sqlite::memory:";
                 }
 
-                return DriverManager.getConnection("jdbc:sqlite:" + ormSettings.getHost() + "/?" + ormSettings.getConnectionParameters());
+                return "jdbc:sqlite:" + ormSettings.getHost() + "/?" + ormSettings.getConnectionParameters();
             }
         }
     },
@@ -29,13 +35,18 @@ public enum ORMDriver {
         @Override
         @NotNull
         public Connection getConnection(@NotNull ORMSettings ormSettings) throws SQLException {
+            return DriverManager.getConnection(getJdbcLink(ormSettings), ormSettings.getUser(), ormSettings.getPassword());
+        }
+
+        @Override
+        @NotNull
+        public String getJdbcLink(@NotNull ORMSettings ormSettings) {
             String jdbcLink = ormSettings.getJdbcLink();
             if (jdbcLink != null) {
-                return DriverManager.getConnection(jdbcLink);
+                return jdbcLink;
             } else {
-                return DriverManager.getConnection("jdbc:mysql://" + ormSettings.getHost() + ":" + ormSettings.getPort()
-                                + "/" + ormSettings.getDatabaseName() + "?" + ormSettings.getConnectionParameters(),
-                        ormSettings.getUser(), ormSettings.getPassword());
+                return "jdbc:mysql://" + ormSettings.getHost() + ":" + ormSettings.getPort()
+                                + "/" + ormSettings.getDatabaseName() + "?" + ormSettings.getConnectionParameters();
             }
         }
     };
@@ -55,6 +66,9 @@ public enum ORMDriver {
 
     @NotNull
     public abstract Connection getConnection(@NotNull ORMSettings ormSettings) throws SQLException;
+
+    @NotNull
+    public abstract String getJdbcLink(@NotNull ORMSettings ormSettings);
 
     public enum Key {
         LINK_PREFIX,

@@ -5,7 +5,7 @@ plugins {
 
 def ormmGroupId = 'ru.leonidm'
 def ormmArtifactId = 'ORMM'
-def ormmVersion = '1.5.4'
+def ormmVersion = '1.5.5'
 
 group ormmGroupId
 version ormmVersion
@@ -29,11 +29,13 @@ dependencies {
 
     runtimeOnly 'com.mysql:mysql-connector-j:8.0.32'
     testRuntimeOnly 'com.mysql:mysql-connector-j:8.0.32'
-    runtimeOnly 'org.xerial:sqlite-jdbc:3.44.1.0'
-    testRuntimeOnly 'org.xerial:sqlite-jdbc:3.44.1.0'
+    runtimeOnly 'org.xerial:sqlite-jdbc:3.45.0.0'
+    testRuntimeOnly 'org.xerial:sqlite-jdbc:3.45.0.0'
 
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    implementation 'com.zaxxer:HikariCP:5.1.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'

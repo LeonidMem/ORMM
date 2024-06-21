@@ -4,6 +4,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.leonidm.commons.collections.Pair;
 import ru.leonidm.ormm.annotations.CompositeIndex;
+import ru.leonidm.ormm.orm.connection.ConnectionFactories;
+import ru.leonidm.ormm.orm.connection.ConnectionFactory;
+import ru.leonidm.ormm.orm.connection.OrmConnection;
 import ru.leonidm.ormm.orm.general.ColumnData;
 import ru.leonidm.ormm.orm.general.SQLType;
 import ru.leonidm.ormm.orm.queries.CreateTableQuery;
@@ -19,7 +22,6 @@ import ru.leonidm.ormm.orm.queries.update.UpdateObjectQuery;
 import ru.leonidm.ormm.orm.queries.update.UpdateQuery;
 import ru.leonidm.ormm.utils.QueryUtils;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
 public final class ORMDatabase {
 
     private final ORMDriver driver;
-    private final Connection connection;
+    private final ConnectionFactory connectionFactory;
     private final ORMSettings ormSettings;
     private final int ormSettingsHash;
     private final Map<String, ORMTable<?>> tablesByName = new HashMap<>();
@@ -44,11 +46,7 @@ public final class ORMDatabase {
     public ORMDatabase(@NotNull ORMDriver driver, @NotNull ORMSettings ormSettings) {
         this.driver = driver;
 
-        try {
-            this.connection = driver.getConnection(ormSettings);
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+        this.connectionFactory = ConnectionFactories.create(driver, ormSettings);
 
         this.ormSettings = ormSettings;
         this.ormSettingsHash = Objects.hash(ormSettings.getHost(), ormSettings.getPort(), ormSettings.getDatabaseName(),
@@ -62,8 +60,8 @@ public final class ORMDatabase {
     }
 
     @NotNull
-    public Connection getConnection() {
-        return connection;
+    public OrmConnection getConnection() throws SQLException {
+        return connectionFactory.getConnection();
     }
 
     @NotNull
