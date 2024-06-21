@@ -23,6 +23,8 @@ public class SimpleTest {
 
     @Column
     @PrimaryKey
+    private int id;
+    @Column
     private int a;
     @Column
     private long b;
@@ -64,6 +66,7 @@ public class SimpleTest {
 
         database.deleteQuery(SimpleTest.class).complete();
 
+        id = 1;
         a = 10;
         b = Long.MAX_VALUE - Integer.MAX_VALUE - 1;
         c = 1.11111f;
@@ -77,9 +80,10 @@ public class SimpleTest {
         assertSame(this, s);
 
         s = database.selectQuery(SimpleTest.class).single().complete();
-        assertNotSame(s, this);
+        assertNotSame(this, s);
         assertNotNull(s);
 
+        assertEquals(id, s.id);
         assertEquals(a, s.a);
         assertEquals(b, s.b);
         assertEquals(c, s.c);
@@ -104,13 +108,6 @@ public class SimpleTest {
 
         s = database.updateQuery(SimpleTest.class, this).complete();
         assertSame(this, s);
-
-        assertEquals(a, s.a);
-        assertEquals(b, s.b);
-        assertEquals(c, s.c);
-        assertEquals(d, s.d);
-        assertEquals(e, s.e);
-        assertEquals(f, s.f);
 
         database.addTable(Entity.class);
         database.deleteQuery(Entity.class).complete();

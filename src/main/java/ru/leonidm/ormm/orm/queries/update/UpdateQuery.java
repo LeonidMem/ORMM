@@ -12,7 +12,7 @@ import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.function.Supplier;
 
-public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T, Void> {
+public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T, Integer> {
 
     private int limit = 0;
 
@@ -94,7 +94,7 @@ public final class UpdateQuery<T> extends AbstractUpdateQuery<UpdateQuery<T>, T,
 
     @Override
     @NotNull
-    protected Supplier<Void> prepareSupplier() {
+    protected Supplier<Integer> prepareSupplier() {
         return getUpdateSupplier();
     }
 }

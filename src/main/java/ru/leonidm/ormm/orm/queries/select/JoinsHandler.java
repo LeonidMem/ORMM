@@ -26,18 +26,13 @@ class JoinsHandler<T, J> {
     private int nextId = 0;
 
     public void save(@NotNull ResultSet resultSet, @NotNull J j) throws SQLException {
-        ORMColumn<T, ?> keyColumn = table.getKeyColumn();
-        Object key;
-        if (keyColumn != null) {
-            String columnName = QueryUtils.getColumnName(keyColumn);
-            try {
-                key = resultSet.getObject(columnName);
-            } catch (SQLException e) {
-                key = nextId++;
-            }
-        } else {
-            key = nextId++;
+        if (joins.isEmpty()) {
+            keyToJ.put(nextId++, j);
+            return;
         }
+
+        ORMColumn<T, ?> keyColumn = table.getKeyColumn();
+        Object key = keyColumn != null ? resultSet.getObject(QueryUtils.getColumnName(keyColumn)) : nextId++;
 
         keyToJ.putIfAbsent(key, j);
         var map = keyToObjects.computeIfAbsent(key, k -> new LinkedHashMap<>());
@@ -58,6 +53,10 @@ class JoinsHandler<T, J> {
     }
 
     public boolean contains(@NotNull ResultSet resultSet) throws SQLException {
+        if (joins.isEmpty()) {
+            return true;
+        }
+
         ORMColumn<T, ?> keyColumn = table.getKeyColumn();
         if (keyColumn == null) {
             return false;
@@ -68,6 +67,10 @@ class JoinsHandler<T, J> {
     }
 
     public void apply() {
+        if (joins.isEmpty()) {
+            return;
+        }
+
         keyToObjects.forEach((object, map) -> {
             map.forEach((joinMeta, list) -> {
                 J j = keyToJ.get(object);

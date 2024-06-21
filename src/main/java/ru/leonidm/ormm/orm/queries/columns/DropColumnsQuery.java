@@ -9,7 +9,7 @@ import ru.leonidm.ormm.utils.QueryUtils;
 import java.util.List;
 import java.util.function.Supplier;
 
-public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
+public final class DropColumnsQuery<T> extends AbstractQuery<T, Integer> {
 
     private final List<ColumnData> columns;
 
@@ -57,7 +57,7 @@ public final class DropColumnsQuery<T> extends AbstractQuery<T, Void> {
 
     @Override
     @NotNull
-    protected Supplier<Void> prepareSupplier() {
+    protected Supplier<Integer> prepareSupplier() {
         return getUpdateSupplier();
     }
 }

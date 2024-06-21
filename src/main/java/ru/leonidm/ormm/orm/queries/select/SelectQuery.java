@@ -27,10 +27,6 @@ public final class SelectQuery<T> extends AbstractSelectQuery<SelectQuery<T>, T,
 
                 JoinsHandler<T, T> joinsHandler = new JoinsHandler<>(table, joins);
 
-                if (joins.isEmpty()) {
-                    
-                }
-
                 while (resultSet.next()) {
                     T t = table.objectFrom(resultSet);
 

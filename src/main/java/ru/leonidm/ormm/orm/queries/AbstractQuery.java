@@ -31,12 +31,16 @@ public abstract class AbstractQuery<T, R> {
         return () -> {
             try (OrmConnection connection = table.getDatabase().getConnection();
                  Statement statement = connection.createStatement()) {
-                statement.executeUpdate(getSQLQuery());
+                int changed = statement.executeUpdate(getSQLQuery());
+
+                try {
+                    return (R) (Integer) changed;
+                } catch (ClassCastException e) {
+                    return null;
+                }
             } catch (SQLException e) {
                 throw new IllegalStateException(e);
             }
-
-            return null;
         };
     }
 

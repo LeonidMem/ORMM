@@ -8,7 +8,7 @@ import ru.leonidm.ormm.utils.QueryUtils;
 
 import java.util.function.Supplier;
 
-public final class DeleteQuery<T> extends AbstractQuery<T, Void> {
+public final class DeleteQuery<T> extends AbstractQuery<T, Integer> {
 
     private Where where;
     private int limit = 0;
@@ -53,7 +53,7 @@ public final class DeleteQuery<T> extends AbstractQuery<T, Void> {
 
     @Override
     @NotNull
-    protected Supplier<Void> prepareSupplier() {
+    protected Supplier<Integer> prepareSupplier() {
         return getUpdateSupplier();
     }
 }

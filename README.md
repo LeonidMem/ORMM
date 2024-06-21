@@ -18,7 +18,7 @@
   <dependency>
     <groupId>ru.leonidm</groupId>
     <artifactId>ORMM</artifactId>
-    <version>1.5.6</version>
+    <version>1.6.0</version>
   </dependency>
 </dependencies>
 ```
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'ru.leonidm:ORMM:1.5.6'
+  implementation 'ru.leonidm:ORMM:1.6.0'
 }
 ```
 

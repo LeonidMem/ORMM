@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
+public final class AddColumnsQuery<T> extends AbstractQuery<T, Integer> {
 
     private final List<Pair<ORMColumn<T, ?>, ORMColumn<T, ?>>> columns;
 
@@ -83,7 +83,7 @@ public final class AddColumnsQuery<T> extends AbstractQuery<T, Void> {
 
     @Override
     @NotNull
-    protected Supplier<Void> prepareSupplier() {
+    protected Supplier<Integer> prepareSupplier() {
         return getUpdateSupplier();
     }
 }
