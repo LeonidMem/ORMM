@@ -74,7 +74,6 @@ public final class UpdateObjectQuery<T> extends AbstractUpdateQuery<UpdateObject
             try (OrmConnection connection = table.getDatabase().getConnection();
                  Statement statement = connection.createStatement()) {
                 int updated = statement.executeUpdate(getSQLQuery());
-                System.out.println("[UpdateObjectQuery:77] updated: " + updated);
                 if (updated == 0) {
                     return null;
                 }

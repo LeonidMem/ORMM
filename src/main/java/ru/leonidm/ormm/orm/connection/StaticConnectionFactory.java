@@ -23,14 +23,7 @@ public class StaticConnectionFactory implements ConnectionFactory {
     @Override
     @NotNull
     public OrmConnection getConnection() throws SQLException {
-        boolean p = lock.isLocked();
-        if (p) {
-            System.out.println("[StaticConnectionFactory:26] LOCKED");
-        }
         lock.lock();
-        if (p) {
-            System.out.println("[StaticConnectionFactory:26] UNLOCKED");
-        }
 
         if (ormConnection == null || ormConnection.isClosed()) {
             if (ormConnection != null) {
