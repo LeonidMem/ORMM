@@ -54,7 +54,7 @@ public final class Where {
         }
 
         if (objects.length == 1) {
-            return compare(entityClass, "=", column, objects[0]);
+            return compare(entityClass, column, "=", objects[0]);
         }
 
         return new Where(Type.IN, entityClass, column, objects);
