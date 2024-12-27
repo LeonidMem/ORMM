@@ -20,35 +20,60 @@ public final class Where {
 
     @NotNull
     public static Where compare(@NotNull String column, @NotNull String operand, @Nullable Object value) {
+        return compare(null, column, operand, value);
+    }
+
+    @NotNull
+    public static Where compare(@Nullable Class<?> entityClass, @NotNull String column, @NotNull String operand, @Nullable Object value) {
         if (!OPERANDS.contains(operand)) {
             throw new IllegalArgumentException("Unknown operand \"" + operand + "\"");
         }
 
-        return new Where(Type.COMPARE, column, operand, value);
+        return new Where(Type.COMPARE, entityClass, column, operand, value);
     }
 
     @NotNull
     public static Where like(@NotNull String column, @NotNull String value) {
-        return new Where(Type.LIKE, column, value);
+        return like(null, column, value);
+    }
+
+    @NotNull
+    public static Where like(@Nullable Class<?> entityClass, @NotNull String column, @NotNull String value) {
+        return new Where(Type.LIKE, entityClass, column, value);
     }
 
     @NotNull
     public static Where in(@NotNull String column, @NotNull Object @NotNull ... objects) {
+        return in(null, column, objects);
+    }
+
+    @NotNull
+    public static Where in(@Nullable Class<?> entityClass, @NotNull String column, @NotNull Object @NotNull ... objects) {
         if (objects.length < 2) {
             throw new IllegalArgumentException("Wrong amounts of the objects! Must be two or more");
         }
 
-        return new Where(Type.IN, column, objects);
+        return new Where(Type.IN, entityClass, column, objects);
     }
 
     @NotNull
     public static Where isNull(@NotNull String column) {
-        return new Where(Type.IS_NULL, column);
+        return isNull(null, column);
+    }
+
+    @NotNull
+    public static Where isNull(@Nullable Class<?> entityClass, @NotNull String column) {
+        return new Where(Type.IS_NULL, entityClass, column);
     }
 
     @NotNull
     public static Where isNotNull(@NotNull String column) {
-        return new Where(Type.IS_NOT_NULL, column);
+        return isNotNull(null, column);
+    }
+
+    @NotNull
+    public static Where isNotNull(@Nullable Class<?> entityClass, @NotNull String column) {
+        return new Where(Type.IS_NOT_NULL, entityClass, column);
     }
 
     @Contract("_ -> new")
@@ -58,7 +83,7 @@ public final class Where {
             throw new IllegalArgumentException("Wrong amounts of the \"Where\" clauses! Must be two or more");
         }
 
-        return new Where(Type.AND, null, (Object[]) wheres);
+        return new Where(Type.AND, null, null, (Object[]) wheres);
     }
 
     @Contract("_ -> new")
@@ -68,20 +93,23 @@ public final class Where {
             throw new IllegalArgumentException("Wrong amounts of the \"Where\" clauses! Must be two or more");
         }
 
-        return new Where(Type.OR, null, (Object[]) wheres);
+        return new Where(Type.OR, null, null, (Object[]) wheres);
     }
 
     @NotNull
     public static Where not(@NotNull Where where) {
-        return new Where(Type.NOT, null, where);
+        return new Where(Type.NOT, null, null, where);
     }
 
     private final Type type;
+    private final Class<?> entityClass;
     private final String column;
     private final Object[] args;
 
-    private Where(@NotNull Type type, @Nullable String column, @Nullable Object @NotNull ... args) {
+    private Where(@NotNull Type type, @Nullable Class<?> entityClass, @Nullable String column,
+                  @Nullable Object @NotNull ... args) {
         this.type = type;
+        this.entityClass = entityClass;
         this.column = column;
         this.args = args;
     }
@@ -94,7 +122,7 @@ public final class Where {
 
     @NotNull
     public String build(@NotNull ORMTable<?> table) {
-        return type.build(table, column, args);
+        return type.build(table, entityClass, column, args);
     }
 
     private enum Type {
@@ -182,13 +210,21 @@ public final class Where {
         }
 
         @NotNull
-        private String build(@NotNull ORMTable<?> table, @Nullable String columnName, @NotNull Object @NotNull ... args) {
+        private String build(@NotNull ORMTable<?> table, @Nullable Class<?> entityClass, @Nullable String columnName,
+                             @NotNull Object @NotNull ... args) {
             if (argsAmount >= 0 && argsAmount != args.length) {
                 throw new IllegalArgumentException("Provided arguments has wrong amount");
             }
 
             ORMColumn<?, ?> column;
             if (columnName != null) {
+                if (entityClass != null) {
+                    table = table.getDatabase().getTable(entityClass);
+                    if (table == null) {
+                        throw new IllegalArgumentException("Unknown table \"" + entityClass + "\"");
+                    }
+                }
+
                 column = table.getColumn(columnName);
                 if (column == null) {
                     throw new IllegalArgumentException(table.getIdentifier() + " Unknown column \"" + columnName + "\"");
