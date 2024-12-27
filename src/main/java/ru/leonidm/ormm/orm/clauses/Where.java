@@ -49,8 +49,12 @@ public final class Where {
 
     @NotNull
     public static Where in(@Nullable Class<?> entityClass, @NotNull String column, @NotNull Object @NotNull ... objects) {
-        if (objects.length < 2) {
-            throw new IllegalArgumentException("Wrong amounts of the objects! Must be two or more");
+        if (objects.length == 0) {
+            throw new IllegalArgumentException("Wrong amounts of the objects! Must be at least one");
+        }
+
+        if (objects.length == 1) {
+            return new Where(Type.AND, entityClass, column, objects[0]);
         }
 
         return new Where(Type.IN, entityClass, column, objects);
@@ -79,8 +83,12 @@ public final class Where {
     @Contract("_ -> new")
     @NotNull
     public static Where and(@NotNull Where @NotNull ... wheres) {
-        if (wheres.length < 2) {
-            throw new IllegalArgumentException("Wrong amounts of the \"Where\" clauses! Must be two or more");
+        if (wheres.length == 0) {
+            throw new IllegalArgumentException("Wrong amounts of the \"Where\" clauses! Must be at least one");
+        }
+
+        if (wheres.length == 1) {
+            return wheres[0];
         }
 
         return new Where(Type.AND, null, null, (Object[]) wheres);
@@ -89,8 +97,12 @@ public final class Where {
     @Contract("_ -> new")
     @NotNull
     public static Where or(@NotNull Where @NotNull ... wheres) {
-        if (wheres.length < 2) {
-            throw new IllegalArgumentException("Wrong amounts of the \"Where\" clauses! Must be two or more");
+        if (wheres.length == 0) {
+            throw new IllegalArgumentException("Wrong amounts of the \"Where\" clauses! Must be at least one");
+        }
+
+        if (wheres.length == 1) {
+            return wheres[0];
         }
 
         return new Where(Type.OR, null, null, (Object[]) wheres);

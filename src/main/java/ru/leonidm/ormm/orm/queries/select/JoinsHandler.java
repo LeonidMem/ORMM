@@ -31,6 +31,7 @@ class JoinsHandler<T, J> {
             return;
         }
 
+        // TODO: add support for cases when select is raw
         ORMColumn<T, ?> keyColumn = table.getKeyColumn();
         Object key = keyColumn != null ? resultSet.getObject(QueryUtils.getColumnName(keyColumn)) : nextId++;
 
