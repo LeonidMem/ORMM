@@ -68,7 +68,10 @@ public final class Order {
             return FormatUtils.writeColumnFullName(column).append(" DESC").toString();
         }),
 
-        RAND(0, (table, column, args) -> "RAND()"),
+        RAND(0, (table, column, args) -> switch (table.getDatabase().getDriver()) {
+            case MYSQL -> "RAND()";
+            case SQLITE -> "RANDOM()";
+        }),
 
         COMBINE(-1, (table, column, args) -> {
             if (args.length == 0) {
