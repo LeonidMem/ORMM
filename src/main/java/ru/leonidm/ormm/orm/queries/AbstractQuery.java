@@ -2,12 +2,14 @@ package ru.leonidm.ormm.orm.queries;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.leonidm.ormm.orm.ORMDatabase;
 import ru.leonidm.ormm.orm.ORMTable;
 import ru.leonidm.ormm.orm.connection.OrmConnection;
 import ru.leonidm.ormm.orm.thread.ORMTask;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -68,6 +70,21 @@ public abstract class AbstractQuery<T, R> {
         return queue(r -> {
 
         });
+    }
+
+    @NotNull
+    public final CompletableFuture<R> async() {
+        ORMDatabase database = table.getDatabase();
+        String query = getSQLQuery();
+
+        return CompletableFuture.supplyAsync(() -> {
+            if (database.getSettings().isLogQueries()) {
+                // TODO: normal logger
+                System.out.println("[ORMM] " + query);
+            }
+
+            return prepareSupplier().get();
+        }, database.getTaskExecutor());
     }
 
     @Nullable
