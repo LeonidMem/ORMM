@@ -114,7 +114,7 @@ public final class ORMColumn<T, F> {
         ORMColumn<?, ?> joinColumn;
         if (foreignKey != null) {
             if (foreignKey.table().isBlank() || foreignKey.key().isBlank()) {
-                throw new IllegalArgumentException("%s At least one of the parameters of @InnerJoin is blank"
+                throw new IllegalArgumentException("%s At least one of the parameters of @ForeignKey is blank"
                         .formatted(getColumnIdentifier(table, name)));
             }
 
@@ -140,7 +140,10 @@ public final class ORMColumn<T, F> {
                         .formatted(getColumnIdentifier(table, name), foreignKey.key(), foreignKey.table()));
             }
 
-            if (!ClassUtils.areTheSame(databaseClass, joinColumn.fieldClass)) {
+            System.out.println("[ORMColumn:143] databaseClass: " + databaseClass);
+            System.out.println("[ORMColumn:144] joinColumn: " + joinColumn.fieldClass);
+
+            if (!ClassUtils.areTheSame(databaseClass, joinColumn.databaseClass)) {
                 throw new IllegalArgumentException("%s Database class must be the same as the foreign column's class \"%s\""
                         .formatted(getColumnIdentifier(table, name), joinColumn.fieldClass));
             }
@@ -263,10 +266,6 @@ public final class ORMColumn<T, F> {
             return null;
         }
 
-        if (meta.foreignKey()) {
-            return joinColumn.getValue(object);
-        }
-
         Class<?> objectClass = object.getClass();
 
         if (ClassUtils.areTheSame(databaseClass, objectClass)) {
@@ -278,6 +277,14 @@ public final class ORMColumn<T, F> {
         }
         if (object instanceof Float obj && ClassUtils.isDouble(databaseClass)) {
             return (double) (obj);
+        }
+
+        if (meta.foreignKey()) {
+            try {
+                return joinColumn.getValue(object);
+            } catch (IllegalArgumentException ignored) {
+
+            }
         }
 
         try {

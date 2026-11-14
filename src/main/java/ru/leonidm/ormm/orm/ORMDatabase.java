@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 
 public final class ORMDatabase {
 
+    private static final int SCHEMA_LOCK_TIMEOUT_SECONDS = 60;
+
     private final ORMDriver driver;
     private final ConnectionFactory connectionFactory;
     private final ORMSettings ormSettings;
@@ -86,6 +88,22 @@ public final class ORMDatabase {
                     .formatted(QueryUtils.getTableName(table)));
         }
 
+        if (driver == ORMDriver.MYSQL) {
+            try (ORMLock lock = ORMLock.acquire(driver, ormSettings, "ormm:schema:" + ormSettings.getDatabaseName(),
+                    SCHEMA_LOCK_TIMEOUT_SECONDS)) {
+                createSchema(table);
+            } catch (SQLException e) {
+                throw new IllegalStateException("Failed to lock the schema", e);
+            }
+        } else {
+            createSchema(table);
+        }
+
+        tablesByName.put(QueryUtils.getTableName(table), table);
+        tablesByClass.put(table.getEntityClass(), table);
+    }
+
+    private <T> void createSchema(@NotNull ORMTable<T> table) {
         CreateTableQuery<T> createTableQuery = new CreateTableQuery<>(table);
         createTableQuery.complete();
 
@@ -167,9 +185,6 @@ public final class ORMDatabase {
             CreateIndexesQuery<T> createIndexesQuery = new CreateIndexesQuery<>(table, Collections.unmodifiableList(columnsIndexesToAdd));
             createIndexesQuery.complete();
         }
-
-        tablesByName.put(QueryUtils.getTableName(table), table);
-        tablesByClass.put(table.getEntityClass(), table);
     }
 
     @NotNull
