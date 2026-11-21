@@ -10,6 +10,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class StaticConnectionFactory implements ConnectionFactory {
 
+    private static final int VALIDATION_TIMEOUT_SECONDS = 2;
+
     private final ReentrantLock lock = new ReentrantLock();
     private final ORMDriver driver;
     private final ORMSettings settings;
@@ -25,13 +27,19 @@ public class StaticConnectionFactory implements ConnectionFactory {
     public OrmConnection getConnection() throws SQLException {
         lock.lock();
 
-        if (ormConnection == null || ormConnection.isClosed()) {
-            if (ormConnection != null) {
-                // TODO: normal logger
-                System.err.println("[ORMM] Got closed connection");
-            }
+        try {
+            if (ormConnection == null || !ormConnection.getConnection().isValid(VALIDATION_TIMEOUT_SECONDS)) {
+                if (ormConnection != null) {
+                    // TODO: normal logger
+                    System.err.println("[ORMM] Got invalid connection, reconnecting");
+                    closeQuietly(ormConnection.getConnection());
+                }
 
-            ormConnection = new OrmConnection(this, driver.getConnection(settings));
+                ormConnection = new OrmConnection(this, driver.getConnection(settings));
+            }
+        } catch (SQLException | RuntimeException e) {
+            lock.unlock();
+            throw e;
         }
 
         return ormConnection;
@@ -51,6 +59,13 @@ public class StaticConnectionFactory implements ConnectionFactory {
             }
         } finally {
             lock.unlock();
+        }
+    }
+
+    private static void closeQuietly(@NotNull Connection connection) {
+        try {
+            connection.close();
+        } catch (SQLException ignored) {
         }
     }
 }
